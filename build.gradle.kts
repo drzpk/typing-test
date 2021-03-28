@@ -10,3 +10,14 @@ subprojects {
         maven { url = uri("https://kotlin.bintray.com/ktor") }
     }
 }
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        val koinVersion: String by project
+        classpath("org.koin:koin-gradle-plugin:$koinVersion")
+    }
+}
