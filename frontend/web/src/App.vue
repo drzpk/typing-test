@@ -1,18 +1,29 @@
 <template>
     <div id="app">
-        <Header/>
-        <router-view/>
+        <div v-if="applicationLoaded">
+            <Header/>
+            <router-view/>
+        </div>
+        <div v-if="!applicationLoaded">
+            <Loading/>
+        </div>
     </div>
 </template>
 
 <script>
     import Header from "@/views/shared/Header";
     import {Component, Vue} from "vue-property-decorator";
+    import Loading from "@/views/Loading";
+    import {mapState} from "vuex";
 
     @Component({
-        components: {Header}
+        components: {Loading, Header},
+        computed: mapState([
+            "applicationLoaded"
+        ])
     })
     export default class App extends Vue {
+
     }
 </script>
 

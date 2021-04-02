@@ -23,5 +23,6 @@ fun Application.typingTestServer() {
         modules(typingServerKoinModule())
     }
 
+
     setupRouting()
 }
