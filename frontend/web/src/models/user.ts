@@ -3,3 +3,12 @@ export interface AuthenticationDetails {
     email: string;
     displayName: string;
 }
+
+export interface UpdateSettingsRequest {
+    displayName: string;
+}
+
+export interface ChangePasswordRequest {
+    oldPassword: string;
+    newPassword: string;
+}

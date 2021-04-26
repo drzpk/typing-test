@@ -11,6 +11,7 @@ import java.time.Instant
 
 class User(id: EntityID<Int>) : IntEntity(id), Serializable {
     companion object : IntEntityClass<User>(UsersTable) {
+        const val ADMIN_USER_EMAIL = "admin@drzepka.dev"
         private val log by Logger()
     }
 
@@ -19,6 +20,8 @@ class User(id: EntityID<Int>) : IntEntity(id), Serializable {
     var password by UsersTable.password
     var createdAt: Instant by UsersTable.createdAt
     var activatedAt: Instant? by UsersTable.activatedAt
+
+    fun isAdmin(): Boolean = email == ADMIN_USER_EMAIL
 
     fun activate() {
         if (activatedAt != null)

@@ -2,6 +2,7 @@ package dev.drzepka.typing.server
 
 import dev.drzepka.typing.server.application.TypingTestSession
 import dev.drzepka.typing.server.application.configuration.setupRouting
+import dev.drzepka.typing.server.application.configuration.setupStatusPages
 import dev.drzepka.typing.server.application.configuration.typingServerKoinModule
 import io.ktor.application.*
 import io.ktor.features.*
@@ -23,6 +24,6 @@ fun Application.typingTestServer() {
         modules(typingServerKoinModule())
     }
 
-
     setupRouting()
+    setupStatusPages()
 }

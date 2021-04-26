@@ -1,7 +1,7 @@
 package dev.drzepka.typing.server.domain.service
 
 import dev.drzepka.typing.server.AbstractDatabaseTest
-import dev.drzepka.typing.server.domain.dto.CreateUserDTO
+import dev.drzepka.typing.server.domain.dto.CreateUserRequest
 import dev.drzepka.typing.server.domain.entity.User
 import dev.drzepka.typing.server.domain.entity.table.UsersTable
 import dev.drzepka.typing.server.infrastructure.PBKDF2HashService
@@ -16,7 +16,7 @@ class UserServiceTest : AbstractDatabaseTest() {
 
     @Test
     fun `should create user`() = transaction {
-        val dto = CreateUserDTO().apply {
+        val dto = CreateUserRequest().apply {
             email = "email@email.com"
             displayName = "display name"
             password = "Password123"

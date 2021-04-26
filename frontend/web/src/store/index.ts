@@ -3,10 +3,16 @@ import Vue from 'vue'
 import Vuex, {ActionContext} from 'vuex'
 import {AxiosError} from "axios";
 import router from "@/router";
+import {AuthenticationDetails} from "@/models/user";
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
+export interface State {
+    applicationLoaded: boolean;
+    authenticationDetails: AuthenticationDetails | null;
+}
+
+export default new Vuex.Store<State>({
     state: {
         applicationLoaded: false,
         authenticationDetails: null
@@ -41,6 +47,23 @@ export default new Vuex.Store({
                             throw error;
                     })
                     .then(() => context.commit("markApplicationLoaded"))
+            });
+        },
+
+        changeDisplayName(context: ActionContext<any, any>, newDisplayName: string) {
+            const request = {
+                displayName: newDisplayName
+            };
+
+            return new Promise(resolve => {
+                ApiService.updateSettings(request)
+                    .then(() => {
+                    if (context.state.authenticationDetails) {
+                        context.state.authenticationDetails.displayName = newDisplayName;
+                    }
+
+                    resolve(null);
+                });
             });
         }
     },

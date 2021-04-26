@@ -2,11 +2,9 @@
     <header>
         <h1>Typing Test</h1>
         <div id="user-panel">
-            <span>User Name</span>
-            <div>
-                <font-awesome-icon icon="cog"/>
-                <span>Settings</span>
-            </div>
+            <router-link to="/settings">
+                <span>User Name</span>
+            </router-link>
         </div>
     </header>
 </template>
@@ -35,5 +33,9 @@
     #user-panel {
         float: right;
         color: $header-text;
+
+        > a > span {
+            color: white;
+        }
     }
 </style>
