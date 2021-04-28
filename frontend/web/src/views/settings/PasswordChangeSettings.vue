@@ -6,9 +6,7 @@
                               v-model="currentPassword" :state="validateState('currentPassword')"
                               @input="resetState('currentPassword')"></b-form-input>
 
-                <b-form-invalid-feedback v-if="!$v.currentPassword.required">
-                    Current password is required.
-                </b-form-invalid-feedback>
+                <ValidationMessageManager field-name="currentPassword" :state="state"/>
             </b-form-group>
 
             <b-form-group label-for="new-password" label="New password">
@@ -16,9 +14,7 @@
                               v-model="newPassword" :state="validateState('newPassword')"
                               @input="resetState('newPassword')"></b-form-input>
 
-                <b-form-invalid-feedback v-if="!$v.newPassword.required">
-                    New password is required.
-                </b-form-invalid-feedback>
+                <ValidationMessageManager field-name="newPassword" :state="state"/>
             </b-form-group>
 
             <b-form-group label-for="repeat-new-password" label="Repeat new password">
@@ -26,37 +22,35 @@
                               v-model="newPasswordRepeat" :state="validateState('newPasswordRepeat')"
                               @input="resetState('newPasswordRepeat')"></b-form-input>
 
-                <b-form-invalid-feedback v-if="!$v.newPasswordRepeat.required">
-                    Repeated password is required.
-                </b-form-invalid-feedback>
-                <b-form-invalid-feedback v-if="!$v.newPasswordRepeat.sameAsPassword">
-                    Repeated password doesn't match the new password.
-                </b-form-invalid-feedback>
+                <ValidationMessageManager field-name="newPasswordRepeat" :state="state"/>
             </b-form-group>
 
             <div class="update-button-wrapper">
                 <b-button @click="changePassword" :disabled="formSent">Change</b-button>
             </div>
         </b-form>
-        {{$v}}
+        <pre>
+            {{$v}}
+        </pre>
     </div>
 </template>
 
 <script lang="ts">
-    import {Component, Vue} from "vue-property-decorator";
+    import {Component} from "vue-property-decorator";
     import {AuthenticationDetails} from "@/models/user";
     import {mapState} from "vuex";
     import {required} from "vuelidate/lib/validators";
-    import {validationMixin} from "vuelidate";
     import ApiService from "@/services/Api.service";
+    import {mixins} from "vue-class-component";
+    import ValidationHelperMixin from "@/mixins/ValidationHelperMixin";
+    import ValidationMessageManager from "@/views/shared/ValidationMessageManager.vue";
+    import {ValidationFailedError} from "@/models/error";
 
     @Component({
+        components: {ValidationMessageManager},
         computed: mapState([
             "authenticationDetails"
         ]),
-        mixins: [
-            validationMixin
-        ],
         validations: {
             currentPassword: {
                 required
@@ -70,19 +64,31 @@
                     return (this as PasswordChangeSettings).newPassword == value;
                 }
             }
+        },
+        validationMessages: {
+            currentPassword: {
+                required: "Current password is required."
+            },
+            newPassword: {
+                required: "New password is required."
+            },
+            newPasswordRepeat: {
+                required: "Repeated password is required.",
+                sameAsPassword: "Repeated password doesn't match the new password."
+            }
+        },
+        serverFieldNameMapping: {
+            "oldPassword": "currentPassword"
         }
     })
-    export default class PasswordChangeSettings extends Vue {
+    export default class PasswordChangeSettings extends mixins(ValidationHelperMixin) {
         authenticationDetails!: AuthenticationDetails;
         currentPassword = "";
         newPassword = "";
         newPasswordRepeat = "";
-        formSent = false;
 
-        changePassword() {
-            this.formSent = true;
-            this.$v.$touch();
-
+        changePassword(): void {
+            this.triggerValidation();
             if (this.$v.$invalid)
                 return;
 
@@ -90,18 +96,13 @@
                 oldPassword: this.currentPassword,
                 newPassword: this.newPassword
             };
-            ApiService.changePassword(request);
-        }
 
-        validateState(name: string) {
-            const element = this.$v[name];
-            return element?.$dirty ? !element?.$error : null;
-        }
-
-        resetState(name: string) {
-            const element = this.$v[name];
-            element?.$reset();
-            this.formSent = false;
+            ApiService.changePassword(request)
+                .catch(error => {
+                    if (error instanceof ValidationFailedError) {
+                        this.processValidationError(error);
+                    }
+                })
         }
     }
 </script>
