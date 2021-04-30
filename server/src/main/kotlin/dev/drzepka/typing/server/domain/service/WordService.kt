@@ -1,10 +1,14 @@
 package dev.drzepka.typing.server.domain.service
 
+import dev.drzepka.typing.server.domain.Page
 import dev.drzepka.typing.server.domain.dto.word.AddWordRequest
+import dev.drzepka.typing.server.domain.dto.word.ListWordsRequest
 import dev.drzepka.typing.server.domain.entity.Word
 import dev.drzepka.typing.server.domain.entity.WordList
 import dev.drzepka.typing.server.domain.entity.table.WordsTable
 import dev.drzepka.typing.server.domain.util.ValidationErrors
+import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 
 class WordService {
@@ -21,8 +25,14 @@ class WordService {
         }
     }
 
-    fun listWords(listId: Int): Collection<Word> {
-        return Word.find { WordsTable.wordList eq listId }.toList()
+    fun listWords(request: ListWordsRequest): Page<Word> {
+        val allElements = Word.count(WordsTable.wordList eq request.wordListId)
+        val words = Word
+            .find { WordsTable.wordList eq request.wordListId }
+            .orderBy(WordsTable.popularity to SortOrder.DESC)
+            .limit(request.size, (request.page - 1) * request.size.toLong())
+
+        return Page(words.toList(), request.page, request.size, allElements)
     }
 
     fun deleteWord(wordId: Int): Boolean {

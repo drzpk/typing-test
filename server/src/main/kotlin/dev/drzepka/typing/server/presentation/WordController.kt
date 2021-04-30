@@ -1,6 +1,8 @@
 package dev.drzepka.typing.server.presentation
 
+import dev.drzepka.typing.server.domain.PagedResourceCollection
 import dev.drzepka.typing.server.domain.dto.word.AddWordRequest
+import dev.drzepka.typing.server.domain.dto.word.ListWordsRequest
 import dev.drzepka.typing.server.domain.dto.word.WordResource
 import dev.drzepka.typing.server.domain.service.WordService
 import io.ktor.application.*
@@ -29,12 +31,20 @@ fun Route.wordController() {
         }
 
         get("") {
-            val wordListId = call.parameters["wordListId"]!!.toInt()
-            val list = transaction {
-                wordService.listWords(wordListId).map { WordResource.fromEntity(it) }
+            val request = ListWordsRequest().apply {
+                wordListId = call.parameters["wordListId"]!!.toInt()
+                if (call.parameters["page"] != null)
+                    page = call.parameters["page"]!!.toInt()
+                if (call.parameters["size"] != null)
+                    size = call.parameters["size"]!!.toInt()
             }
 
-            call.respond(list)
+            val collection = transaction {
+                val page = wordService.listWords(request)
+                PagedResourceCollection.fromPage(page) { WordResource.fromEntity(it) }
+            }
+
+            call.respond(collection)
         }
 
         delete("/{wordId}") {
