@@ -3,6 +3,7 @@ package dev.drzepka.typing.server.application.configuration
 import dev.drzepka.typing.server.application.TypingTestSession
 import dev.drzepka.typing.server.presentation.loginController
 import dev.drzepka.typing.server.presentation.userController
+import dev.drzepka.typing.server.presentation.wordListController
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.response.*
@@ -25,6 +26,8 @@ fun Application.setupRouting() {
                 }
 
                 userController()
+                // TODO: check admin privileges
+                wordListController()
             }
         }
     }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="002.words" author="Dominik Rzepka">
+        <createTable tableName="word_lists">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="language" type="char(2)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="words">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="word" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="popularity" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="word_list" type="int">
+                <constraints foreignKeyName="fk_word_list" references="word_lists(id)"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

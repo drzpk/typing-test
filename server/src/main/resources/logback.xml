@@ -12,4 +12,8 @@
         <appender-ref ref="CONSOLE"/>
     </root>
 
+    <logger name="Exposed" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
 </configuration>

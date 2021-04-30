@@ -1,8 +1,6 @@
 package dev.drzepka.typing.server.application.configuration
 
-import dev.drzepka.typing.server.domain.service.DatabaseProviderService
-import dev.drzepka.typing.server.domain.service.HashService
-import dev.drzepka.typing.server.domain.service.UserService
+import dev.drzepka.typing.server.domain.service.*
 import dev.drzepka.typing.server.infrastructure.PBKDF2HashService
 import dev.drzepka.typing.server.infrastructure.service.DatabaseProviderServiceImpl
 import io.ktor.application.*
@@ -13,6 +11,8 @@ fun Application.typingServerKoinModule(): Module = module {
 
     // Domain
     single { UserService(get()) }
+    single { WordListService() }
+    single { WordService() }
 
     // Infrastructure
     single<HashService> { PBKDF2HashService() }

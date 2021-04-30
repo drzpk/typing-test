@@ -6,6 +6,7 @@ plugins {
     application
     kotlin("jvm") version "1.4.30"
     id("koin")
+    id("org.liquibase.gradle") version "2.0.3"
 }
 
 application {
@@ -38,6 +39,22 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.19.0")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("org.koin:koin-test:$koinVersion")
+
+    liquibaseRuntime("org.liquibase:liquibase-core:4.3.2")
+    liquibaseRuntime("mysql:mysql-connector-java:8.0.19")
+}
+
+liquibase {
+    activities {
+        create("main") {
+            arguments = mapOf(
+                "url" to "jdbc:mysql://localhost/typing_test",
+                "username" to "typing_test",
+                "password" to "typing_test",
+                "changeLogFile" to "server/src/main/resources/liquibase-changelog.xml"
+            )
+        }
+    }
 }
 
 configurations {

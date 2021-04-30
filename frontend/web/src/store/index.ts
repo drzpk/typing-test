@@ -7,12 +7,12 @@ import {AuthenticationDetails} from "@/models/user";
 
 Vue.use(Vuex);
 
-export interface State {
+export interface RootState {
     applicationLoaded: boolean;
     authenticationDetails: AuthenticationDetails | null;
 }
 
-export default new Vuex.Store<State>({
+export default new Vuex.Store<RootState>({
     state: {
         applicationLoaded: false,
         authenticationDetails: null

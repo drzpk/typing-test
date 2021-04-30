@@ -26,7 +26,7 @@ class UserServiceTest : AbstractDatabaseTest() {
 
         then(user.email).isEqualTo(dto.email)
         then(user.displayName).isEqualTo(dto.displayName)
-        then(user.password).isNotBlank
+        then(user.password).isNotBlank()
         then(User.findById(user.id)).isNotNull
 
         Unit
