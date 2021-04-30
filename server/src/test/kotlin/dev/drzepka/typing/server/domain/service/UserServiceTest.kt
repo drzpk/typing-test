@@ -1,7 +1,7 @@
 package dev.drzepka.typing.server.domain.service
 
 import dev.drzepka.typing.server.AbstractDatabaseTest
-import dev.drzepka.typing.server.domain.dto.CreateUserRequest
+import dev.drzepka.typing.server.domain.dto.user.CreateUserRequest
 import dev.drzepka.typing.server.domain.entity.User
 import dev.drzepka.typing.server.domain.entity.table.UsersTable
 import dev.drzepka.typing.server.infrastructure.PBKDF2HashService

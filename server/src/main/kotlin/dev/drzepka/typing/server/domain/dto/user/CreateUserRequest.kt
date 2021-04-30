@@ -1,4 +1,4 @@
-package dev.drzepka.typing.server.domain.dto
+package dev.drzepka.typing.server.domain.dto.user
 
 class CreateUserRequest {
     var email: String? = null

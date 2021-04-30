@@ -2,7 +2,7 @@ package dev.drzepka.typing.server.presentation
 
 import dev.drzepka.typing.server.application.TypingTestSession
 import dev.drzepka.typing.server.application.dto.LoginDataDTO
-import dev.drzepka.typing.server.domain.dto.UserAuthenticationDetailsDTO
+import dev.drzepka.typing.server.domain.dto.user.UserAuthenticationDetailsDTO
 import dev.drzepka.typing.server.domain.service.UserService
 import io.ktor.application.*
 import io.ktor.http.*

@@ -1,8 +1,8 @@
 package dev.drzepka.typing.server.presentation
 
-import dev.drzepka.typing.server.domain.dto.ChangePasswordRequest
-import dev.drzepka.typing.server.domain.dto.UpdateAccountSettingsRequest
-import dev.drzepka.typing.server.domain.dto.UserAuthenticationDetailsDTO
+import dev.drzepka.typing.server.domain.dto.user.ChangePasswordRequest
+import dev.drzepka.typing.server.domain.dto.user.UpdateAccountSettingsRequest
+import dev.drzepka.typing.server.domain.dto.user.UserAuthenticationDetailsDTO
 import dev.drzepka.typing.server.domain.service.UserService
 import dev.drzepka.typing.server.domain.util.getCurrentUser
 import io.ktor.application.*

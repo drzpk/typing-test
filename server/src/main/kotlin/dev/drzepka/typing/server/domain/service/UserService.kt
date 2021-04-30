@@ -1,8 +1,8 @@
 package dev.drzepka.typing.server.domain.service
 
-import dev.drzepka.typing.server.domain.dto.ChangePasswordRequest
-import dev.drzepka.typing.server.domain.dto.CreateUserRequest
-import dev.drzepka.typing.server.domain.dto.UpdateAccountSettingsRequest
+import dev.drzepka.typing.server.domain.dto.user.ChangePasswordRequest
+import dev.drzepka.typing.server.domain.dto.user.CreateUserRequest
+import dev.drzepka.typing.server.domain.dto.user.UpdateAccountSettingsRequest
 import dev.drzepka.typing.server.domain.entity.User
 import dev.drzepka.typing.server.domain.entity.User.Companion.ADMIN_USER_EMAIL
 import dev.drzepka.typing.server.domain.entity.table.UsersTable
