@@ -6,11 +6,13 @@ import dev.drzepka.typing.server.domain.dto.word.ListWordsRequest
 import dev.drzepka.typing.server.domain.entity.Word
 import dev.drzepka.typing.server.domain.entity.WordList
 import dev.drzepka.typing.server.domain.entity.table.WordsTable
+import dev.drzepka.typing.server.domain.util.Mockable
 import dev.drzepka.typing.server.domain.util.ValidationErrors
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 
+@Mockable
 class WordService {
 
     fun addWord(request: AddWordRequest): Word {
@@ -54,13 +56,15 @@ class WordService {
         if (request.word.isEmpty() || request.word.length > 64)
             validation.addFieldError("word", "Word length must be between 1 and 64 characters.")
 
-        if (request.word.isNotEmpty()) {
-            val count =
-                Word.find { (WordsTable.wordList eq request.wordListId) and (WordsTable.word eq request.word) }.count()
-            if (count > 0)
+        if (request.word.isNotEmpty() && wordExistsForList(request.word, request.wordListId))
                 validation.addFieldError("word", "Word '${request.word}' already exists for given list.")
-        }
 
         validation.verify()
+    }
+
+    private fun wordExistsForList(word: String, wordListId: Int): Boolean {
+        return Word
+            .find { (WordsTable.wordList eq wordListId) and (WordsTable.word eq word) }
+            .any { it.word == word } // Exposed framework cannot perform WHERE BINARY search
     }
 }

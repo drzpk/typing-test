@@ -5,7 +5,10 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
-    <include file="db-changelog/001.users.xml" relativeToChangelogFile="true"/>
-    <include file="db-changelog/002.words.xml" relativeToChangelogFile="true"/>
-    <include file="db-changelog/003.utf8_collation.xml" relativeToChangelogFile="true"/>
+    <changeSet id="003.utf8_collation" author="Dominik Rzepka">
+        <sql dbms="mariadb">
+            ALTER TABLE words CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+            ALTER TABLE words MODIFY word VARCHAR(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
+        </sql>
+    </changeSet>
 </databaseChangeLog>

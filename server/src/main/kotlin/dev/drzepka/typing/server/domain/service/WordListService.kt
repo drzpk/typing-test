@@ -4,9 +4,11 @@ import dev.drzepka.typing.server.domain.dto.wordlist.CreateWordListRequest
 import dev.drzepka.typing.server.domain.entity.WordList
 import dev.drzepka.typing.server.domain.entity.table.WordListsTable
 import dev.drzepka.typing.server.domain.util.Logger
+import dev.drzepka.typing.server.domain.util.Mockable
 import dev.drzepka.typing.server.domain.util.ValidationErrors
 import dev.drzepka.typing.server.domain.value.Language
 
+@Mockable
 class WordListService {
 
     private val log by Logger()
