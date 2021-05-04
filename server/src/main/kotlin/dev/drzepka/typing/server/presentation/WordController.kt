@@ -6,6 +6,7 @@ import dev.drzepka.typing.server.application.service.WordBulkManagementService
 import dev.drzepka.typing.server.domain.PagedResourceCollection
 import dev.drzepka.typing.server.domain.dto.word.AddWordRequest
 import dev.drzepka.typing.server.domain.dto.word.ListWordsRequest
+import dev.drzepka.typing.server.domain.dto.word.PatchWordRequest
 import dev.drzepka.typing.server.domain.dto.word.WordResource
 import dev.drzepka.typing.server.domain.service.WordService
 import io.ktor.application.*
@@ -69,6 +70,20 @@ fun Route.wordController() {
             }
 
             call.respond(collection)
+        }
+
+        patch("/{wordId}") {
+            val request = call.receive<PatchWordRequest>()
+            request.wordId = call.parameters["wordId"]!!.toInt()
+
+            val updated = transaction {
+                wordService.updateWord(request)
+            }
+
+            if (updated)
+                call.respond(HttpStatusCode.NoContent)
+            else
+                call.respond(HttpStatusCode.NotFound)
         }
 
         delete("/{wordId}") {

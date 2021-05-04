@@ -4,6 +4,11 @@
         <b-container fluid>
             <b-row>
                 <b-col cols="8" offset="2">
+                    <b-card title="Administration" v-if="authenticationDetails && authenticationDetails.isAdmin">
+                        <p>You have administration rights to this application.</p>
+                        <b-button @click="$router.push('/settings/admin')">Open administration panel</b-button>
+                    </b-card>
+
                     <b-card title="Account settings">
                         <b-row>
                             <b-col cols="6" class="settings-column">

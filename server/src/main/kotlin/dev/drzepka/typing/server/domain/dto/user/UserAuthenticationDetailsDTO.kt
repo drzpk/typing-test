@@ -5,14 +5,16 @@ import dev.drzepka.typing.server.domain.entity.User
 data class UserAuthenticationDetailsDTO(
     val userId: Int,
     val email: String,
-    val displayName: String
+    val displayName: String,
+    val isAdmin: Boolean
 ) {
     companion object {
         fun fromUserEntity(user: User): UserAuthenticationDetailsDTO {
             return UserAuthenticationDetailsDTO(
                 user.id.value,
                 user.email,
-                user.displayName
+                user.displayName,
+                user.isAdmin()
             )
         }
     }

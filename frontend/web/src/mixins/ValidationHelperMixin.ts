@@ -27,12 +27,12 @@ export default class ValidationHelperMixin extends Vue {
     }
 
     validateState(name: string): boolean | null {
-        const element = this.$v[name];
+        const element = extractFromObject(name, this.$v);
         return element?.$dirty ? (!element?.$error && !this.state!.serverFieldErrors[name]) : null;
     }
 
     resetState(name: string): void {
-        const element = this.$v[name];
+        const element = extractFromObject(name, this.$v);
         element?.$reset();
         this.removeServerFieldError(name);
         this.formSent = false;

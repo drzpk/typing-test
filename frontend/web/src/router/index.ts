@@ -3,6 +3,8 @@ import VueRouter, {RouteConfig} from 'vue-router'
 import TestPage from "@/views/typing/TestPage.vue";
 import Login from '@/views/Login.vue';
 import Settings from "@/views/settings/Settings.vue";
+import AdminSettings from "@/views/settings/admin/AdminSettings.vue";
+import WordList from "@/views/settings/admin/word/WordList.vue";
 
 Vue.use(VueRouter);
 
@@ -25,6 +27,21 @@ const routes: Array<RouteConfig> = [
         path: '/settings',
         name: 'Settings',
         component: Settings
+    },
+    {
+        path: '/settings/admin',
+        name: 'Admin settings',
+        component: AdminSettings
+    },
+    {
+        path: '/settings/admin/word-lists/new',
+        name: 'New word list',
+        component: WordList
+    },
+    {
+        path: '/settings/admin/word-lists/:id',
+        name: 'Word list details',
+        component: WordList
     }
 ];
 

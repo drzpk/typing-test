@@ -3,6 +3,7 @@ package dev.drzepka.typing.server.domain.service
 import dev.drzepka.typing.server.domain.Page
 import dev.drzepka.typing.server.domain.dto.word.AddWordRequest
 import dev.drzepka.typing.server.domain.dto.word.ListWordsRequest
+import dev.drzepka.typing.server.domain.dto.word.PatchWordRequest
 import dev.drzepka.typing.server.domain.entity.Word
 import dev.drzepka.typing.server.domain.entity.WordList
 import dev.drzepka.typing.server.domain.entity.table.WordsTable
@@ -37,6 +38,18 @@ class WordService {
         return Page(words.toList(), request.page, request.size, allElements)
     }
 
+    fun updateWord(request: PatchWordRequest): Boolean {
+        if (request.popularity < 1) {
+            val validation = ValidationErrors()
+            validation.addFieldError("popularity", "Popularity must be a positive integer.")
+            validation.verify()
+        }
+
+        val word = Word.findById(request.wordId) ?: return false
+        word.popularity = request.popularity
+        return true
+    }
+
     fun deleteWord(wordId: Int): Boolean {
         val word = Word.findById(wordId)
         return if (word != null) {
@@ -57,7 +70,7 @@ class WordService {
             validation.addFieldError("word", "Word length must be between 1 and 64 characters.")
 
         if (request.word.isNotEmpty() && wordExistsForList(request.word, request.wordListId))
-                validation.addFieldError("word", "Word '${request.word}' already exists for given list.")
+            validation.addFieldError("word", "Word '${request.word}' already exists for given list.")
 
         validation.verify()
     }
