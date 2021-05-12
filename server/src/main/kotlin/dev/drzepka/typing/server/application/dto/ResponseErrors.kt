@@ -9,3 +9,8 @@ class ValidationErrorDTO {
     var field: String? = null
     var message = ""
 }
+
+@Suppress("unused")
+class UnknownFieldErrorDTO(field: String, knownFields: Collection<String>) {
+    val message = "Unrecognized field '$field'. Known fields: ${knownFields.joinToString()}"
+}

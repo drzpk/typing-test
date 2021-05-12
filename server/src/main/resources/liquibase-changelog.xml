@@ -8,4 +8,5 @@
     <include file="db-changelog/001.users.xml" relativeToChangelogFile="true"/>
     <include file="db-changelog/002.words.xml" relativeToChangelogFile="true"/>
     <include file="db-changelog/003.utf8_collation.xml" relativeToChangelogFile="true"/>
+    <include file="db-changelog/004.test_definitions.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
