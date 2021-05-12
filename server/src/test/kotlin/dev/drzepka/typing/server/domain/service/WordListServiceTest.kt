@@ -1,20 +1,25 @@
 package dev.drzepka.typing.server.domain.service
 
-import dev.drzepka.typing.server.AbstractDatabaseTest
-import dev.drzepka.typing.server.domain.dto.wordlist.CreateWordListRequest
-import dev.drzepka.typing.server.domain.entity.table.WordListsTable
-import dev.drzepka.typing.server.domain.exception.ValidationException
+import dev.drzepka.typing.server.application.dto.wordlist.CreateWordListRequest
+import dev.drzepka.typing.server.application.exception.ValidationException
+import dev.drzepka.typing.server.application.service.WordListService
+import dev.drzepka.typing.server.domain.entity.WordList
+import dev.drzepka.typing.server.domain.repository.WordListRepository
 import dev.drzepka.typing.server.domain.value.Language
 import org.assertj.core.api.BDDAssertions.catchThrowable
 import org.assertj.core.api.BDDAssertions.then
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 
-class WordListServiceTest : AbstractDatabaseTest() {
-    override val tables = arrayOf(WordListsTable)
+class WordListServiceTest {
+
+    private val wordListRepository = mock<WordListRepository>()
 
     @Test
-    fun `should create word list`()  = transaction {
+    fun `should create word list`() {
         val request = CreateWordListRequest().apply {
             name = "name"
             language = "pl"
@@ -25,11 +30,13 @@ class WordListServiceTest : AbstractDatabaseTest() {
         then(created.name).isEqualTo("name")
         then(created.language).isEqualTo(Language.POLISH)
 
-        Unit
+        val captor = argumentCaptor<WordList>()
+        verify(wordListRepository, times(1)).save(captor.capture())
+        then(captor.firstValue).isSameAs(created)
     }
 
     @Test
-    fun `should throw validation error on wrong request`() = transaction {
+    fun `should throw validation error on wrong request`() {
         val caught = catchThrowable {
             getService().createWordList(CreateWordListRequest())
         }
@@ -38,9 +45,7 @@ class WordListServiceTest : AbstractDatabaseTest() {
 
         val validationException = caught as ValidationException
         then(validationException.validationErrors.errors).hasSize(2)
-
-        Unit
     }
 
-    private fun getService(): WordListService = WordListService()
+    private fun getService(): WordListService = WordListService(wordListRepository)
 }

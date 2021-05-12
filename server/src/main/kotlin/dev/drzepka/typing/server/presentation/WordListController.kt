@@ -1,9 +1,8 @@
 package dev.drzepka.typing.server.presentation
 
-import dev.drzepka.typing.server.domain.dto.wordlist.CreateWordListRequest
-import dev.drzepka.typing.server.domain.dto.wordlist.WordListResource
-import dev.drzepka.typing.server.domain.service.WordListService
-import dev.drzepka.typing.server.domain.service.WordService
+import dev.drzepka.typing.server.application.dto.wordlist.CreateWordListRequest
+import dev.drzepka.typing.server.application.dto.wordlist.WordListResource
+import dev.drzepka.typing.server.application.service.WordListService
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*

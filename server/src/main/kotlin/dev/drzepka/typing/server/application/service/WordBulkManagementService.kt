@@ -2,11 +2,9 @@ package dev.drzepka.typing.server.application.service
 
 import dev.drzepka.typing.server.application.dto.BulkImportWordsDTO
 import dev.drzepka.typing.server.application.dto.ErrorHandlingMode
-import dev.drzepka.typing.server.domain.dto.word.AddWordRequest
-import dev.drzepka.typing.server.domain.service.WordListService
-import dev.drzepka.typing.server.domain.service.WordService
+import dev.drzepka.typing.server.application.dto.word.AddWordRequest
+import dev.drzepka.typing.server.application.validation.ValidationState
 import dev.drzepka.typing.server.domain.util.Logger
-import dev.drzepka.typing.server.domain.util.ValidationErrors
 
 class WordBulkManagementService(private val wordListService: WordListService, private val wordService: WordService) {
 
@@ -15,7 +13,7 @@ class WordBulkManagementService(private val wordListService: WordListService, pr
 
     fun bulkImportWords(dto: BulkImportWordsDTO) {
         if (!wordListExists(dto.wordListId)) {
-            val validation = ValidationErrors()
+            val validation = ValidationState()
             validation.addFieldError("wordListId", "Word list with specified id doesn't exist.")
             validation.verify()
         }
@@ -38,7 +36,7 @@ class WordBulkManagementService(private val wordListService: WordListService, pr
         } else {
             log.warn("Couldn't parse raw word \"$rawWord\"")
             if (dto.errorHandlingMode == ErrorHandlingMode.ABORT) {
-                val validation = ValidationErrors()
+                val validation = ValidationState()
                 validation.addFieldError("content", "Couldn't parse line \"$rawWord\".")
                 validation.verify()
             }

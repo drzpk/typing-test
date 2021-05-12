@@ -1,6 +1,6 @@
 package dev.drzepka.typing.server.infrastructure
 
-import dev.drzepka.typing.server.domain.service.HashService
+import dev.drzepka.typing.server.application.service.HashService
 import dev.drzepka.typing.server.infrastructure.util.HexConverter
 import java.security.SecureRandom
 import javax.crypto.SecretKeyFactory

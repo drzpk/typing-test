@@ -2,10 +2,10 @@ package dev.drzepka.typing.server.application.handler
 
 import dev.drzepka.typing.server.application.dto.ValidationErrorDTO
 import dev.drzepka.typing.server.application.dto.ValidationErrorsDTO
-import dev.drzepka.typing.server.domain.exception.ValidationException
-import dev.drzepka.typing.server.domain.util.Error
-import dev.drzepka.typing.server.domain.util.FieldError
-import dev.drzepka.typing.server.domain.util.ObjectError
+import dev.drzepka.typing.server.application.exception.ValidationException
+import dev.drzepka.typing.server.application.validation.Error
+import dev.drzepka.typing.server.application.validation.FieldError
+import dev.drzepka.typing.server.application.validation.ObjectError
 import io.ktor.http.*
 
 class ValidationExceptionHandler : ExceptionHandler<ValidationException> {

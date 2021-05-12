@@ -2,8 +2,7 @@ package dev.drzepka.typing.server.infrastructure.service
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import dev.drzepka.typing.server.domain.entity.table.UsersTable
-import dev.drzepka.typing.server.domain.service.DatabaseProviderService
+import dev.drzepka.typing.server.application.service.DatabaseProviderService
 import dev.drzepka.typing.server.domain.util.Logger
 import io.ktor.config.*
 import liquibase.Contexts
@@ -13,11 +12,10 @@ import liquibase.database.DatabaseFactory
 import liquibase.database.jvm.JdbcConnection
 import liquibase.resource.ClassLoaderResourceAccessor
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.transaction
 import javax.sql.DataSource
 
-class DatabaseProviderServiceImpl(config: ApplicationConfig) : DatabaseProviderService {
+class DatabaseProviderServiceImpl(config: ApplicationConfig) :
+    DatabaseProviderService {
 
     override val db: Database
 

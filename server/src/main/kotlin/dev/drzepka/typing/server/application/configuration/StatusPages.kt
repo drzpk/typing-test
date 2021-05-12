@@ -1,7 +1,7 @@
 package dev.drzepka.typing.server.application.configuration
 
+import dev.drzepka.typing.server.application.exception.ValidationException
 import dev.drzepka.typing.server.application.handler.ValidationExceptionHandler
-import dev.drzepka.typing.server.domain.exception.ValidationException
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.response.*
