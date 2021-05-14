@@ -2,9 +2,11 @@ import {Module} from "vuex";
 import {RootState} from "@/store/index";
 import {WordList} from "@/models/words";
 import ApiService from "@/services/Api.service";
+import {TestDefinitionModel} from "@/models/test-definition";
 
 export interface AdminState {
     wordLists: Array<WordList> | null;
+    testDefinitions: Array<TestDefinitionModel> | null;
     availableLanguages: Array<string> | null;
     currentWordList: WordList | null;
 }
@@ -12,6 +14,7 @@ export interface AdminState {
 const adminModule: Module<AdminState, RootState> = {
     state: {
         wordLists: null,
+        testDefinitions: null,
         availableLanguages: null,
         currentWordList: null
     },
@@ -19,6 +22,12 @@ const adminModule: Module<AdminState, RootState> = {
         wordLists(state): Array<WordList> {
             if (state.wordLists != null)
                 return state.wordLists;
+            else
+                return [];
+        },
+        testDefinitions(state): Array<TestDefinitionModel> {
+            if (state.testDefinitions != null)
+                return state.testDefinitions;
             else
                 return [];
         },
@@ -34,15 +43,34 @@ const adminModule: Module<AdminState, RootState> = {
 
                 throw new Error(`Word list with id ${wordListId} wasn't found.`);
             };
+        },
+        getTestDefinition(state): (testDefinitionId: number) => TestDefinitionModel {
+            return (testDefinitionId: number) => {
+                if (state.testDefinitions == null)
+                    throw new Error("Test definitions not available");
+
+                for (let i = 0; i < state.testDefinitions.length; i++) {
+                    if (state.testDefinitions[i].id === testDefinitionId)
+                        return state.testDefinitions[i];
+                }
+
+                throw new Error(`Test definition with id ${testDefinitionId} wasn't found.`)
+            };
         }
     },
-    mutations: {
-
-    },
+    mutations: {},
     actions: {
         reloadWordLists(context) {
             ApiService.getWordLists().then(lists => {
                 context.state.wordLists = lists;
+            }).catch(error => {
+                console.error(error);
+            });
+        },
+
+        reloadTestDefinitions(context) {
+            ApiService.getTestDefinitions().then(definitions => {
+                context.state.testDefinitions = definitions;
             }).catch(error => {
                 console.error(error);
             })

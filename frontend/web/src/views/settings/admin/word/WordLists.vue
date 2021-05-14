@@ -34,6 +34,10 @@
             }
         ];
 
+        mounted(): void {
+            this.$store.dispatch("reloadWordLists");
+        }
+
         clickListItem(clicked: WordList): void {
             this.$router.push("/settings/admin/word-lists/" + clicked.id.toString())
         }

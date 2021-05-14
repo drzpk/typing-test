@@ -3,6 +3,7 @@ import {AuthenticationDetails, ChangePasswordRequest, UpdateSettingsRequest} fro
 import {ValidationErrors, ValidationFailedError} from "@/models/error";
 import {WordList, WordListWordsResponse} from "@/models/words";
 import {PagedRequest} from "@/models/pagination";
+import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/test-definition";
 
 function validationErrorHandler(error: AxiosError) {
     if (error.response?.status == 422) {
@@ -45,6 +46,12 @@ class ApiService {
             .catch(validationErrorHandler);
     }
 
+    getTestDefinitions(): Promise<Array<TestDefinitionModel>> {
+        return axios.get(("/api/test-definitions"))
+            .then(response => response.data)
+            .catch(validationErrorHandler);
+    }
+
     createWordList(name: string, language: string): Promise<any> {
         const payload = {
             name,
@@ -52,6 +59,16 @@ class ApiService {
         };
 
         return axios.post("/api/word-lists", payload)
+            .catch(validationErrorHandler);
+    }
+
+    createTestDefinition(request: CreateUpdateTestDefinitionRequest): Promise<any> {
+        return axios.post("/api/test-definitions", request)
+            .catch(validationErrorHandler);
+    }
+
+    updateTestDefinition(id: number, request: CreateUpdateTestDefinitionRequest): Promise<any> {
+        return axios.patch(`/api/test-definitions/${id}`, request)
             .catch(validationErrorHandler);
     }
 

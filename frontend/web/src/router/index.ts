@@ -5,6 +5,7 @@ import Login from '@/views/Login.vue';
 import Settings from "@/views/settings/Settings.vue";
 import AdminSettings from "@/views/settings/admin/AdminSettings.vue";
 import WordList from "@/views/settings/admin/word/WordList.vue";
+import TestDefinition from "@/views/settings/admin/test/TestDefinition.vue";
 
 Vue.use(VueRouter);
 
@@ -42,6 +43,11 @@ const routes: Array<RouteConfig> = [
         path: '/settings/admin/word-lists/:id',
         name: 'Word list details',
         component: WordList
+    },
+    {
+        path: '/settings/admin/test-definitions/:id',
+        name: 'Test definition details',
+        component: TestDefinition
     }
 ];
 
