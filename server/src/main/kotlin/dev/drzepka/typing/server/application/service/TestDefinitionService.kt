@@ -20,7 +20,7 @@ class TestDefinitionService(private val testDefinitionRepository: TestDefinition
         val definition = TestDefinition()
         definition.name = request.name
         definition.duration = Duration.ofSeconds(request.duration.toLong())
-        definition.isActive = true
+        definition.isActive = request.isActive
         definition.wordList = wordListRepository.findById(request.wordListId)!!
 
         testDefinitionRepository.save(definition)

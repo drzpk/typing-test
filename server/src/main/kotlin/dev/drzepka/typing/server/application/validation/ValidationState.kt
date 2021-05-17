@@ -1,7 +1,6 @@
 package dev.drzepka.typing.server.application.validation
 
 import dev.drzepka.typing.server.application.exception.ValidationException
-import sun.plugin.dom.exception.InvalidStateException
 
 class ValidationState {
 
@@ -25,7 +24,7 @@ class ValidationState {
             val validation = ValidationState()
             validation.addFieldError(field, message)
             validation.verify()
-            throw InvalidStateException("")
+            throw IllegalStateException("")
         }
     }
 }
