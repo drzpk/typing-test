@@ -1,5 +1,6 @@
 package dev.drzepka.typing.server
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import dev.drzepka.typing.server.application.TypingTestSession
 import dev.drzepka.typing.server.application.configuration.setupRouting
 import dev.drzepka.typing.server.application.configuration.setupStatusPages
@@ -13,7 +14,9 @@ import java.io.File
 
 fun Application.typingTestServer() {
     install(ContentNegotiation) {
-        jackson {}
+        jackson {
+            registerModule(JavaTimeModule())
+        }
     }
 
     install(Sessions) {

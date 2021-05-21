@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="005.tests" author="Dominik Rzepka">
+        <createTable tableName="tests">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="test_definition" type="int">
+                <constraints nullable="false" foreignKeyName="fk_tests_test_definition"
+                             references="test_definitions(id)"/>
+            </column>
+            <column name="user" type="int">
+                <constraints nullable="false" foreignKeyName="fk_tests_user" references="users(id)"/>
+            </column>
+            <column name="state" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="started_at" type="datetime"/>
+            <column name="finished_at" type="datetime"/>
+            <column name="start_time_limit" type="int"/>
+            <column name="finish_time_limit" type="int"/>
+            <column name="selected_words" type="blob">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entered_words" type="blob"/>
+            <column name="backspace_count" type="int"/>
+            <column name="word_regeneration_count" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="test_results">
+            <column name="id" type="int" autoIncrement="false">
+                <constraints nullable="false" primaryKey="true" foreignKeyName="fk_test_results_test"
+                             references="tests(id)"/>
+            </column>
+            <column name="correct_words" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="incorrect_words" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="correct_keystrokes" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="incorrect_keystrokes" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="accuracy" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="words_per_minute" type="float">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

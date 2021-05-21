@@ -1,6 +1,6 @@
 package dev.drzepka.typing.server.domain.entity
 
-import dev.drzepka.typing.server.domain.exception.TestException
+import dev.drzepka.typing.server.domain.exception.TestTimeLimitExceededException
 import dev.drzepka.typing.server.domain.value.TestState
 import dev.drzepka.typing.server.domain.value.WordSelection
 import java.time.Duration
@@ -15,8 +15,6 @@ open class Test(
 ) : AbstractEntity<Int>() {
 
     var createdAt: Instant = now()
-    var wordRegenerationCount = 0
-
     var startedAt: Instant? = null
     var finishedAt: Instant? = null
 
@@ -26,11 +24,14 @@ open class Test(
     /** Words enetered by the user. */
     var enteredWords: WordSelection? = null
     var backspaceCount: Int? = null
+    var wordRegenerationCount = 0
 
     val state: TestState
         get() = when {
             finishedAt != null -> TestState.FINISHED
-            finishedAt == null && finishTimeLimit != null && now().isAfter(startedAt!!.plus(finishTimeLimit)) -> TestState.STARTED_TIMEOUT
+            finishedAt == null && finishTimeLimit != null && startedAt != null && now().isAfter(
+                startedAt!!.plus(testDefinition.duration).plus(finishTimeLimit)
+            ) -> TestState.STARTED_TIMEOUT
             startedAt != null && finishedAt == null -> TestState.STARTED
             startedAt == null && startTimeLimit != null && now().isAfter(createdAt.plus(startTimeLimit)) -> TestState.CREATED_TIMEOUT
             startedAt == null && finishedAt == null -> TestState.CREATED
@@ -47,14 +48,14 @@ open class Test(
 
     fun start() {
         if (state == TestState.CREATED_TIMEOUT)
-            throw TestException("Time limit for starting the test has been exceeded.")
+            throw TestTimeLimitExceededException("Time limit for starting the test has been exceeded.")
 
         startedAt = now()
     }
 
     fun finish() {
         if (state == TestState.STARTED_TIMEOUT)
-            throw TestException("Time limit for finishing the test has been exceeded.")
+            throw TestTimeLimitExceededException("Time limit for finishing the test has been exceeded.")
 
         finishedAt = now()
     }

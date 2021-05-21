@@ -8,13 +8,25 @@ data class Page<T : Any>(
     val size: Int,
     val totalElements: Long
 ) {
+    constructor(content: Collection<T>, pagedQuery: PagedQuery, totalElements: Long) : this(
+        content,
+        pagedQuery.page,
+        pagedQuery.size,
+        totalElements
+    )
+
     val totalPages: Int
         get() = ceil(totalElements.toDouble() / size).toInt()
 }
 
-open class PagedRequest {
-    var page = 1
-    var size = 10
+interface PagedQuery {
+    var page: Int
+    var size: Int
+}
+
+open class PagedRequest : PagedQuery {
+    override var page = 1
+    override var size = 10
 }
 
 @Suppress("unused")

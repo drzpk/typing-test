@@ -11,9 +11,10 @@ class WordSelection {
 
     fun serialize(): String = words.joinToString(DELIMITER)
 
-    fun deserialize(input: String) {
+    fun deserialize(input: String): WordSelection {
         words.clear()
         input.split(DELIMITER).forEach { words.add(it) }
+        return this
     }
 
     companion object {

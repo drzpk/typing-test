@@ -7,11 +7,13 @@ import dev.drzepka.typing.server.domain.entity.Word
 import dev.drzepka.typing.server.domain.repository.ConfigurationRepository
 import dev.drzepka.typing.server.domain.repository.WordRepository
 import dev.drzepka.typing.server.domain.util.Logger
+import dev.drzepka.typing.server.domain.util.Mockable
 import dev.drzepka.typing.server.domain.value.WordSelection
 import java.util.*
 import kotlin.math.ceil
 import kotlin.math.floor
 
+@Mockable
 class TestService(
     private val configurationRepository: ConfigurationRepository,
     private val wordRepository: WordRepository
@@ -29,8 +31,8 @@ class TestService(
         log.info("Creating test from definition {}", definition.id)
         val test = Test(definition, user, createWordSelection(definition))
         test.startTimeLimit = configurationRepository.testStartTimeLimit()
+        test.finishTimeLimit = configurationRepository.testFinishTimeLimit()
 
-        log.info("Created test {}", test.id)
         return test
     }
 

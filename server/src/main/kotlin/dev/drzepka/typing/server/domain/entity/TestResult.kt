@@ -5,6 +5,8 @@ import java.time.Duration
 import kotlin.math.max
 
 class TestResult : AbstractEntity<Int>() {
+    lateinit var test: Test
+
     var correctWords = 0
     var incorrectWords = 0
 
@@ -19,6 +21,7 @@ class TestResult : AbstractEntity<Int>() {
             throw IllegalArgumentException("Test isn't finished.")
 
         resetResult()
+        this.test = test
         calculateCorrectness(test)
     }
 
@@ -34,7 +37,7 @@ class TestResult : AbstractEntity<Int>() {
     private fun calculateCorrectness(test: Test) {
         for (wordNo in 0 until test.selectedWords.size()) {
             val selected = test.selectedWords.getWord(wordNo)
-            val entered = test.enteredWords!!.getWord(wordNo)
+            val entered = if (test.enteredWords!!.size() > wordNo) test.enteredWords!!.getWord(wordNo) else null
 
             calculateWordCorrectness(selected, entered)
             calculateKeystrokeCorrectness(selected, entered)
@@ -43,18 +46,18 @@ class TestResult : AbstractEntity<Int>() {
         }
     }
 
-    private fun calculateWordCorrectness(selectedWord: String, enteredWord: String) {
+    private fun calculateWordCorrectness(selectedWord: String, enteredWord: String?) {
         if (selectedWord == enteredWord)
             correctWords++
         else
             incorrectWords++
     }
 
-    private fun calculateKeystrokeCorrectness(selectedWord: String, enteredWord: String) {
-        val length = max(selectedWord.length, enteredWord.length)
+    private fun calculateKeystrokeCorrectness(selectedWord: String, enteredWord: String?) {
+        val length = max(selectedWord.length, enteredWord?.length ?: 0)
         for (i in 0 until length) {
             val selectedChar = if (selectedWord.length > i) selectedWord[i] else null
-            val enteredChar = if (enteredWord.length > i) enteredWord[i] else null
+            val enteredChar = if (enteredWord != null && enteredWord.length > i) enteredWord[i] else null
 
             if (selectedChar == enteredChar)
                 correctKeystrokes++
