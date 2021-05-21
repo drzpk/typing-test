@@ -26,6 +26,22 @@ class TestResultTest {
     }
 
     @Test
+    fun `should calculate correctness - short entered words`() {
+        val selectedWords = WordSelection().apply { deserialize("word1|word2|word3|word4|word5") }
+        val enteredWords = WordSelection().apply { deserialize("word1|word2") }
+
+        val test = createTest(selectedWords, Duration.ofMinutes(1))
+        test.enteredWords = enteredWords
+        val result = TestResult()
+        result.calculateResult(test)
+
+        then(result.correctWords).isEqualTo(2)
+        then(result.incorrectWords).isEqualTo(3)
+        then(result.correctKeystrokes).isEqualTo(5 * 2)
+        then(result.incorrectKeystrokes).isEqualTo(3 * 5) // Missing keystrokes are currently counted as bad ones. But should they?
+    }
+
+    @Test
     fun `should calculate accuracy - no backspaces`() {
         val selectedWords = WordSelection().apply { deserialize("these|are|example|words|to|test|accuracy") }
         val enteredWords = WordSelection().apply { deserialize("these|ar|examplee|words|to|TEST|accuracy") }
