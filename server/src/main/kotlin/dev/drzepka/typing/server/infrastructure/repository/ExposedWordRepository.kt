@@ -63,6 +63,7 @@ class ExposedWordRepository : WordRepository {
     private fun rowToWord(row: ResultRow): Word {
         return Word().apply {
             id = row[Words.id].value
+            word = row[Words.word]
             popularity = row[Words.popularity]
             wordListId = row[Words.wordList].value
         }
