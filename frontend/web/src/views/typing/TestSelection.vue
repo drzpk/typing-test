@@ -1,15 +1,22 @@
 <template>
     <div>
-        <span class="active-selection">
-            <b-button variant="success" :disabled="userTestDefinitions.length === 0" :pressed.sync="showTestSelector">
-                {{buttonText}}
-                <font-awesome-icon
-                        class="arrow-icon"
-                        :class="{reversed: showTestSelector}"
-                        style="margin-left: 0.5em"
-                        icon="arrow-down"/>
-            </b-button>
-        </span>
+        <div class="top-row">
+            <div class="active-selection">
+                <b-button variant="success" :disabled="userTestDefinitions.length === 0"
+                          :pressed.sync="showTestSelector">
+                    {{buttonText}}
+                    <font-awesome-icon
+                            class="arrow-icon"
+                            :class="{reversed: showTestSelector}"
+                            style="margin-left: 0.5em"
+                            icon="arrow-down"/>
+                </b-button>
+            </div>
+
+            <div style="text-align: right">
+                <TestTimer/>
+            </div>
+        </div>
 
         <b-collapse :visible="showTestSelector && userTestDefinitions != null">
             <div class="test-selector-panel">
@@ -32,8 +39,10 @@
     import {TestDefinitionModel} from "@/models/test-definition";
     import {mapGetters} from "vuex";
     import {formatDuration} from "@/utils/time-utils";
+    import TestTimer from "@/views/typing/test/TestTimer.vue";
 
     @Component({
+        components: {TestTimer},
         computed: {
             ...mapGetters([
                 "userTestDefinitions",
@@ -79,6 +88,11 @@
 </script>
 
 <style lang="scss" scoped>
+    .top-row {
+        display: flex;
+        justify-content: space-between;
+    }
+
     .arrow-icon {
         transition: transform 0.2s ease-in-out;
 

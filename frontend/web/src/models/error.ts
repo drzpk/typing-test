@@ -23,18 +23,22 @@ export class ValidationFailedError {
 export interface ErrorCodeModel {
     code: ErrorCode;
     message: string;
-    object: any;
-    additionalData: { [key: string]: any };
+    object: any | null;
+    additionalData: { [key: string]: any } | null;
 }
 
 export enum ErrorCode {
+    // noinspection JSUnusedGlobalSymbols
     TEST_DEFINITION_NOT_FOUND = "TEST_DEFINITION_NOT_FOUND",
     CANNOT_DELETE_FINISHED_TEST = "CANNOT_DELETE_FINISHED_TEST",
     TEST_START_TIMEOUT = "TEST_START_TIMEOUT",
     TEST_START_WRONG_STATE = "TEST_START_WRONG_STATE",
     TEST_FINISH_TIMEOUT = "TEST_FINISH_TIMEOUT",
     TEST_FINISH_WRONG_STATE = "TEST_FINISH_WRONG_STATE",
-    TEST_REGENERATE_WORD_ERROR = "TEST_REGENERATE_WORD_ERROR"
+    TEST_REGENERATE_WORD_ERROR = "TEST_REGENERATE_WORD_ERROR",
+
+    // Artifical, client-side error
+    UNKNOWN_ERROR = "UNKNOWN_ERROR"
 }
 
 export class ServerError {

@@ -4,6 +4,10 @@
         <b-row>
             <b-col offset="3" cols="6">
                 <TestSelection/>
+            </b-col>
+        </b-row>
+        <b-row>
+            <b-col offset="3" cols="6">
                 <TestPanel/>
             </b-col>
         </b-row>
@@ -16,9 +20,10 @@
     import TestSelection from "@/views/typing/TestSelection.vue";
     import {TestDefinitionModel} from "@/models/test-definition";
     import {mapGetters} from "vuex";
+    import TestTimer from "@/views/typing/test/TestTimer.vue";
 
     @Component({
-        components: {TestSelection, TestPanel},
+        components: {TestTimer, TestSelection, TestPanel},
         computed: {
             ...mapGetters(["activeUserTestDefinition"])
         }

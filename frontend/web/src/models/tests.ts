@@ -12,7 +12,7 @@ export interface TestModel {
     wordRegenerationCount: number;
 
     startDueTime: Date | undefined;
-    finishDUeTime: Date | undefined;
+    finishDueTime: Date | undefined;
 }
 
 export enum TestStateModel {

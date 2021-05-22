@@ -1,6 +1,6 @@
 import axios, {AxiosError} from "axios";
 import {AuthenticationDetails, ChangePasswordRequest, UpdateSettingsRequest} from "@/models/user";
-import {ErrorCodeModel, ServerError, ValidationErrorsModel, ValidationFailedError} from "@/models/error";
+import {ErrorCode, ErrorCodeModel, ServerError, ValidationErrorsModel, ValidationFailedError} from "@/models/error";
 import {WordList, WordListWordsResponse} from "@/models/words";
 import {PagedRequest} from "@/models/pagination";
 import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/test-definition";
@@ -13,9 +13,25 @@ function errorHandler(error: AxiosError): never {
     } else if (error.response?.data.code && error.response?.data.message) {
         const model = error.response.data as ErrorCodeModel;
         throw new ServerError(model);
+    } else {
+        const model: ErrorCodeModel = {
+            code: ErrorCode.UNKNOWN_ERROR,
+            message: "Unknown error.",
+            object: null,
+            additionalData: null
+        };
+        throw new ServerError(model);
     }
+}
 
-    throw error;
+function convertFieldsToDate<T>(object: T, ...fields: Array<string>): T {
+    const map = object as any;
+    for (let i = 0; i < fields.length; i++) {
+        const field = map[fields[i]];
+        if (typeof (field) === "number")
+            map[fields[i]] = new Date(field * 1000);
+    }
+    return object;
 }
 
 class ApiService {
@@ -58,11 +74,11 @@ class ApiService {
 
     createTest(testDefinitionId: number): Promise<TestModel> {
         const payload = {
-          testDefinitionId
+            testDefinitionId
         };
 
         return axios.post("/api/tests", payload)
-            .then(response => response.data as TestModel)
+            .then(response => convertFieldsToDate(response.data as TestModel, "createdAt", "startedAt", "finishedAt", "startDueTime", "finishDueTime"))
             .catch(errorHandler);
     }
 

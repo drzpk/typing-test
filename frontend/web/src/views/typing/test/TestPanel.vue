@@ -1,7 +1,6 @@
 <template>
     <div id="test-panel-container">
         <div id="test-panel">
-            <RealtimeStats/>
             <TextDisplay/>
             <TextInput/>
         </div>
@@ -22,11 +21,9 @@
     import {Component, Vue} from "vue-property-decorator";
     import TextDisplay from "@/views/typing/test/TextDisplay.vue";
     import TextInput from "@/views/typing/test/TextInput.vue";
-    import RealtimeStats from "@/views/typing/test/RealtimeStats.vue";
 
     @Component({
         components: {
-            RealtimeStats,
             TextInput,
             TextDisplay
         }
