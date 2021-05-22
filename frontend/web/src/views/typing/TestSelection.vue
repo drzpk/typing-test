@@ -1,8 +1,8 @@
 <template>
     <div>
         <span class="active-selection">
-            <b-button variant="success" :disabled="!activeUserTestDefinition" :pressed.sync="showTestSelector">
-                {{activeUserTestDefinition ? activeUserTestDefinition.name : "no test available"}}
+            <b-button variant="success" :disabled="userTestDefinitions.length === 0" :pressed.sync="showTestSelector">
+                {{buttonText}}
                 <font-awesome-icon
                         class="arrow-icon"
                         :class="{reversed: showTestSelector}"
@@ -11,9 +11,12 @@
             </b-button>
         </span>
 
-        <b-collapse :visible="showTestSelector && userTestDefinitions">
+        <b-collapse :visible="showTestSelector && userTestDefinitions != null">
             <div class="test-selector-panel">
-                <span class="test-selector-item" v-for="definition in testing" :key="definition">
+                <span class="test-selector-item" v-for="definition in userTestDefinitions" :key="definition.id"
+                      :class="{active: definition === activeUserTestDefinition}"
+                      @click="selectTestDefinition(definition)">
+
                     <span class="country"><country-flag
                             :country="mapLanguageToCountryCode(definition.wordList.language)" size="small"/></span>
                     <span class="name">{{definition.name}}</span>
@@ -44,17 +47,21 @@
 
         showTestSelector = true;
 
-        get testing(): Array<TestDefinitionModel> { // todo: remove this after the tests
-            if (!this.userTestDefinitions)
-                return [];
-
-            const double: Array<TestDefinitionModel> = [];
-            double.push(...this.userTestDefinitions, ...this.userTestDefinitions, ...this.userTestDefinitions);
-            return double;
+        get buttonText(): string {
+            if (this.activeUserTestDefinition != null)
+                return this.activeUserTestDefinition.name;
+            else if (this.userTestDefinitions.length > 0)
+                return "select a test";
+            else
+                return "no test available";
         }
 
         mounted(): void {
             this.$store.dispatch("refreshUserTestDefinitions");
+        }
+
+        selectTestDefinition(definition: TestDefinitionModel): void {
+            this.$store.commit("setActiveUserTestDefinition", definition);
         }
 
         formatDuration(duration: number): string {
@@ -101,8 +108,14 @@
             cursor: pointer;
 
             transition: background-color 0.1s linear;
+
             &:hover {
                 background-color: #bababa;
+            }
+
+            &.active {
+                background-color: #bababa;
+                cursor: not-allowed;
             }
 
             .name {

@@ -1,14 +1,18 @@
 import axios, {AxiosError} from "axios";
 import {AuthenticationDetails, ChangePasswordRequest, UpdateSettingsRequest} from "@/models/user";
-import {ValidationErrors, ValidationFailedError} from "@/models/error";
+import {ErrorCodeModel, ServerError, ValidationErrorsModel, ValidationFailedError} from "@/models/error";
 import {WordList, WordListWordsResponse} from "@/models/words";
 import {PagedRequest} from "@/models/pagination";
 import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/test-definition";
+import {TestModel} from "@/models/tests";
 
-function validationErrorHandler(error: AxiosError) {
+function errorHandler(error: AxiosError): never {
     if (error.response?.status == 422) {
-        const errors = error.response.data as ValidationErrors;
+        const errors = error.response.data as ValidationErrorsModel;
         throw new ValidationFailedError(errors.errors);
+    } else if (error.response?.data.code && error.response?.data.message) {
+        const model = error.response.data as ErrorCodeModel;
+        throw new ServerError(model);
     }
 
     throw error;
@@ -18,7 +22,7 @@ class ApiService {
 
     getAuthenticationDetails(): Promise<AuthenticationDetails> {
         return axios.get("/api/current-user/authentication-details").then((response) => response.data)
-            .catch(validationErrorHandler);
+            .catch(errorHandler);
     }
 
     login(email: string, password: string): Promise<AuthenticationDetails> {
@@ -27,29 +31,39 @@ class ApiService {
             password
         };
         return axios.post("/api/login", data).then((response) => response.data)
-            .catch(validationErrorHandler);
+            .catch(errorHandler);
     }
 
     updateSettings(request: UpdateSettingsRequest): Promise<any> {
         return axios.put("/api/current-user/update-settings", request)
-            .catch(validationErrorHandler);
+            .catch(errorHandler);
     }
 
     changePassword(request: ChangePasswordRequest): Promise<any> {
         return axios.post("/api/current-user/change-password", request)
-            .catch(validationErrorHandler);
+            .catch(errorHandler);
     }
 
     getWordLists(): Promise<Array<WordList>> {
         return axios.get("/api/word-lists")
             .then(response => response.data)
-            .catch(validationErrorHandler);
+            .catch(errorHandler);
     }
 
     getTestDefinitions(): Promise<Array<TestDefinitionModel>> {
-        return axios.get(("/api/test-definitions"))
+        return axios.get("/api/test-definitions")
             .then(response => response.data)
-            .catch(validationErrorHandler);
+            .catch(errorHandler);
+    }
+
+    createTest(testDefinitionId: number): Promise<TestModel> {
+        const payload = {
+          testDefinitionId
+        };
+
+        return axios.post("/api/tests", payload)
+            .then(response => response.data as TestModel)
+            .catch(errorHandler);
     }
 
     createWordList(name: string, language: string): Promise<any> {
@@ -59,17 +73,17 @@ class ApiService {
         };
 
         return axios.post("/api/word-lists", payload)
-            .catch(validationErrorHandler);
+            .catch(errorHandler);
     }
 
     createTestDefinition(request: CreateUpdateTestDefinitionRequest): Promise<any> {
         return axios.post("/api/test-definitions", request)
-            .catch(validationErrorHandler);
+            .catch(errorHandler);
     }
 
     updateTestDefinition(id: number, request: CreateUpdateTestDefinitionRequest): Promise<any> {
         return axios.patch(`/api/test-definitions/${id}`, request)
-            .catch(validationErrorHandler);
+            .catch(errorHandler);
     }
 
     getWordListWords(wordListId: number, pagedRequest: PagedRequest): Promise<WordListWordsResponse> {
@@ -80,7 +94,7 @@ class ApiService {
 
         return axios.get(`/api/word-lists/${wordListId}/words`, {params: params})
             .then(response => response.data)
-            .catch(validationErrorHandler);
+            .catch(errorHandler);
     }
 
     createWord(wordListId: number, word: string, popularity: number): Promise<any> {
@@ -91,7 +105,7 @@ class ApiService {
 
         return axios.post(`/api/word-lists/${wordListId}/words`, payload)
             .then(response => response.data)
-            .catch(validationErrorHandler);
+            .catch(errorHandler);
     }
 
     updateWordPopularity(wordListId: number, wordId: number, popularity: number): Promise<any> {
@@ -101,12 +115,12 @@ class ApiService {
 
         return axios.patch(`/api/word-lists/${wordListId}/words/${wordId}`, payload)
             .then(response => response.data)
-            .catch(validationErrorHandler);
+            .catch(errorHandler);
     }
 
     deleteWord(wordListId: number, wordId: number): Promise<any> {
         return axios.delete(`/api/word-lists/${wordListId}/words/${wordId}`)
-            .catch(validationErrorHandler);
+            .catch(errorHandler);
     }
 }
 
