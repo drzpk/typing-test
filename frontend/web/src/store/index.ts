@@ -5,6 +5,7 @@ import {AxiosError} from "axios";
 import router from "@/router";
 import {AuthenticationDetails} from "@/models/user";
 import admin from "./admin";
+import test from "./test";
 
 Vue.use(Vuex);
 
@@ -69,6 +70,7 @@ export default new Vuex.Store<RootState>({
         }
     },
     modules: {
-        admin
+        admin,
+        test
     }
 })
