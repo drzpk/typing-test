@@ -72,6 +72,8 @@ import {TestStateModel} from "@/models/tests";
 
 <style lang="scss" scoped>
     #text-input {
+        display: flex;
+        justify-content: center;
         margin-top: 1em;
         padding: 0.08em;
         background-color: #a0a0a0;
