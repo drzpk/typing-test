@@ -22,23 +22,23 @@ class TestResultTest {
         then(result.correctWords).isEqualTo(4)
         then(result.incorrectWords).isEqualTo(3)
         then(result.correctKeystrokes).isEqualTo(5 + 2 + 7 + 5 + 2 + 8)
-        then(result.incorrectKeystrokes).isEqualTo(1 + 1 + 4) // Missing keystrokes are currently counted as bad ones. But should they?
+        then(result.incorrectKeystrokes).isEqualTo(1 + 1 + 4) // Missing keystrokes are counted as bad ones.
     }
 
     @Test
     fun `should calculate correctness - short entered words`() {
-        val selectedWords = WordSelection().apply { deserialize("word1|word2|word3|word4|word5") }
-        val enteredWords = WordSelection().apply { deserialize("word1|word2") }
+        val selectedWords = WordSelection().apply { deserialize("word1|word2|word3|word4|word5|word6|word7") }
+        val enteredWords = WordSelection().apply { deserialize("word1|word2|woxxx|word4") }
 
         val test = createTest(selectedWords, Duration.ofMinutes(1))
         test.enteredWords = enteredWords
         val result = TestResult()
         result.calculateResult(test)
 
-        then(result.correctWords).isEqualTo(2)
-        then(result.incorrectWords).isEqualTo(3)
-        then(result.correctKeystrokes).isEqualTo(5 * 2)
-        then(result.incorrectKeystrokes).isEqualTo(3 * 5) // Missing keystrokes are currently counted as bad ones. But should they?
+        then(result.correctWords).isEqualTo(3)
+        then(result.incorrectWords).isEqualTo(1)
+        then(result.correctKeystrokes).isEqualTo(5 * 3 + 2)
+        then(result.incorrectKeystrokes).isEqualTo(3) // Missing keystrokes are counted as bad ones.
     }
 
     @Test
@@ -72,15 +72,16 @@ class TestResultTest {
 
     @Test
     fun `should calculate speed`() {
-        val selectedWords = WordSelection().apply { deserialize("good1|good2|good3|good4|good5|good6|good7|good8|good9|good10") }
-        val enteredWords = WordSelection().apply { deserialize("good1|bad|good3|good4|good5|good6|bad|good8|bad|good10") }
+        val selectedWords = WordSelection().apply { deserialize("good0|good1|good2|good3|good4|good5|good6|good7|good8|good9|long_good_A|long_good_B|long_good_C") }
+        val enteredWords = WordSelection().apply { deserialize("good0|bad|good2|good3|good4|good5|bad|good7|bad|good9|long_good_A|bad|long_good_C") }
 
-        val test = createTest(selectedWords, Duration.ofSeconds(40))
+        val test = createTest(selectedWords, Duration.ofSeconds(10))
         test.enteredWords = enteredWords
         val result = TestResult()
         result.calculateResult(test)
 
-        then(result.wordsPerMinute).isEqualTo(7f / (40 / 60f), Offset.offset(0.01f)) // Only correct words are taken into account when calculating speed
+        // This value is calculated based on keystrokes, not words.
+        then(result.wordsPerMinute).isEqualTo(57 / (10 / 60f) / 5, Offset.offset(0.01f))
     }
 
     private fun createTest(

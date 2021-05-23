@@ -35,9 +35,9 @@ class TestResult : AbstractEntity<Int>() {
     }
 
     private fun calculateCorrectness(test: Test) {
-        for (wordNo in 0 until test.selectedWords.size()) {
+        for (wordNo in 0 until test.enteredWords!!.size()) {
             val selected = test.selectedWords.getWord(wordNo)
-            val entered = if (test.enteredWords!!.size() > wordNo) test.enteredWords!!.getWord(wordNo) else null
+            val entered = test.enteredWords!!.getWord(wordNo)
 
             calculateWordCorrectness(selected, entered)
             calculateKeystrokeCorrectness(selected, entered)
@@ -46,18 +46,18 @@ class TestResult : AbstractEntity<Int>() {
         }
     }
 
-    private fun calculateWordCorrectness(selectedWord: String, enteredWord: String?) {
+    private fun calculateWordCorrectness(selectedWord: String, enteredWord: String) {
         if (selectedWord == enteredWord)
             correctWords++
         else
             incorrectWords++
     }
 
-    private fun calculateKeystrokeCorrectness(selectedWord: String, enteredWord: String?) {
-        val length = max(selectedWord.length, enteredWord?.length ?: 0)
+    private fun calculateKeystrokeCorrectness(selectedWord: String, enteredWord: String) {
+        val length = max(selectedWord.length, enteredWord.length)
         for (i in 0 until length) {
             val selectedChar = if (selectedWord.length > i) selectedWord[i] else null
-            val enteredChar = if (enteredWord != null && enteredWord.length > i) enteredWord[i] else null
+            val enteredChar = if (enteredWord.length > i) enteredWord[i] else null
 
             if (selectedChar == enteredChar)
                 correctKeystrokes++
@@ -76,7 +76,7 @@ class TestResult : AbstractEntity<Int>() {
     private fun calculateWordsPerMinute(testDuration: Duration) {
         val durationSeconds = testDuration.seconds.toFloat()
         val durationMinutes = durationSeconds / 60
-        wordsPerMinute = correctWords / durationMinutes
+        wordsPerMinute = correctKeystrokes / durationMinutes / CHARACTERS_PER_WORD
     }
 
     companion object {
@@ -87,5 +87,12 @@ class TestResult : AbstractEntity<Int>() {
          * were 5 incorrect keystrokes.
          */
         private const val BACKSPACE_INCORRECT_KEYSTROKE_WEIGHT = 0.5f
+
+        /**
+         * How many characters (on average) are there in a single word. Used to calculate the words-per-minute speed.
+         * Value of this variable was set based on other online typing test available on the Internet
+         * to ensure consistency.
+         */
+        private const val CHARACTERS_PER_WORD = 5
     }
 }
