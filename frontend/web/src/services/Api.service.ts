@@ -4,7 +4,7 @@ import {ErrorCode, ErrorCodeModel, ServerError, ValidationErrorsModel, Validatio
 import {WordList, WordListWordsResponse} from "@/models/words";
 import {PagedRequest} from "@/models/pagination";
 import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/test-definition";
-import {TestModel} from "@/models/tests";
+import {FinishTestRequest, TestModel, TestResultModel} from "@/models/tests";
 
 function errorHandler(error: AxiosError): never {
     if (error.response?.status == 422) {
@@ -32,6 +32,10 @@ function convertFieldsToDate<T>(object: T, ...fields: Array<string>): T {
             map[fields[i]] = new Date(field * 1000);
     }
     return object;
+}
+
+function convertTestResponse(input: TestModel): TestModel {
+    return convertFieldsToDate(input, "createdAt", "startedAt", "finishedAt", "startDueTime", "finishDueTime");
 }
 
 class ApiService {
@@ -78,7 +82,25 @@ class ApiService {
         };
 
         return axios.post("/api/tests", payload)
-            .then(response => convertFieldsToDate(response.data as TestModel, "createdAt", "startedAt", "finishedAt", "startDueTime", "finishDueTime"))
+            .then(response => convertTestResponse(response.data as TestModel))
+            .catch(errorHandler);
+    }
+
+    startTest(testId: number): Promise<TestModel> {
+        return axios.post<TestModel>(`/api/tests/${testId}/start`)
+            .then(response => convertTestResponse(response.data))
+            .catch(errorHandler);
+    }
+
+    finishTest(testId: number, payload: FinishTestRequest): Promise<TestModel> {
+        return axios.post<TestModel>(`/api/tests/${testId}/finish`, payload)
+            .then(response => convertTestResponse(response.data))
+            .catch(errorHandler);
+    }
+
+    getTestResult(testId: number): Promise<TestResultModel> {
+        return axios.get<TestResultModel>(`/api/tests/${testId}/result`)
+            .then(response => response.data)
             .catch(errorHandler);
     }
 

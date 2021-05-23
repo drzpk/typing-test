@@ -15,10 +15,25 @@ export interface TestModel {
     finishDueTime: Date | undefined;
 }
 
+export interface TestResultModel {
+    id: number;
+    correctWords: number;
+    incorrectWords: number;
+    correctKeystrokes: number;
+    incorrectKeystrokes: number;
+    accuracy: number;
+    wordsPerMinute: number;
+}
+
 export enum TestStateModel {
     CREATED = "CREATED",
     CREATED_TIMEOUT = "CREATED_TIMEOUT",
     STARTED = "STARTED",
     STARTED_TIMEOUT = "STARTED_TIMEOUT",
     FINISHED = "FINISHED"
+}
+
+export interface FinishTestRequest {
+    enteredWords: string;
+    backspaceCount: number;
 }

@@ -23,7 +23,7 @@
 
         words: Array<Word> = [];
         private currentWordNo = 0;
-        private textDisplayElement!: HTMLDivElement;
+        private textDisplayElement!: HTMLDivElement | undefined;
         private currentOffset = 0;
 
         mounted(): void {
@@ -47,6 +47,7 @@
 
             this.currentWordNo = 0;
             this.words[0].current = true;
+            this.resetDisplayOffset()
         }
 
         private onUserWordInput(event: WordChangeEvent): void {
@@ -67,10 +68,14 @@
         }
 
         private resetDisplayOffset(): void {
-            this.textDisplayElement.style.top = "0";
+            if (this.textDisplayElement != null)
+                this.textDisplayElement.style.top = "0";
         }
 
         private updateDisplayOffset(previousWordNo: number, currentWordNo: number): void {
+            if (!this.textDisplayElement)
+                return;
+
             const previousRect = this.$el.getElementsByClassName("word-" + previousWordNo)[0].getBoundingClientRect();
             const currentRect = this.$el.getElementsByClassName("word-" + currentWordNo)[0].getBoundingClientRect();
 

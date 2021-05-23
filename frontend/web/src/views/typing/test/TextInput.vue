@@ -1,7 +1,7 @@
 <template>
     <div id="text-input" class="test-panel-font">
         <!--suppress HtmlFormInputWithoutLabel -->
-        <input type="text" :disabled="inputDisabled" @input="onInputChanged">
+        <input type="text" :disabled="inputDisabled" :placeholder="placeholder" @input="onInputChanged">
     </div>
 </template>
 
@@ -13,17 +13,27 @@
 
     @Component({
         computed: {
-            ...mapGetters(["testState"])
+            ...mapGetters(["testState", "activeTestStarted"])
         }
     })
     export default class TextInput extends Vue {
         testState!: TestStateModel | undefined;
+        activeTestStarted!: boolean;
 
         get inputDisabled(): boolean {
             return this.testState !== TestStateModel.STARTED && this.testState !== TestStateModel.CREATED
         }
 
+        get placeholder(): string {
+            if (this.testState == TestStateModel.CREATED)
+                return "Start typing to start the test.";
+            else
+                return "";
+        }
+
         onInputChanged(event: InputEvent): void {
+            this.startTestIfNecessary();
+
             const element = event.target as HTMLInputElement;
             const value = element.value || "";
 
@@ -35,8 +45,19 @@
             if (endsWithSpace || !containsWord)
                 element.value = "";
 
-            const wordChangeEvent = new WordChangeEvent(trimmedInput, endsWithSpace && containsWord);
+            const completeWord = endsWithSpace && containsWord;
+            const wordChangeEvent = new WordChangeEvent(trimmedInput, completeWord);
             this.$root.$emit(WordChangeEvent.NAME, wordChangeEvent);
+
+            if (completeWord)
+                this.$store.commit("addEnteredWord", trimmedInput);
+            if (event.type === "deleteContentBackward")
+                this.$store.commit("incrementBackspaceCount");
+        }
+
+        private startTestIfNecessary(): void {
+            if (!this.activeTestStarted && this.testState == TestStateModel.CREATED)
+                this.$store.dispatch("startTest");
         }
     }
 </script>

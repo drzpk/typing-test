@@ -16,6 +16,7 @@
                         <div>{{testError.message}}</div>
                     </div>
                     <span v-else-if="showSelectTestOverlay" class="info">Select a test to begin.</span>
+                    <span v-else-if="showTestOverOverlay" class="info">Test is finished.</span>
                 </div>
             </div>
         </div>
@@ -29,7 +30,7 @@
     import TextInput from "@/views/typing/test/TextInput.vue";
     import {mapGetters} from "vuex";
     import {ErrorCodeModel} from "@/models/error";
-    import {TestModel} from "@/models/tests";
+    import {TestModel, TestStateModel} from "@/models/tests";
     import LoadingSpinner from "@/views/shared/LoadingSpinner.vue";
 
     @Component({
@@ -52,7 +53,7 @@
         testError!: ErrorCodeModel | null;
 
         get showOverlay(): boolean {
-            return this.showTestLoadingOverlay || this.showTestErrorOverlay || this.showSelectTestOverlay;
+            return this.showTestLoadingOverlay || this.showTestErrorOverlay || this.showSelectTestOverlay || this.showTestOverOverlay;
         }
 
         get showTestLoadingOverlay(): boolean {
@@ -65,6 +66,10 @@
 
         get showSelectTestOverlay(): boolean {
             return !this.testError && !this.activeTest;
+        }
+
+        get showTestOverOverlay(): boolean {
+            return !this.testError && this.activeTest?.state == TestStateModel.FINISHED;
         }
     }
 </script>

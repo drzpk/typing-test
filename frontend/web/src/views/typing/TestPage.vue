@@ -11,6 +11,11 @@
                 <TestPanel/>
             </b-col>
         </b-row>
+        <b-row>
+            <b-col offset="3" cols="6">
+                <TestSummary/>
+            </b-col>
+        </b-row>
     </b-container>
 </template>
 
@@ -21,9 +26,10 @@
     import {TestDefinitionModel} from "@/models/test-definition";
     import {mapGetters} from "vuex";
     import TestTimer from "@/views/typing/test/TestTimer.vue";
+    import TestSummary from "@/views/typing/TestSummary.vue";
 
     @Component({
-        components: {TestTimer, TestSelection, TestPanel},
+        components: {TestSummary, TestTimer, TestSelection, TestPanel},
         computed: {
             ...mapGetters(["activeUserTestDefinition"])
         }

@@ -1,3 +1,4 @@
+import {TestStateModel} from "@/models/tests";
 <template>
     <div>
         {{additionalText}}
@@ -13,14 +14,21 @@
     import {mapGetters} from "vuex";
     import {TestModel, TestStateModel} from "@/models/tests";
     import {formatDuration} from "@/utils/time-utils";
+    import {TestDefinitionModel} from "@/models/test-definition";
 
     @Component({
         computed: {
-            ...mapGetters(["activeTest"])
+            ...mapGetters([
+                "activeUserTestDefinition",
+                "activeTest",
+                "activeTestStarted"
+            ])
         }
     })
     export default class TestTimer extends Vue {
+        activeUserTestDefinition!: TestDefinitionModel | undefined;
         activeTest!: TestModel | undefined;
+        activeTestStarted!: boolean;
 
         currentTime = "0:00";
         additionalText = "";
@@ -50,14 +58,10 @@
             this.additionalText = "";
             this.stopTimer();
 
-            switch (this.activeTest.state) {
-                case TestStateModel.CREATED:
-                    this.onTestCreated();
-                    break;
-                case TestStateModel.STARTED:
-                    this.onTestStarted();
-                    break;
-            }
+            if (this.activeTest.state === TestStateModel.CREATED)
+                this.onTestCreated();
+            else if (this.activeTestStarted)
+                this.onTestStarted();
         }
 
         private onTestCreated(): void {
@@ -66,24 +70,27 @@
                 return;
 
             this.additionalText = "Remaining time to start:";
-            const handler = () => {
-                const diff = startDueTime.getTime() - new Date().getTime();
-                this.setTime(Math.floor(diff / 1000));
-            };
-
-            this.intervalId = setInterval(handler, 1000);
-            handler();
+            this.createTimer(startDueTime);
         }
 
         private onTestStarted(): void {
-            const endTime = new Date().getTime() + this.activeTest!.definition.duration * 1000;
+            const endTime = new Date().getTime() + this.activeUserTestDefinition!.duration * 1000;
+            this.createTimer(new Date(endTime));
+        }
+
+        private createTimer(endTime: Date): void {
+            let id: number;
             const handler = () => {
-                const diff = endTime - new Date().getTime();
-                this.setTime(Math.floor(diff / 1000));
+                const diff = Math.floor((endTime.getTime() - new Date().getTime()) / 1000);
+                if  (diff >= 0)
+                    this.setTime(diff);
+                else
+                    clearInterval(id);
             };
 
-            this.intervalId = setInterval(handler, 1000);
             handler();
+            id = setInterval(handler, 1000);
+            this.intervalId = id;
         }
 
         private stopTimer(): void {
