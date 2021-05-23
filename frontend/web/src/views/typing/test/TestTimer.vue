@@ -25,14 +25,23 @@
         currentTime = "0:00";
         additionalText = "";
 
-        private intervalHandle: number | null = null;
+        private intervalId: number | null = null;
 
         destroyed(): void {
             this.stopTimer();
         }
 
+        @Watch("activeTest")
+        onTestChanged(): void {
+            this.refreshCounter();
+        }
+
         @Watch("activeTest.state")
         onStateChanged(): void {
+            this.refreshCounter();
+        }
+
+        private refreshCounter(): void {
             if (!this.activeTest) {
                 this.stopTimer();
                 return;
@@ -57,23 +66,29 @@
                 return;
 
             this.additionalText = "Remaining time to start:";
-            this.intervalHandle = setInterval(() => {
+            const handler = () => {
                 const diff = startDueTime.getTime() - new Date().getTime();
                 this.setTime(Math.floor(diff / 1000));
-            }, 1000);
+            };
+
+            this.intervalId = setInterval(handler, 1000);
+            handler();
         }
 
         private onTestStarted(): void {
             const endTime = new Date().getTime() + this.activeTest!.definition.duration * 1000;
-            this.intervalHandle = setInterval(() => {
+            const handler = () => {
                 const diff = endTime - new Date().getTime();
                 this.setTime(Math.floor(diff / 1000));
-            }, 1000);
+            };
+
+            this.intervalId = setInterval(handler, 1000);
+            handler();
         }
 
         private stopTimer(): void {
-            if (this.intervalHandle)
-                clearInterval(this.intervalHandle);
+            if (this.intervalId)
+                clearInterval(this.intervalId);
             this.setTime(0);
         }
 

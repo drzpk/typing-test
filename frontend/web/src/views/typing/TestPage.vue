@@ -33,7 +33,8 @@
 
         @Watch("activeUserTestDefinition")
         onActiveTestDefinitionChanged(): void {
-            this.$store.dispatch("createTest");
+            if (this.activeUserTestDefinition != null)
+                this.$store.dispatch("createTest");
         }
     }
 </script>

@@ -45,12 +45,14 @@
         components: {TestTimer},
         computed: {
             ...mapGetters([
+                "isLoading",
                 "userTestDefinitions",
                 "activeUserTestDefinition"
             ])
         }
     })
     export default class TestSelection extends Vue {
+        isLoading!: boolean;
         userTestDefinitions!: Array<TestDefinitionModel>;
         activeUserTestDefinition!: TestDefinitionModel | undefined;
 
@@ -70,7 +72,8 @@
         }
 
         selectTestDefinition(definition: TestDefinitionModel): void {
-            this.$store.commit("setActiveUserTestDefinition", definition);
+            if (!this.isLoading)
+                this.$store.commit("setActiveUserTestDefinition", definition);
         }
 
         formatDuration(duration: number): string {
