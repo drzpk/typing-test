@@ -77,5 +77,10 @@ fun Route.testController() {
 
             call.respond(resource)
         }
+
+        get("/{testId}/result") {
+            val testId = getRequiredIntParam("testId")
+            call.respondRedirect("/api/test-results/$testId")
+        }
     }
 }

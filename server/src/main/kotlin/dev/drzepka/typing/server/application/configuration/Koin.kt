@@ -19,6 +19,7 @@ fun Application.typingServerKoinModule(): Module = module {
     single { WordService(get(), get()) }
     single { TestDefinitionService(get(), get()) }
     single { TestManagerService(get(), get(), get(), get()) }
+    single { TestResultService(get()) }
 
     // Domain
     single { TestService(get(), get()) }

@@ -28,6 +28,7 @@ fun Application.setupRouting() {
                 wordListController()
                 testDefinitionController()
                 testController()
+                testResultController()
             }
         }
     }
