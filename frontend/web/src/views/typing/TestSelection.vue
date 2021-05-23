@@ -13,8 +13,9 @@
                 </b-button>
             </div>
 
-            <div style="text-align: right">
+            <div class="test-control">
                 <TestTimer/>
+                <TestReset/>
             </div>
         </div>
 
@@ -40,9 +41,10 @@
     import {mapGetters} from "vuex";
     import {formatDuration} from "@/utils/time-utils";
     import TestTimer from "@/views/typing/test/TestTimer.vue";
+    import TestReset from "@/views/typing/test/TestReset.vue";
 
     @Component({
-        components: {TestTimer},
+        components: {TestReset, TestTimer},
         computed: {
             ...mapGetters([
                 "isLoading",
@@ -102,6 +104,11 @@
         &.reversed {
             transform: rotate(180deg);
         }
+    }
+
+    .test-control {
+        display: flex;
+        justify-content: flex-end;
     }
 
     .test-selector-panel {

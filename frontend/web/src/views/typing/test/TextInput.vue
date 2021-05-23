@@ -1,12 +1,14 @@
+import {TestStateModel} from "@/models/tests";
 <template>
     <div id="text-input" class="test-panel-font">
         <!--suppress HtmlFormInputWithoutLabel -->
-        <input type="text" :disabled="inputDisabled" :placeholder="placeholder" @input="onInputChanged">
+        <input id="text-input-input" type="text" :disabled="inputDisabled" :placeholder="placeholder"
+               @input="onInputChanged">
     </div>
 </template>
 
 <script lang="ts">
-    import {Component, Vue} from "vue-property-decorator";
+    import {Component, Vue, Watch} from "vue-property-decorator";
     import {mapGetters} from "vuex";
     import {TestStateModel} from "@/models/tests";
     import {WordChangeEvent} from "@/models/events";
@@ -29,6 +31,12 @@
                 return "Start typing to start the test.";
             else
                 return "";
+        }
+
+        @Watch("testState")
+        onTestStateChanged(): void {
+            if (this.testState == TestStateModel.CREATED)
+                (document.getElementById("text-input-input") as HTMLInputElement).value = "";
         }
 
         onInputChanged(event: InputEvent): void {

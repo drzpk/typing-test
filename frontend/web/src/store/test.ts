@@ -149,6 +149,23 @@ const testModule: Module<TestState, RootState> = {
             });
         },
 
+        resetTest(context: ActionContext<any, any>) {
+            if (context.state.activeTest != null && context.state.activeTest.state == TestStateModel.CREATED) {
+                context.commit("setLoading", true);
+
+                ApiService.regenerateTestWordList(context.state.activeTest.id).then(test => {
+                    context.commit("setActiveTest", test);
+                }).catch((error: ServerError) => {
+                    context.commit("setTestError", error.data);
+                }).then(() => {
+                    context.commit("setLoading", false);
+                });
+            } else if (context.state.activeTestDefinition != null) {
+                // noinspection JSIgnoredPromiseFromCall
+                context.dispatch("createTest");
+            }
+        },
+
         startTest(context: ActionContext<any, any>) {
             if (context.state.activeTest?.state != TestStateModel.CREATED)
                 throw new Error("Cannot start test");

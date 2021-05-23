@@ -86,6 +86,12 @@ class ApiService {
             .catch(errorHandler);
     }
 
+    regenerateTestWordList(testId: number): Promise<TestModel> {
+        return axios.post<TestModel>(`/api/tests/${testId}/words`)
+            .then(response => convertTestResponse(response.data))
+            .catch(errorHandler);
+    }
+
     startTest(testId: number): Promise<TestModel> {
         return axios.post<TestModel>(`/api/tests/${testId}/start`)
             .then(response => convertTestResponse(response.data))
