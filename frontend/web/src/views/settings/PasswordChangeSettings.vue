@@ -29,9 +29,6 @@
                 <b-button @click="changePassword" :disabled="formSent">Change</b-button>
             </div>
         </b-form>
-        <pre>
-            {{$v}}
-        </pre>
     </div>
 </template>
 

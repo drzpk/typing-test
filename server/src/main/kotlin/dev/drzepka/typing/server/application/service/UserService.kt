@@ -56,16 +56,23 @@ class UserService(private val hashService: HashService, private val userReposito
     }
 
     fun updateSettings(user: User, request: UpdateAccountSettingsRequest) {
-        if (request.displayName.isEmpty() || request.displayName.length > 64)
-            throw IllegalArgumentException("User's display name must be in range [1,64].")
+        var changed = false
 
-        transaction {
+        if (request.displayName != null) {
+            if (request.displayName!!.isEmpty() || request.displayName!!.length > 64)
+                throw IllegalArgumentException("User's display name must be in range [1,64].")
+
             log.info(
                 "Changing display name of the user {} from '{}' to '{}'",
                 user.id, user.displayName, request.displayName
             )
-            user.displayName = request.displayName
+
+            user.displayName = request.displayName!!
+            changed = true
         }
+
+        if (changed)
+            userRepository.save(user)
     }
 
     fun changePassword(user: User, request: ChangePasswordRequest) {

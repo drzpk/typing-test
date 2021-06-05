@@ -2,6 +2,7 @@ package dev.drzepka.typing.server.domain.service
 
 import dev.drzepka.typing.server.AbstractDatabaseTest
 import dev.drzepka.typing.server.application.dto.user.CreateUserRequest
+import dev.drzepka.typing.server.application.dto.user.UpdateAccountSettingsRequest
 import dev.drzepka.typing.server.application.service.UserService
 import dev.drzepka.typing.server.domain.entity.User
 import dev.drzepka.typing.server.domain.repository.UserRepository
@@ -78,6 +79,19 @@ class UserServiceTest : AbstractDatabaseTest() {
 
         val user = getService().findUser("email@email.com", "password")
         then(user).isNull()
+    }
+
+    @Test
+    fun `should update settings`() {
+        val user = User()
+        val request = UpdateAccountSettingsRequest().apply {
+            displayName = "new display name"
+        }
+
+        getService().updateSettings(user, request)
+
+        then(user.displayName).isEqualTo(request.displayName)
+        verify(userRepository, times(1)).save(same(user))
     }
 
     private fun getService(): UserService {

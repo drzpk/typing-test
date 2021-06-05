@@ -105,6 +105,7 @@ const testModule: Module<TestState, RootState> = {
         resetTestStats(state) {
             state.enteredWords = [];
             state.backspaceCount = 0;
+            state.testResult = null;
         }
     },
 

@@ -27,10 +27,9 @@
         private currentOffset = 0;
 
         mounted(): void {
-            this.updateWords();
             this.$root.$on(WordChangeEvent.NAME, this.onUserWordInput);
             this.textDisplayElement = document.getElementById("text-display") as HTMLDivElement;
-            this.resetDisplayOffset();
+            this.updateWords();
         }
 
         destroyed(): void {
@@ -39,6 +38,7 @@
 
         @Watch("activeTest")
         updateWords(): void {
+            console.log("updating words");
             if (this.activeTest) {
                 this.words = this.createWordsFromTest();
             } else {
@@ -47,7 +47,7 @@
 
             this.currentWordNo = 0;
             this.words[0].current = true;
-            this.resetDisplayOffset()
+            this.resetDisplayOffset();
         }
 
         private onUserWordInput(event: WordChangeEvent): void {
@@ -68,6 +68,7 @@
         }
 
         private resetDisplayOffset(): void {
+            this.currentOffset = 0;
             if (this.textDisplayElement != null)
                 this.textDisplayElement.style.top = "0";
         }
