@@ -42,6 +42,28 @@ class ExposedTestResultRepository(private val testRepository: TestRepository) : 
         TestResults.deleteWhere { TestResults.id eq testId }
     }
 
+    override fun count(userId: Int, testDefinitionId: Int): Int {
+        val countExpression = TestResults.id.count()
+        val result = Tests.innerJoin(TestResults, { Tests.id }, { TestResults.id })
+            .slice(countExpression)
+            .select { (Tests.user eq userId) and (Tests.testDefinition eq testDefinitionId) }
+            .first()
+
+        return result[countExpression].toInt()
+    }
+
+    override fun find(
+        userId: Int,
+        testDefinitionId: Int,
+        offset: Int,
+        limit: Int
+    ): kotlin.sequences.Sequence<TestResult> {
+        return Tests.innerJoin(TestResults, { Tests.id }, { TestResults.id })
+            .select { (Tests.user eq userId) and (Tests.testDefinition eq testDefinitionId) }
+            .asSequence()
+            .map { rowToTestResult(it) }
+    }
+
     private fun testResultToRow(result: TestResult, stmt: UpdateBuilder<Int>) {
         stmt[TestResults.id] = result.test.id!!
         stmt[TestResults.correctWords] = result.correctWords

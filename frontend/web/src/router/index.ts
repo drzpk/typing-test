@@ -6,6 +6,7 @@ import Settings from "@/views/settings/Settings.vue";
 import AdminSettings from "@/views/settings/admin/AdminSettings.vue";
 import WordList from "@/views/settings/admin/word/WordList.vue";
 import TestDefinition from "@/views/settings/admin/test/TestDefinition.vue";
+import TestStats from "@/views/settings/stats/TestStats.vue";
 
 Vue.use(VueRouter);
 
@@ -28,6 +29,11 @@ const routes: Array<RouteConfig> = [
         path: '/settings',
         name: 'Settings',
         component: Settings
+    },
+    {
+        path: '/settings/stats',
+        name: 'TestStats',
+        component: TestStats
     },
     {
         path: '/settings/admin',

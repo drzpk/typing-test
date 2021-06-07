@@ -6,6 +6,7 @@ import router from "@/router";
 import {AuthenticationDetails} from "@/models/user";
 import admin from "./admin";
 import test from "./test";
+import testStats from "./test-stats";
 
 Vue.use(Vuex);
 
@@ -71,6 +72,7 @@ export default new Vuex.Store<RootState>({
     },
     modules: {
         admin,
-        test
+        test,
+        testStats
     }
 })

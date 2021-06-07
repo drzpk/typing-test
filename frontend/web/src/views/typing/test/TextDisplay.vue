@@ -38,7 +38,6 @@
 
         @Watch("activeTest")
         updateWords(): void {
-            console.log("updating words");
             if (this.activeTest) {
                 this.words = this.createWordsFromTest();
             } else {

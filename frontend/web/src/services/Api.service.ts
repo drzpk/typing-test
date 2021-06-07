@@ -5,6 +5,7 @@ import {WordList, WordListWordsResponse} from "@/models/words";
 import {PagedRequest} from "@/models/pagination";
 import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/test-definition";
 import {FinishTestRequest, TestModel, TestResultModel} from "@/models/tests";
+import {TestStatsModel} from "@/models/test-stats";
 
 function errorHandler(error: AxiosError): never {
     if (error.response?.status == 422) {
@@ -27,11 +28,29 @@ function errorHandler(error: AxiosError): never {
 function convertFieldsToDate<T>(object: T, ...fields: Array<string>): T {
     const map = object as any;
     for (let i = 0; i < fields.length; i++) {
-        const field = map[fields[i]];
-        if (typeof (field) === "number")
-            map[fields[i]] = new Date(field * 1000);
+        convertFieldToDate(map, fields[i]);
     }
     return object;
+}
+
+function convertFieldToDate(object: any, fieldPath: string) {
+    const parts = fieldPath.split(".");
+    const fieldName = parts[0];
+    const isTerminal = parts.length == 1;
+    const fieldValue = object[fieldName];
+
+    const remainingParts: string | null = !isTerminal ? parts.slice(1, parts.length).join(".") : null;
+
+    if (isTerminal && typeof (fieldValue) === "number") {
+        object[fieldName] = new Date(fieldValue * 1000);
+    } else if (!isTerminal && typeof (fieldValue) === "object" && fieldValue !== null) {
+        convertFieldToDate(fieldValue, remainingParts!);
+    } else if (!isTerminal && Array.isArray(fieldValue)) {
+        const array = fieldValue as Array<any>;
+        for (let i = 0; i < array.length; i++) {
+            convertFieldToDate(array[i], remainingParts!);
+        }
+    }
 }
 
 function convertTestResponse(input: TestModel): TestModel {
@@ -164,6 +183,18 @@ class ApiService {
 
     deleteWord(wordListId: number, wordId: number): Promise<any> {
         return axios.delete(`/api/word-lists/${wordListId}/words/${wordId}`)
+            .catch(errorHandler);
+    }
+
+    getTestDefinitionsWithStats(): Promise<Array<TestDefinitionModel>> {
+        return axios.get("/api/test-results/stats/test-definitions")
+            .then(response => response.data)
+            .catch(errorHandler);
+    }
+
+    getStatsForTestDefinition(testDefinitionId: number): Promise<TestStatsModel> {
+        return axios.get(`/api/test-results/stats/test-definitions/${testDefinitionId}`)
+            .then(response => response.data)
             .catch(errorHandler);
     }
 }

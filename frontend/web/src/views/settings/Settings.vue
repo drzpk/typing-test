@@ -9,6 +9,18 @@
                         <b-button @click="$router.push('/settings/admin')">Open administration panel</b-button>
                     </b-card>
 
+                    <b-card title="Account information">
+                        <b-form-group label-cols="3" label-for="email-address" label="Email address">
+                            <b-form-input id="email-address" disabled
+                                          :value="authenticationDetails.email"></b-form-input>
+                        </b-form-group>
+                    </b-card>
+
+                    <b-card title="Test statistics">
+                        <p>Click the button below to view your statistics.</p>
+                        <b-button @click="$router.push({name: 'TestStats'})">Show statistics</b-button>
+                    </b-card>
+
                     <b-card title="Account settings">
                         <b-row>
                             <b-col cols="6" class="settings-column">
@@ -18,13 +30,6 @@
                                 <PasswordChangeSettings/>
                             </b-col>
                         </b-row>
-                    </b-card>
-
-                    <b-card title="Account information">
-                        <b-form-group label-cols="3" label-for="email-address" label="Email address">
-                            <b-form-input id="email-address" disabled
-                                          :value="authenticationDetails.email"></b-form-input>
-                        </b-form-group>
                     </b-card>
                 </b-col>
             </b-row>

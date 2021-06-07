@@ -4,6 +4,7 @@ import dev.drzepka.typing.server.domain.entity.TestDefinition
 import dev.drzepka.typing.server.domain.repository.TestDefinitionRepository
 import dev.drzepka.typing.server.domain.repository.WordListRepository
 import dev.drzepka.typing.server.infrastructure.repository.table.TestDefinitions
+import dev.drzepka.typing.server.infrastructure.repository.table.Tests
 import org.jetbrains.exposed.sql.*
 import java.time.Duration
 
@@ -28,6 +29,17 @@ class ExposedTestDefinitionRepository(private val wordListRepository: WordListRe
             TestDefinitions.selectAll()
 
         return query.map { rowToTestDefinition(it) }
+    }
+
+    override fun findAllActiveWithCompletedTests(userId: Int): Collection<TestDefinition> {
+        val ids =  (TestDefinitions innerJoin Tests)
+            .slice(TestDefinitions.id)
+            .select {Tests.finishedAt.isNotNull() and (TestDefinitions.isActive eq true)}
+            .groupBy(TestDefinitions.id)
+            .map { it[TestDefinitions.id].value }
+
+        return TestDefinitions.select {TestDefinitions.id inList ids }
+            .map { rowToTestDefinition(it) }
     }
 
     @Suppress("DuplicatedCode")

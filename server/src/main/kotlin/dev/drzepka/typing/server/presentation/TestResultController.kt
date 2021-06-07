@@ -1,7 +1,10 @@
 package dev.drzepka.typing.server.presentation
 
 import dev.drzepka.typing.server.application.service.TestResultService
+import dev.drzepka.typing.server.application.service.TestStatsService
 import dev.drzepka.typing.server.application.util.getRequiredIntParam
+import dev.drzepka.typing.server.domain.repository.UserRepository
+import dev.drzepka.typing.server.domain.util.getCurrentUser
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -10,6 +13,8 @@ import org.koin.ktor.ext.get
 
 fun Route.testResultController() {
     val testResultService = get<TestResultService>()
+    val testStatsService = get<TestStatsService>()
+    val userRepository = get<UserRepository>()
 
     route("/test-results") {
         get("/{testResultId}") {
@@ -20,6 +25,28 @@ fun Route.testResultController() {
             }
 
             call.respond(resource)
+        }
+
+        route("/stats") {
+            get("/test-definitions") {
+                val resource = transaction {
+                    val user = getCurrentUser(userRepository)
+                    testStatsService.getTestDefinitionsWithStats(user)
+                }
+
+                call.respond(resource)
+            }
+
+            get("/test-definitions/{definitionId}") {
+                val definitionId = getRequiredIntParam("definitionId")
+
+                val resource = transaction {
+                    val user = getCurrentUser(userRepository)
+                    testStatsService.calculateTestStats(user, definitionId)
+                }
+
+                call.respond(resource)
+            }
         }
     }
 }
