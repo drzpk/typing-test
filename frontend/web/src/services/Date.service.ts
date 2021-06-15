@@ -1,0 +1,41 @@
+class DateService {
+    formatDateToString(dateObj: Date): string {
+        function pad(input: number): string {
+            return input.toString().padStart(2, "0");
+        }
+
+        const date = `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}`;
+        const time = `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}`;
+        return `${date} ${time}`;
+    }
+
+    convertFieldsToDate<T>(object: T, ...fields: Array<string>): T {
+        const map = object as any;
+        for (let i = 0; i < fields.length; i++) {
+            this.convertFieldToDate(map, fields[i]);
+        }
+        return object;
+    }
+
+    private convertFieldToDate(object: any, fieldPath: string) {
+        const parts = fieldPath.split(".");
+        const fieldName = parts[0];
+        const isTerminal = parts.length == 1;
+        const fieldValue = object[fieldName];
+
+        const remainingParts: string | null = !isTerminal ? parts.slice(1, parts.length).join(".") : null;
+
+        if (isTerminal && typeof (fieldValue) === "number") {
+            object[fieldName] = new Date(fieldValue * 1000);
+        } else if (!isTerminal && Array.isArray(fieldValue)) {
+            const array = fieldValue as Array<any>;
+            for (let i = 0; i < array.length; i++) {
+                this.convertFieldToDate(array[i], remainingParts!);
+            }
+        } else if (!isTerminal && typeof (fieldValue) === "object" && fieldValue !== null) {
+            this.convertFieldToDate(fieldValue, remainingParts!);
+        }
+    }
+}
+
+export default new DateService();

@@ -46,6 +46,7 @@
     import {UserModel} from "@/models/user";
     import {PageMetadata} from "@/models/pagination";
     import {mapGetters} from "vuex";
+    import DateService from "@/services/Date.service";
 
     @Component({
         computed: {
@@ -70,7 +71,8 @@
                 key: "displayName"
             },
             {
-                key: "createdAt"
+                key: "createdAt",
+                formatter: (date: Date) => DateService.formatDateToString(date)
             },
             {
                 key: "activated",

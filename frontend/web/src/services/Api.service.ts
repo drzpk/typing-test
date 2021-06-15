@@ -12,6 +12,7 @@ import {PagedRequest} from "@/models/pagination";
 import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/test-definition";
 import {FinishTestRequest, TestModel, TestResultModel} from "@/models/tests";
 import {TestStatsModel} from "@/models/test-stats";
+import DateService from "./Date.service";
 
 function errorHandler(error: AxiosError): never {
     if (error.response?.status == 422) {
@@ -31,47 +32,8 @@ function errorHandler(error: AxiosError): never {
     }
 }
 
-function convertFieldsToDate<T>(object: T, ...fields: Array<string>): T {
-    const map = object as any;
-    for (let i = 0; i < fields.length; i++) {
-        convertFieldToDate(map, fields[i]);
-    }
-    return object;
-}
-
-function convertFieldToDate(object: any, fieldPath: string) {
-    const parts = fieldPath.split(".");
-    const fieldName = parts[0];
-    const isTerminal = parts.length == 1;
-    const fieldValue = object[fieldName];
-
-    const remainingParts: string | null = !isTerminal ? parts.slice(1, parts.length).join(".") : null;
-
-    if (isTerminal && typeof (fieldValue) === "number") {
-        object[fieldName] = convertToDate(fieldValue);
-    } else if (!isTerminal && Array.isArray(fieldValue)) {
-        const array = fieldValue as Array<any>;
-        for (let i = 0; i < array.length; i++) {
-            convertFieldToDate(array[i], remainingParts!);
-        }
-    } else if (!isTerminal && typeof (fieldValue) === "object" && fieldValue !== null) {
-        convertFieldToDate(fieldValue, remainingParts!);
-    }
-}
-
-function convertToDate(timestampSeconds: number): string {
-    function pad(input: number): string {
-        return input.toString().padStart(2, "0");
-    }
-
-    const dateObj = new Date(timestampSeconds * 1000);
-    const date = `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}`;
-    const time = `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}`;
-    return `${date} ${time}`;
-}
-
 function convertTestResponse(input: TestModel): TestModel {
-    return convertFieldsToDate(input, "createdAt", "startedAt", "finishedAt", "startDueTime", "finishDueTime");
+    return DateService.convertFieldsToDate(input, "createdAt", "startedAt", "finishedAt", "startDueTime", "finishDueTime");
 }
 
 class ApiService {
@@ -217,7 +179,7 @@ class ApiService {
 
     searchUsers(request: SearchUsersRequest): Promise<SearchUsersResponse> {
         return axios.post<SearchUsersResponse>("/api/users/search", request)
-            .then(response => convertFieldsToDate(response.data, "content.createdAt"))
+            .then(response => DateService.convertFieldsToDate(response.data, "content.createdAt"))
             .catch(errorHandler);
     }
 
