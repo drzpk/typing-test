@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="settings">
         <!--suppress HtmlUnknownBooleanAttribute -->
         <b-container fluid>
             <b-row>

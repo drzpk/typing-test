@@ -11,3 +11,7 @@ fun PipelineContext<*, ApplicationCall>.getCurrentUser(userRepository: UserRepos
     val session = call.sessions.get<TypingTestSession>()!!
     return userRepository.findById(session.userId)!!
 }
+
+fun PipelineContext<*, ApplicationCall>.clearUserSession() {
+    call.sessions.clear<TypingTestSession>()
+}

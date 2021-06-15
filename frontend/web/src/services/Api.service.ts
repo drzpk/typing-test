@@ -1,5 +1,11 @@
 import axios, {AxiosError} from "axios";
-import {AuthenticationDetails, ChangePasswordRequest, UpdateSettingsRequest} from "@/models/user";
+import {
+    AuthenticationDetails,
+    ChangePasswordRequest,
+    SearchUsersRequest,
+    SearchUsersResponse,
+    UpdateSettingsRequest
+} from "@/models/user";
 import {ErrorCode, ErrorCodeModel, ServerError, ValidationErrorsModel, ValidationFailedError} from "@/models/error";
 import {WordList, WordListWordsResponse} from "@/models/words";
 import {PagedRequest} from "@/models/pagination";
@@ -42,15 +48,26 @@ function convertFieldToDate(object: any, fieldPath: string) {
     const remainingParts: string | null = !isTerminal ? parts.slice(1, parts.length).join(".") : null;
 
     if (isTerminal && typeof (fieldValue) === "number") {
-        object[fieldName] = new Date(fieldValue * 1000);
-    } else if (!isTerminal && typeof (fieldValue) === "object" && fieldValue !== null) {
-        convertFieldToDate(fieldValue, remainingParts!);
+        object[fieldName] = convertToDate(fieldValue);
     } else if (!isTerminal && Array.isArray(fieldValue)) {
         const array = fieldValue as Array<any>;
         for (let i = 0; i < array.length; i++) {
             convertFieldToDate(array[i], remainingParts!);
         }
+    } else if (!isTerminal && typeof (fieldValue) === "object" && fieldValue !== null) {
+        convertFieldToDate(fieldValue, remainingParts!);
     }
+}
+
+function convertToDate(timestampSeconds: number): string {
+    function pad(input: number): string {
+        return input.toString().padStart(2, "0");
+    }
+
+    const dateObj = new Date(timestampSeconds * 1000);
+    const date = `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}`;
+    const time = `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}`;
+    return `${date} ${time}`;
 }
 
 function convertTestResponse(input: TestModel): TestModel {
@@ -195,6 +212,22 @@ class ApiService {
     getStatsForTestDefinition(testDefinitionId: number): Promise<TestStatsModel> {
         return axios.get(`/api/test-results/stats/test-definitions/${testDefinitionId}`)
             .then(response => response.data)
+            .catch(errorHandler);
+    }
+
+    searchUsers(request: SearchUsersRequest): Promise<SearchUsersResponse> {
+        return axios.post<SearchUsersResponse>("/api/users/search", request)
+            .then(response => convertFieldsToDate(response.data, "content.createdAt"))
+            .catch(errorHandler);
+    }
+
+    activateUser(userId: number): Promise<unknown> {
+        return axios.put(`/api/users/${userId}/active`)
+            .catch(errorHandler);
+    }
+
+    deleteUser(userId: number): Promise<unknown> {
+        return axios.delete(`/api/users/${userId}`)
             .catch(errorHandler);
     }
 }

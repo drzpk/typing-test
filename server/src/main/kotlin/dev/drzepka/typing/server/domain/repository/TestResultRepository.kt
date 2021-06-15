@@ -22,6 +22,7 @@ abstract class TestResultRepository {
     ): Sequence<TestResult>
 
     abstract fun deleteByTestId(testId: Int)
+    abstract fun deleteByUserId(userId: Int): Int
 
     abstract fun count(userId: Int, testDefinitionId: Int): Int
     abstract fun find(userId: Int, testDefinitionId: Int, offset: Int, limit: Int): Sequence<TestResult>

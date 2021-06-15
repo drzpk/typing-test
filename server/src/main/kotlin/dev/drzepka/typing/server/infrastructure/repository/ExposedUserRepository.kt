@@ -1,8 +1,13 @@
 package dev.drzepka.typing.server.infrastructure.repository
 
+import dev.drzepka.typing.server.domain.Page
 import dev.drzepka.typing.server.domain.entity.User
 import dev.drzepka.typing.server.domain.repository.UserRepository
+import dev.drzepka.typing.server.domain.value.UserSearchQuery
 import dev.drzepka.typing.server.infrastructure.repository.table.Users
+import dev.drzepka.typing.server.infrastructure.util.filtered
+import dev.drzepka.typing.server.infrastructure.util.paged
+import dev.drzepka.typing.server.infrastructure.util.sorted
 import org.jetbrains.exposed.sql.*
 
 class ExposedUserRepository : UserRepository {
@@ -17,6 +22,26 @@ class ExposedUserRepository : UserRepository {
         return Users.select { Users.email eq email }
             .singleOrNull()
             ?.let { rowToUser(it) }
+    }
+
+    override fun search(query: UserSearchQuery): Page<User> {
+        val dbQuery = Users.selectAll()
+            .sorted(query)
+            .filtered(Users.email, query)
+
+        if (query.inactiveOnly)
+            dbQuery.andWhere { Users.activatedAt.isNull() }
+
+        val countExpression = Users.id.count()
+        val total = dbQuery.copy()
+            .adjustSlice { slice(countExpression) }
+            .first()[countExpression]
+
+        val result = dbQuery
+            .paged(query)
+            .map { rowToUser(it) }
+
+        return Page(result, query, total)
     }
 
     override fun save(user: User) {

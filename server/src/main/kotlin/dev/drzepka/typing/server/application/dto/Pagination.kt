@@ -1,28 +1,7 @@
-package dev.drzepka.typing.server.domain
+package dev.drzepka.typing.server.application.dto
 
-import kotlin.math.ceil
-
-data class Page<T : Any>(
-    val content: Collection<T>,
-    val page: Int,
-    val size: Int,
-    val totalElements: Long
-) {
-    constructor(content: Collection<T>, pagedQuery: PagedQuery, totalElements: Long) : this(
-        content,
-        pagedQuery.page,
-        pagedQuery.size,
-        totalElements
-    )
-
-    val totalPages: Int
-        get() = ceil(totalElements.toDouble() / size).toInt()
-}
-
-interface PagedQuery {
-    var page: Int
-    var size: Int
-}
+import dev.drzepka.typing.server.domain.Page
+import dev.drzepka.typing.server.domain.PagedQuery
 
 open class PagedRequest : PagedQuery {
     override var page = 1

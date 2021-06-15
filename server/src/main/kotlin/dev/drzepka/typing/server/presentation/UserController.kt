@@ -1,10 +1,13 @@
 package dev.drzepka.typing.server.presentation
 
 import dev.drzepka.typing.server.application.dto.user.ChangePasswordRequest
+import dev.drzepka.typing.server.application.dto.user.SearchUsersRequest
 import dev.drzepka.typing.server.application.dto.user.UpdateAccountSettingsRequest
 import dev.drzepka.typing.server.application.dto.user.UserAuthenticationDetailsDTO
 import dev.drzepka.typing.server.application.service.UserService
+import dev.drzepka.typing.server.application.util.getRequiredIntParam
 import dev.drzepka.typing.server.domain.repository.UserRepository
+import dev.drzepka.typing.server.domain.util.clearUserSession
 import dev.drzepka.typing.server.domain.util.getCurrentUser
 import io.ktor.application.*
 import io.ktor.http.*
@@ -46,7 +49,49 @@ fun Route.userController() {
                 userService.changePassword(user, request)
             }
 
+            clearUserSession()
             call.respond(HttpStatusCode.NoContent)
+        }
+
+        delete("") {
+            transaction {
+                val user = getCurrentUser(userRepository)
+                userService.deleteUser(user.id!!)
+            }
+
+            call.respond(HttpStatusCode.NoContent)
+        }
+    }
+
+    route("/users") {
+        delete("/{userId}") {
+            val userId = getRequiredIntParam("userId")
+
+            transaction {
+                userService.deleteUser(userId)
+            }
+
+            call.respond(HttpStatusCode.NoContent)
+        }
+
+        put("/{userId}/active") {
+            val userId = getRequiredIntParam("userId")
+
+            transaction {
+                userService.activateUser(userId)
+            }
+
+            call.respond(HttpStatusCode.NoContent)
+        }
+
+        post("/search") {
+            val request = call.receive<SearchUsersRequest>()
+
+            val response = transaction {
+                userService.searchUsers(request)
+            }
+
+            call.respond(response)
         }
     }
 }

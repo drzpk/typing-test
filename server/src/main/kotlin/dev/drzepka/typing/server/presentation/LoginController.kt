@@ -2,6 +2,7 @@ package dev.drzepka.typing.server.presentation
 
 import dev.drzepka.typing.server.application.TypingTestSession
 import dev.drzepka.typing.server.application.dto.LoginDataDTO
+import dev.drzepka.typing.server.application.dto.user.CreateUserRequest
 import dev.drzepka.typing.server.application.dto.user.UserAuthenticationDetailsDTO
 import dev.drzepka.typing.server.application.service.UserService
 import io.ktor.application.*
@@ -16,6 +17,14 @@ import org.koin.ktor.ext.get
 // todo: error handling
 fun Route.loginController() {
     val userService = get<UserService>()
+
+    post("register") {
+        val request = call.receive<CreateUserRequest>()
+        val resource = transaction {
+            userService.createUser(request)
+        }
+        call.respond(resource)
+    }
 
     post("login") {
         val loginData = call.receive<LoginDataDTO>()

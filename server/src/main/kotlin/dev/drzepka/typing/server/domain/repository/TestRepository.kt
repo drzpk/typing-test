@@ -10,4 +10,5 @@ interface TestRepository {
     fun findPagedByUserId(userId: Int, pagination: PagedQuery): Page<Test>
     fun findNotStartedByUserIdAndTestDefinitionId(userId: Int, testDefinitionId: Int): Collection<Test>
     fun delete(id: Int): Boolean
+    fun deleteByUserId(userId: Int): Int
 }

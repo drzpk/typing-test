@@ -2,13 +2,13 @@ package dev.drzepka.typing.server.presentation
 
 import dev.drzepka.typing.server.application.dto.BulkImportWordsDTO
 import dev.drzepka.typing.server.application.dto.ErrorHandlingMode
+import dev.drzepka.typing.server.application.dto.PagedResourceCollection
 import dev.drzepka.typing.server.application.dto.word.AddWordRequest
 import dev.drzepka.typing.server.application.dto.word.ListWordsRequest
 import dev.drzepka.typing.server.application.dto.word.PatchWordRequest
 import dev.drzepka.typing.server.application.dto.word.WordResource
 import dev.drzepka.typing.server.application.service.WordBulkManagementService
 import dev.drzepka.typing.server.application.service.WordService
-import dev.drzepka.typing.server.domain.PagedResourceCollection
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.http.content.*

@@ -60,6 +60,10 @@ class ExposedTestRepository(
         return count > 0
     }
 
+    override fun deleteByUserId(userId: Int): Int {
+        return Tests.deleteWhere { Tests.user eq userId }
+    }
+
     private fun testToRow(test: Test, stmt: UpdateBuilder<Int>) {
         stmt[Tests.testDefinition] = test.testDefinition.id!!
         stmt[Tests.user] = test.takenBy.id!!
