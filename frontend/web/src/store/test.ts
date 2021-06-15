@@ -2,7 +2,7 @@ import {ActionContext, Module} from "vuex";
 import {RootState} from "@/store/index";
 import {TestDefinitionModel} from "@/models/test-definition";
 import ApiService from "@/services/Api.service";
-import {TestModel, TestResultModel, TestStateModel} from "@/models/tests";
+import {TestBestResultModel, TestModel, TestResultModel, TestStateModel} from "@/models/tests";
 import {ErrorCode, ErrorCodeModel, ServerError} from "@/models/error";
 
 export interface TestState {
@@ -13,6 +13,7 @@ export interface TestState {
     activeTestDefinition: TestDefinitionModel | undefined;
     testError: ErrorCodeModel | null;
     testResult: TestResultModel | null;
+    testBestResults: TestBestResultModel[] | null;
 
     enteredWords: Array<string>;
     backspaceCount: number;
@@ -27,6 +28,7 @@ const testModule: Module<TestState, RootState> = {
         activeTestDefinition: undefined,
         testError: null,
         testResult: null,
+        testBestResults: null,
 
         enteredWords: [],
         backspaceCount: 0
@@ -62,6 +64,12 @@ const testModule: Module<TestState, RootState> = {
         },
         testResult(state): TestResultModel | null {
             return state.testResult;
+        },
+        testBestResults(state): TestBestResultModel[] {
+            if (state.testBestResults)
+                return state.testBestResults;
+            else
+                return [];
         }
     },
 
@@ -96,6 +104,9 @@ const testModule: Module<TestState, RootState> = {
         setTestResult(state, result: TestResultModel) {
             state.testResult = result;
         },
+        setTestBestResults(state, bestResults: TestBestResultModel[]) {
+            state.testBestResults = bestResults;
+        },
         addEnteredWord(state, newWord) {
             state.enteredWords.push(newWord);
         },
@@ -123,8 +134,9 @@ const testModule: Module<TestState, RootState> = {
             if (!context.state.activeTestDefinition)
                 throw new Error("Cannot start test, there's no active test definition");
 
+            const testDefinitionId = context.state.activeTestDefinition.id;
             context.commit("setLoading", true);
-            ApiService.createTest(context.state.activeTestDefinition.id).then(test => {
+            ApiService.createTest(testDefinitionId).then(test => {
                 context.commit("setActiveTest", test);
 
                 if (test.startDueTime != null) {
@@ -147,6 +159,7 @@ const testModule: Module<TestState, RootState> = {
                 context.commit("setTestError", error.data);
             }).then(() => {
                 context.commit("setLoading", false);
+                return context.dispatch("reloadTestBestResults", testDefinitionId);
             });
         },
 
@@ -185,7 +198,7 @@ const testModule: Module<TestState, RootState> = {
                     }
                 }, test.definition.duration * 1000);
             }).catch((error: ServerError) => {
-               context.commit("setTestError", error.data);
+                context.commit("setTestError", error.data);
             });
         },
 
@@ -201,8 +214,9 @@ const testModule: Module<TestState, RootState> = {
             };
             ApiService.finishTest(context.state.activeTest.id, payload).then(test => {
                 context.commit("setActiveTest", test);
-                // noinspection JSIgnoredPromiseFromCall
-                context.dispatch("getTestResult");
+                return context.dispatch("getTestResult");
+            }).then(() => {
+                return context.dispatch("reloadTestBestResults", context.state.activeTestDefinition.id);
             }).catch((error: ServerError) => {
                 context.commit("setTestError", error);
             })
@@ -217,6 +231,12 @@ const testModule: Module<TestState, RootState> = {
             }).then(() => {
                 context.commit("setLoading", false);
             });
+        },
+
+        reloadTestBestResults(context: ActionContext<any, any>, testDefinitionId: number) {
+            ApiService.getTestBestResults(testDefinitionId).then(bestResults => {
+                context.commit("setTestBestResults", bestResults);
+            })
         }
     }
 };

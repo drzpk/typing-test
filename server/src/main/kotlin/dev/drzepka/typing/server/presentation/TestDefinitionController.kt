@@ -3,6 +3,8 @@ package dev.drzepka.typing.server.presentation
 import dev.drzepka.typing.server.application.dto.testdefinition.CreateTestDefinitionRequest
 import dev.drzepka.typing.server.application.dto.testdefinition.UpdateTestDefinitionRequest
 import dev.drzepka.typing.server.application.service.TestDefinitionService
+import dev.drzepka.typing.server.application.service.TestResultService
+import dev.drzepka.typing.server.application.util.getRequiredIntParam
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -13,6 +15,7 @@ import org.koin.ktor.ext.get
 
 fun Route.testDefinitionController() {
     val testDefinitionService = get<TestDefinitionService>()
+    val testResultService = get<TestResultService>()
 
     route("/test-definitions") {
         get("") {
@@ -47,6 +50,16 @@ fun Route.testDefinitionController() {
                 call.respond(HttpStatusCode.Created, resource)
             else
                 call.respond(HttpStatusCode.NotFound)
+        }
+
+        get("/{testDefinitionId}/best-results") {
+            val testDefinitionId = getRequiredIntParam("testDefinitionId")
+
+            val resources = transaction {
+                testResultService.getBestResults(testDefinitionId)
+            }
+
+            call.respond(resources)
         }
     }
 }

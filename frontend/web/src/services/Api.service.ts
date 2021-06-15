@@ -10,7 +10,7 @@ import {ErrorCode, ErrorCodeModel, ServerError, ValidationErrorsModel, Validatio
 import {WordList, WordListWordsResponse} from "@/models/words";
 import {PagedRequest} from "@/models/pagination";
 import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/test-definition";
-import {FinishTestRequest, TestModel, TestResultModel} from "@/models/tests";
+import {FinishTestRequest, TestBestResultModel, TestModel, TestResultModel} from "@/models/tests";
 import {TestStatsModel} from "@/models/test-stats";
 import DateService from "./Date.service";
 
@@ -105,6 +105,12 @@ class ApiService {
     getTestResult(testId: number): Promise<TestResultModel> {
         return axios.get<TestResultModel>(`/api/tests/${testId}/result`)
             .then(response => response.data)
+            .catch(errorHandler);
+    }
+
+    getTestBestResults(testDefinitionId: number): Promise<TestBestResultModel[]> {
+        return axios.get<TestBestResultModel[]>(`/api/test-definitions/${testDefinitionId}/best-results`)
+            .then(response => DateService.convertFieldsToDate(response.data, "testCreatedAt"))
             .catch(errorHandler);
     }
 

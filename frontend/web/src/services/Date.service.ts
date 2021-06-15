@@ -12,12 +12,20 @@ class DateService {
     convertFieldsToDate<T>(object: T, ...fields: Array<string>): T {
         const map = object as any;
         for (let i = 0; i < fields.length; i++) {
-            this.convertFieldToDate(map, fields[i]);
+            this.convertFieldToDate(map, fields[i], true);
         }
         return object;
     }
 
-    private convertFieldToDate(object: any, fieldPath: string) {
+    private convertFieldToDate(object: any, fieldPath: string, isRoot: boolean) {
+        if (isRoot && Array.isArray(object)) {
+            for (let i = 0; i < object.length; i++) {
+                this.convertFieldToDate(object[i], fieldPath, false);
+            }
+
+            return;
+        }
+
         const parts = fieldPath.split(".");
         const fieldName = parts[0];
         const isTerminal = parts.length == 1;
@@ -30,10 +38,10 @@ class DateService {
         } else if (!isTerminal && Array.isArray(fieldValue)) {
             const array = fieldValue as Array<any>;
             for (let i = 0; i < array.length; i++) {
-                this.convertFieldToDate(array[i], remainingParts!);
+                this.convertFieldToDate(array[i], remainingParts!, false);
             }
         } else if (!isTerminal && typeof (fieldValue) === "object" && fieldValue !== null) {
-            this.convertFieldToDate(fieldValue, remainingParts!);
+            this.convertFieldToDate(fieldValue, remainingParts!, false);
         }
     }
 }

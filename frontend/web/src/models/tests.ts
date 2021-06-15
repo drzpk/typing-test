@@ -25,6 +25,23 @@ export interface TestResultModel {
     wordsPerMinute: number;
 }
 
+/*
+class TestBestResultResource(
+    var userDisplayName: String,
+    var testCreatedAt: Instant,
+    var speed: Float,
+    var accuracy: Float,
+    var score: Int
+)
+ */
+export interface TestBestResultModel {
+    userDisplayName: string;
+    testCreatedAt: Date;
+    speed: number;
+    accuracy: number;
+    score: number;
+}
+
 export enum TestStateModel {
     CREATED = "CREATED",
     CREATED_TIMEOUT = "CREATED_TIMEOUT",

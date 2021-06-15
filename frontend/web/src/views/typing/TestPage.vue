@@ -16,6 +16,11 @@
                 <TestSummary/>
             </b-col>
         </b-row>
+        <b-row>
+            <b-col offset="3" cols="6">
+                <TestBestResults/>
+            </b-col>
+        </b-row>
     </b-container>
 </template>
 
@@ -27,9 +32,10 @@
     import {mapGetters} from "vuex";
     import TestTimer from "@/views/typing/test/TestTimer.vue";
     import TestSummary from "@/views/typing/TestSummary.vue";
+    import TestBestResults from "@/views/typing/TestBestResults.vue";
 
     @Component({
-        components: {TestSummary, TestTimer, TestSelection, TestPanel},
+        components: {TestBestResults, TestSummary, TestTimer, TestSelection, TestPanel},
         computed: {
             ...mapGetters(["activeUserTestDefinition"])
         }
