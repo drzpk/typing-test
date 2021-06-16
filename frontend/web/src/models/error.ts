@@ -48,3 +48,5 @@ export class ServerError {
         this.data = data;
     }
 }
+
+export class UserNotLoggedInError {}

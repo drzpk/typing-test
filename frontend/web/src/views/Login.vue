@@ -5,6 +5,9 @@
             <b-row>
                 <b-col cols="10" md="4" offset="1" offset-md="4">
                     <b-form id="login-form" @submit="loginUser">
+                        <h4>Login to the application</h4>
+                        <br>
+
                         <b-form-group label-cols="2" label="E-mail">
                             <b-form-input type="email" v-model="email" @input="resetIncorrectStatus"
                                           placeholder="E-mail" required/>
@@ -26,7 +29,6 @@
 </template>
 
 <script lang="ts">
-    import ApiService from "@/services/Api.service";
     import {Component, Vue} from "vue-property-decorator";
     import router from "@/router";
 
@@ -42,12 +44,11 @@
 
         loginUser(event: Event) {
             event.preventDefault();
-            ApiService.login(this.email, this.password).then(authenticationDetails => {
-                this.$store.commit("setAuthenticationDetails", authenticationDetails);
+            this.$store.dispatch("login", {email: this.email, password: this.password}).then(() => {
                 router.push({name: "TestPage"});
             }).catch(() => {
                 this.incorrect = true;
-            })
+            });
         }
     }
 </script>

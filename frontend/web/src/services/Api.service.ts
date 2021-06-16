@@ -6,18 +6,32 @@ import {
     SearchUsersResponse,
     UpdateSettingsRequest
 } from "@/models/user";
-import {ErrorCode, ErrorCodeModel, ServerError, ValidationErrorsModel, ValidationFailedError} from "@/models/error";
+import {
+    ErrorCode,
+    ErrorCodeModel,
+    ServerError,
+    UserNotLoggedInError,
+    ValidationErrorsModel,
+    ValidationFailedError
+} from "@/models/error";
 import {WordList, WordListWordsResponse} from "@/models/words";
 import {PagedRequest} from "@/models/pagination";
 import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/test-definition";
 import {FinishTestRequest, TestBestResultModel, TestModel, TestResultModel} from "@/models/tests";
 import {TestStatsModel} from "@/models/test-stats";
 import DateService from "./Date.service";
+import router from "@/router";
 
 function errorHandler(error: AxiosError): never {
     if (error.response?.status == 422) {
         const errors = error.response.data as ValidationErrorsModel;
         throw new ValidationFailedError(errors.errors);
+    } else if (error.response?.status == 401) {
+        if (error.config.url != "/api/login") {
+            // noinspection JSIgnoredPromiseFromCall
+            router.push("/login");
+        }
+        throw new UserNotLoggedInError();
     } else if (error.response?.data.code && error.response?.data.message) {
         const model = error.response.data as ErrorCodeModel;
         throw new ServerError(model);
@@ -49,6 +63,11 @@ class ApiService {
             password
         };
         return axios.post("/api/login", data).then((response) => response.data)
+            .catch(errorHandler);
+    }
+
+    logout(): Promise<unknown> {
+        return axios.post("/api/logout")
             .catch(errorHandler);
     }
 

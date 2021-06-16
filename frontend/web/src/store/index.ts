@@ -2,13 +2,17 @@ import ApiService from '@/services/Api.service'
 import Vue from 'vue'
 import Vuex, {ActionContext} from 'vuex'
 import {AxiosError} from "axios";
-import router from "@/router";
 import {AuthenticationDetails} from "@/models/user";
 import admin from "./admin";
 import test from "./test";
 import testStats from "./test-stats";
 
 Vue.use(Vuex);
+
+export interface LoginData {
+    email: string;
+    password: string;
+}
 
 export interface RootState {
     applicationLoaded: boolean;
@@ -39,17 +43,21 @@ export default new Vuex.Store<RootState>({
         loadApplication(context: ActionContext<any, any>) {
             ApiService.getAuthenticationDetails().then((details) => {
                 context.commit("setAuthenticationDetails", details);
-                return router.push({name: "TestPage"});
             }).catch((error: AxiosError) => {
-                if (error.response?.status != 401) {
-                    console.error("Unexpected error while getting authentication details: " + error.response?.data)
-                }
-                router.push({name: "Login"})
-                    .catch((error) => {
-                        if (error.name !== "NavigationDuplicated")
-                            throw error;
-                    })
-                    .then(() => context.commit("markApplicationLoaded"))
+                context.commit("markApplicationLoaded");
+                throw error;
+            });
+        },
+
+        login(context: ActionContext<any, any>, loginData: LoginData) {
+            return ApiService.login(loginData.email, loginData.password).then(authenticationDetails => {
+                context.commit("setAuthenticationDetails", authenticationDetails);
+            });
+        },
+
+        logout(context: ActionContext<any, any>) {
+            return ApiService.logout().then(() => {
+               context.commit("setAuthenticationDetails", null);
             });
         },
 
