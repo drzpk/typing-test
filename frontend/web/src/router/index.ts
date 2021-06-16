@@ -7,6 +7,7 @@ import AdminSettings from "@/views/settings/admin/AdminSettings.vue";
 import WordList from "@/views/settings/admin/word/WordList.vue";
 import TestDefinition from "@/views/settings/admin/test/TestDefinition.vue";
 import TestStats from "@/views/settings/stats/TestStats.vue";
+import Register from '@/views/Register.vue';
 
 Vue.use(VueRouter);
 
@@ -19,6 +20,11 @@ const routes: Array<RouteConfig> = [
         path: '/login',
         name: 'Login',
         component: Login
+    },
+    {
+        path: '/register',
+        name: 'Register',
+        component: Register
     },
     {
         path: '/test',

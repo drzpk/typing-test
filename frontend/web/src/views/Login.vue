@@ -17,6 +17,7 @@
                                           placeholder="Password" required/>
                         </b-form-group>
                         <div id="form-controls">
+                            <router-link to="/register">Create new account</router-link>
                             <b-button type="submit" variant="primary" :disabled="incorrect">Submit</b-button>
                         </div>
 
@@ -62,7 +63,10 @@
     }
 
     #form-controls {
-        text-align: right;
+
+        button {
+            float: right;
+        }
     }
 
     .incorrect {

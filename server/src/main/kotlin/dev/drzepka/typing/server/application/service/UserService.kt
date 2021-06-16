@@ -39,6 +39,11 @@ class UserService(
     fun findUser(email: String, password: String): User? {
         val user = userRepository.findByEmail(email) ?: return null
 
+        if (!user.isActive()) {
+            log.debug("Found user {} but the account isn't active", email)
+            return null
+        }
+
         if (!hashService.compareHashes(user.password, password)) {
             log.debug("Found user {} but passwords don't match", email)
             return null

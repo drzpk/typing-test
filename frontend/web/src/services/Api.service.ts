@@ -57,6 +57,16 @@ class ApiService {
             .catch(errorHandler);
     }
 
+    register(email: string, displayName: string, password: string) {
+        const payload = {
+            email,
+            displayName,
+            password
+        };
+        return axios.post("/api/register", payload)
+            .catch(errorHandler);
+    }
+
     login(email: string, password: string): Promise<AuthenticationDetails> {
         const data = {
             email,

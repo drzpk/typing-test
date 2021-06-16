@@ -2,11 +2,11 @@
     <header>
         <div id="title-container">
             <div id="title">
-                <h1 @click="$router.push('/test')"><span class="key">T</span>yping <span class="key">T</span>est</h1>
+                <h1 @click="goToMainPage"><span class="key">T</span>yping <span class="key">T</span>est</h1>
             </div>
         </div>
 
-        <div id="user-panel">
+        <div id="user-panel" v-show="isLoggedIn">
             <div class="button" @click="openUserPanel">
                 <font-awesome-icon icon="user"/>
                 User panel
@@ -21,9 +21,20 @@
 
 <script lang="ts">
     import {Component, Vue} from "vue-property-decorator";
+    import {mapGetters} from "vuex";
 
-    @Component
+    @Component({
+        computed: {
+            ...mapGetters(["isLoggedIn"])
+        }
+    })
     export default class Header extends Vue {
+        isLoggedIn!: boolean;
+
+        goToMainPage(): void {
+            if (this.isLoggedIn)
+                this.$router.push("/test");
+        }
 
         openUserPanel(): void {
             this.$router.push("/settings");

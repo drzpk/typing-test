@@ -9,6 +9,12 @@ import testStats from "./test-stats";
 
 Vue.use(Vuex);
 
+export interface RegisterData {
+    email: string;
+    displayName: string;
+    password: string;
+}
+
 export interface LoginData {
     email: string;
     password: string;
@@ -47,6 +53,10 @@ export default new Vuex.Store<RootState>({
                 context.commit("markApplicationLoaded");
                 throw error;
             });
+        },
+
+        register(context: ActionContext<any, any>, registerData: RegisterData) {
+            return ApiService.register(registerData.email, registerData.displayName, registerData.password);
         },
 
         login(context: ActionContext<any, any>, loginData: LoginData) {
