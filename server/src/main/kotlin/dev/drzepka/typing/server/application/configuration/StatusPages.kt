@@ -2,8 +2,10 @@ package dev.drzepka.typing.server.application.configuration
 
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException
 import dev.drzepka.typing.server.application.exception.ErrorCodeException
+import dev.drzepka.typing.server.application.exception.SecurityException
 import dev.drzepka.typing.server.application.exception.ValidationException
 import dev.drzepka.typing.server.application.handler.ErrorCodeExceptionHandler
+import dev.drzepka.typing.server.application.handler.SecurityExceptionHandler
 import dev.drzepka.typing.server.application.handler.UnrecognizedPropertyExceptionHandler
 import dev.drzepka.typing.server.application.handler.ValidationExceptionHandler
 import io.ktor.application.*
@@ -20,6 +22,7 @@ fun Application.setupStatusPages() {
         val validationExceptionHandler = ValidationExceptionHandler()
         val unrecognizedPropertyExceptionhandler = UnrecognizedPropertyExceptionHandler()
         val errorCodeExceptionHandler = ErrorCodeExceptionHandler()
+        val securityExceptionHandler = SecurityExceptionHandler()
 
         exception<ValidationException> { cause ->
             val result = validationExceptionHandler.handle(cause)
@@ -39,6 +42,14 @@ fun Application.setupStatusPages() {
 
         exception<ErrorCodeException> { cause ->
             val result = errorCodeExceptionHandler.handle(cause)
+            if (result.body != null)
+                call.respond(result.statusCode, result.body)
+            else
+                call.respond(result.statusCode)
+        }
+
+        exception<SecurityException> { cause ->
+            val result = securityExceptionHandler.handle(cause)
             if (result.body != null)
                 call.respond(result.statusCode, result.body)
             else

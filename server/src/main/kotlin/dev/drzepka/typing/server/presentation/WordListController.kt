@@ -2,6 +2,7 @@ package dev.drzepka.typing.server.presentation
 
 import dev.drzepka.typing.server.application.dto.wordlist.CreateWordListRequest
 import dev.drzepka.typing.server.application.dto.wordlist.WordListResource
+import dev.drzepka.typing.server.application.security.adminInterceptor
 import dev.drzepka.typing.server.application.service.WordListService
 import io.ktor.application.*
 import io.ktor.http.*
@@ -15,6 +16,8 @@ fun Route.wordListController() {
     val wordListService = get<WordListService>()
 
     route("/word-lists") {
+        adminInterceptor()
+
         get("") {
             val collection = transaction {
                 wordListService.listWordLists().map { WordListResource.fromEntity(it) }

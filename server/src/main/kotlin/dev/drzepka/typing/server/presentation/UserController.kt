@@ -4,6 +4,7 @@ import dev.drzepka.typing.server.application.dto.user.ChangePasswordRequest
 import dev.drzepka.typing.server.application.dto.user.SearchUsersRequest
 import dev.drzepka.typing.server.application.dto.user.UpdateAccountSettingsRequest
 import dev.drzepka.typing.server.application.dto.user.UserAuthenticationDetailsDTO
+import dev.drzepka.typing.server.application.security.adminInterceptor
 import dev.drzepka.typing.server.application.service.UserService
 import dev.drzepka.typing.server.application.util.getRequiredIntParam
 import dev.drzepka.typing.server.domain.repository.UserRepository
@@ -64,6 +65,8 @@ fun Route.userController() {
     }
 
     route("/users") {
+        adminInterceptor()
+
         delete("/{userId}") {
             val userId = getRequiredIntParam("userId")
 

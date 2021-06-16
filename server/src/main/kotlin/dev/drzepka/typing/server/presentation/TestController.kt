@@ -34,7 +34,8 @@ fun Route.testController() {
             val testId = getRequiredIntParam("testId")
 
             val resource = transaction {
-                testManagerService.getTest(testId)
+                val user = getCurrentUser(userRepository)
+                testManagerService.getTest(testId, user)
             }
 
             call.respond(resource)
@@ -43,7 +44,8 @@ fun Route.testController() {
         delete("/{testId}") {
             val testId = getRequiredIntParam("testId")
             transaction {
-                testManagerService.deleteTest(testId)
+                val user = getCurrentUser(userRepository)
+                testManagerService.deleteTest(testId, user)
             }
 
             call.respond(HttpStatusCode.NoContent)
@@ -52,7 +54,8 @@ fun Route.testController() {
         post("/{testId}/words") {
             val testId = getRequiredIntParam("testId")
             val resource = transaction {
-                testManagerService.regenerateWordList(testId)
+                val user = getCurrentUser(userRepository)
+                testManagerService.regenerateWordList(testId, user)
             }
 
             call.respond(resource)
@@ -61,7 +64,8 @@ fun Route.testController() {
         post("/{testId}/start") {
             val testId = getRequiredIntParam("testId")
             val resource = transaction {
-                testManagerService.startTest(testId)
+                val user = getCurrentUser(userRepository)
+                testManagerService.startTest(testId, user)
             }
 
             call.respond(resource)
@@ -72,7 +76,8 @@ fun Route.testController() {
             val request = call.receive<FinishTestRequest>()
 
             val resource = transaction {
-                testManagerService.finishTest(testId, request)
+                val user = getCurrentUser(userRepository)
+                testManagerService.finishTest(testId, request, user)
             }
 
             call.respond(resource)

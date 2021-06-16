@@ -30,7 +30,7 @@ fun Route.loginController() {
         val loginData = call.receive<LoginDataDTO>()
         val dto = transaction {
             val user = userService.findUser(loginData.email, loginData.password) ?: error("user not found")
-            call.sessions.set(TypingTestSession(user.id!!))
+            call.sessions.set(TypingTestSession(user.id!!, user.isAdmin()))
             UserAuthenticationDetailsDTO.fromUserEntity(user)
         }
         call.respond(dto)

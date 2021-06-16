@@ -4,6 +4,7 @@ import dev.drzepka.typing.server.application.dto.test.CreateTestRequest
 import dev.drzepka.typing.server.application.dto.test.FinishTestRequest
 import dev.drzepka.typing.server.application.dto.test.TestResource
 import dev.drzepka.typing.server.application.exception.ErrorCode
+import dev.drzepka.typing.server.application.exception.SecurityException
 import dev.drzepka.typing.server.domain.entity.Test
 import dev.drzepka.typing.server.domain.entity.TestResult
 import dev.drzepka.typing.server.domain.entity.User
@@ -43,23 +44,28 @@ class TestManagerService(
         return TestResource.fromEntity(test)
     }
 
-    fun getTest(id: Int): TestResource {
-        return TestResource.fromEntity(doGetTest(id))
+    fun getTest(id: Int, user: User): TestResource {
+        val test = doGetTest(id)
+        checkPermissionsToTest(user, test)
+        return TestResource.fromEntity(test)
     }
 
-    fun deleteTest(id: Int) {
+    fun deleteTest(id: Int, user: User) {
         log.info("Deleting test {}", id)
 
         val test = doGetTest(id)
+        checkPermissionsToTest(user, test)
+
         if (test.state == TestState.FINISHED)
             ErrorCode.CANNOT_DELETE_FINISHED_TEST.throwError(id)
 
         testRepository.delete(id)
     }
 
-    fun startTest(id: Int): TestResource {
+    fun startTest(id: Int, user: User): TestResource {
         log.info("Starting test {}", id)
         val test = doGetTest(id)
+        checkPermissionsToTest(user, test)
 
         if (test.state == TestState.CREATED_TIMEOUT)
             ErrorCode.TEST_START_TIMEOUT.throwError(id, mapOf("timeout" to test.createdAt.plus(test.startTimeLimit!!)))
@@ -72,9 +78,10 @@ class TestManagerService(
         return TestResource.fromEntity(test)
     }
 
-    fun finishTest(id: Int, request: FinishTestRequest): TestResource {
+    fun finishTest(id: Int, request: FinishTestRequest, user: User): TestResource {
         log.info("Finishing test {}", id)
         val test = doGetTest(id)
+        checkPermissionsToTest(user, test)
 
         if (test.state == TestState.STARTED_TIMEOUT)
             ErrorCode.TEST_FINISH_TIMEOUT.throwError(
@@ -96,10 +103,12 @@ class TestManagerService(
         return TestResource.fromEntity(test)
     }
 
-    fun regenerateWordList(testId: Int): TestResource {
+    fun regenerateWordList(testId: Int, user: User): TestResource {
         log.info("Regenerating word list of test {}", testId)
 
         val test = doGetTest(testId)
+        checkPermissionsToTest(user, test)
+
         if (test.state != TestState.CREATED)
             ErrorCode.TEST_REGENERATE_WORD_ERROR.throwError(
                 testId, mapOf("state" to TestResource.State.fromValue(test.state))
@@ -109,6 +118,11 @@ class TestManagerService(
         testRepository.save(test)
 
         return TestResource.fromEntity(test)
+    }
+
+    private fun checkPermissionsToTest(user: User, test: Test) {
+        if (test.takenBy.id != user.id && !user.isAdmin())
+            throw SecurityException("User {} doesn't have permissions to test {}".format(user.id, test.id))
     }
 
     private fun reuseExistingTest(test: Test) {

@@ -76,7 +76,7 @@ class TestManagerServiceTest {
         val test = dev.drzepka.typing.server.domain.entity.Test(getTestDefinition(1), User(), WordSelection())
         whenever(testRepository.findById(123)).thenReturn(test)
 
-        getService().deleteTest(123)
+        getService().deleteTest(123, getUser())
         verify(testRepository, times(1)).delete(eq(123))
     }
 
@@ -88,7 +88,7 @@ class TestManagerServiceTest {
         }
         whenever(testRepository.findById(123)).thenReturn(test)
 
-        val throwable = catchThrowable { getService().deleteTest(123) }
+        val throwable = catchThrowable { getService().deleteTest(123, getUser()) }
 
         then(throwable).isInstanceOf(ErrorCodeException::class.java)
         val exception = throwable as ErrorCodeException
@@ -102,7 +102,7 @@ class TestManagerServiceTest {
         }
         whenever(testRepository.findById(13)).thenReturn(test)
 
-        getService().startTest(13)
+        getService().startTest(13, getUser())
 
         then(test.state).isEqualTo(TestState.STARTED)
         verify(testRepository, times(1)).save(same(test))
@@ -115,7 +115,7 @@ class TestManagerServiceTest {
         }
         whenever(testRepository.findById(12)).thenReturn(test)
 
-        val throwable = catchThrowable { getService().startTest(12) }
+        val throwable = catchThrowable { getService().startTest(12, getUser()) }
 
         then(throwable).isInstanceOf(ErrorCodeException::class.java)
         val exception = throwable as ErrorCodeException
@@ -127,11 +127,12 @@ class TestManagerServiceTest {
         val test = dev.drzepka.typing.server.domain.entity.Test(getTestDefinition(1), User(), WordSelection()).apply {
             id = 13
             startedAt = Instant.now()
+            selectedWords = WordSelection().deserialize("abc|def")
         }
         whenever(testRepository.findById(13)).thenReturn(test)
 
         val request = FinishTestRequest().apply { enteredWords = "abc"; backspaceCount = 132 }
-        getService().finishTest(13, request)
+        getService().finishTest(13, request, getUser())
 
         then(test.state).isEqualTo(TestState.FINISHED)
         then(test.backspaceCount).isEqualTo(132)
@@ -148,7 +149,7 @@ class TestManagerServiceTest {
         }
         whenever(testRepository.findById(12)).thenReturn(test)
 
-        val throwable = catchThrowable { getService().finishTest(12, FinishTestRequest()) }
+        val throwable = catchThrowable { getService().finishTest(12, FinishTestRequest(), getUser()) }
 
         then(throwable).isInstanceOf(ErrorCodeException::class.java)
         val exception = throwable as ErrorCodeException
@@ -164,7 +165,7 @@ class TestManagerServiceTest {
         whenever(testRepository.findById(11)).thenReturn(test)
         whenever(testService.regenerateWordList(any())).thenAnswer { WordSelection() }
 
-        getService().regenerateWordList(11)
+        getService().regenerateWordList(11, getUser())
 
         verify(testService, times(1)).regenerateWordList(same(test))
     }
@@ -176,7 +177,7 @@ class TestManagerServiceTest {
         }
         whenever(testRepository.findById(99)).thenReturn(test)
 
-        val caught = catchThrowable { getService().regenerateWordList(99) }
+        val caught = catchThrowable { getService().regenerateWordList(99, getUser()) }
 
         then(caught).isInstanceOf(ErrorCodeException::class.java)
         val exception = caught as ErrorCodeException
@@ -189,6 +190,8 @@ class TestManagerServiceTest {
             wordList = WordList().apply { this.id = 2 }
         }
     }
+
+    private fun getUser(): User = User().apply { email = "admin@drzepka.dev" }
 
     private fun getService(): TestManagerService =
         TestManagerService(testDefinitionRepository, testRepository, testResultRepository, testService)
