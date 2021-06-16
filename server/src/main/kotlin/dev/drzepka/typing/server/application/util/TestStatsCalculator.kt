@@ -33,8 +33,8 @@ class TestStatsCalculator(initialCapacity: Int) {
         return TestStatsResource(
             TestDefinitionResource.fromEntity(definition),
             takenTests,
-            totalWordsPerMinute / takenTests,
-            totalAccuracy / takenTests,
+            if (takenTests > 0) totalWordsPerMinute / takenTests else 0f,
+            if (takenTests > 0) totalAccuracy / takenTests else 0f,
             wordsPerMinuteValues,
             accuracyValues
         )

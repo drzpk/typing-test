@@ -98,7 +98,7 @@ class ApiService {
     }
 
     getTestDefinitions(): Promise<Array<TestDefinitionModel>> {
-        return axios.get("/api/test-definitions")
+        return axios.get("/api/test-definitions?active=true")
             .then(response => response.data)
             .catch(errorHandler);
     }
