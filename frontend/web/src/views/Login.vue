@@ -35,8 +35,8 @@
 
     @Component
     export default class Login extends Vue {
-        email = "admin@drzepka.dev";
-        password = "admin";
+        email = "";
+        password = "";
         incorrect = false;
 
         resetIncorrectStatus() {
