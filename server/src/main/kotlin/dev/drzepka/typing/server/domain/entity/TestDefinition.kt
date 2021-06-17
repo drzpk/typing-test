@@ -16,5 +16,4 @@ class TestDefinition : AbstractEntity<Int>() {
     var isActive = true
     var createdAt: Instant = Instant.now()
     var modifiedAt: Instant = Instant.now()
-    // todo: test order
 }

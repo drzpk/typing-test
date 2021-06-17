@@ -14,7 +14,6 @@ import io.ktor.sessions.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.ktor.ext.get
 
-// todo: error handling
 fun Route.loginController() {
     val userService = get<UserService>()
 

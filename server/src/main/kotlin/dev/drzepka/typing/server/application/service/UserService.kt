@@ -3,6 +3,7 @@ package dev.drzepka.typing.server.application.service
 import dev.drzepka.typing.server.application.dto.PagedResourceCollection
 import dev.drzepka.typing.server.application.dto.user.*
 import dev.drzepka.typing.server.application.exception.ErrorCode
+import dev.drzepka.typing.server.application.security.PasswordGenerator
 import dev.drzepka.typing.server.application.validation.ValidationState
 import dev.drzepka.typing.server.application.validation.Validators
 import dev.drzepka.typing.server.domain.PagedQuery
@@ -138,10 +139,10 @@ class UserService(
         if (found != null)
             return
 
-        // todo: generate random password
-        val randomPassword = "admin"
+        val randomPassword = PasswordGenerator().generatePassword(10, 16, true)
 
         log.info("Admin user doesn't exist, creating")
+        log.info("Generated random admin password: {}", randomPassword)
         val dto = CreateUserRequest().apply {
             email = ADMIN_USER_EMAIL
             password = randomPassword
