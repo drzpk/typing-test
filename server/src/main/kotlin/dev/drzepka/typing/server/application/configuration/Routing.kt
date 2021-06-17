@@ -8,6 +8,7 @@ import io.ktor.routing.*
 fun Application.setupRouting() {
 
     routing {
+        frontendBundleController()
 
         route("/api") {
             loginController()

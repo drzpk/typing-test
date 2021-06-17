@@ -3,17 +3,23 @@ val ktor_version: String by project
 val kotlin_version: String by project
 
 buildscript {
+    repositories {
+        jcenter()
+    }
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-allopen:1.4.30")
+        classpath("com.github.jengelman.gradle.plugins:shadow:5.2.0")
     }
 }
 
 plugins {
     application
+    java
     kotlin("jvm") version "1.4.30"
     kotlin("plugin.allopen") version "1.4.30"
     id("koin")
     id("org.liquibase.gradle") version "2.0.3"
+    id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
 application {
@@ -87,3 +93,15 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+tasks.register<Copy>("embedFrontend") {
+    dependsOn("deleteOldFrontendResources", ":frontend:npmBuild")
+    from("${project.rootProject.projectDir}/frontend/web/dist")
+    into("${project.buildDir}/resources/main/frontend-bundle")
+}
+
+tasks.register<Delete>("deleteOldFrontendResources") {
+    delete("${project.buildDir}/resources/main/frontend-bundle")
+}
+
+tasks.findByName("shadowJar")?.dependsOn("embedFrontend")
