@@ -10,6 +10,9 @@ import dev.drzepka.typing.server.domain.repository.WordListRepository
 import dev.drzepka.typing.server.domain.util.Logger
 import java.time.Duration
 
+/**
+ * Manages test definitions.
+ */
 class TestDefinitionService(private val testDefinitionRepository: TestDefinitionRepository, private val wordListRepository: WordListRepository) {
     private val log by Logger()
 

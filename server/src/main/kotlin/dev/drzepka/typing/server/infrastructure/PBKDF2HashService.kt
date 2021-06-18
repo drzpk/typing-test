@@ -7,6 +7,22 @@ import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 import kotlin.math.min
 
+/**
+ * This class is responsible for generating a hash from given password or comparing them.
+ *
+ * Hash is composed of three parts (separated a colon):
+ * * number of digest iterations
+ * * salt
+ * * PBKDF2 digest
+ *
+ * An example hash looks like this:
+ * ```
+ * 1000:428d2ba061bf90eeccf8df5b4a152a9f:63e4df3d697660e4e498e648323a6f0c138d5fdd099d2760f690a3a26e181c53
+ * ```
+ *
+ * When comparing hashes, they are split into abovementioned parts and the plaintext is then converted to
+ * a digest using the first two hash parts.
+ */
 class PBKDF2HashService : HashService {
 
     private val secureRandom = SecureRandom()

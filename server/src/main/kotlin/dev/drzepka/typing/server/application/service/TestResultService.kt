@@ -19,6 +19,10 @@ class TestResultService(
         return TestResultResource.fromEntity(entity)
     }
 
+    /**
+     * Returns a list of best results for given test definition. The list
+     * is ordered by a total score in decreasing order.
+     */
     fun getBestResults(testDefinitionId: Int): List<TestBestResultResource> {
         // Find best results in speed and accuracy separately
         val bestSpeedResults = testResultsDAO.findHighestResultsBySpeed(testDefinitionId, BEST_RESULTS_SIZE)

@@ -10,6 +10,9 @@ import dev.drzepka.typing.server.domain.repository.TestDefinitionRepository
 import dev.drzepka.typing.server.domain.repository.TestResultRepository
 import dev.drzepka.typing.server.domain.util.Logger
 
+/**
+ * Manages test statistics.
+ */
 class TestStatsService(
     private val testDefinitionRepository: TestDefinitionRepository,
     private val testResultRepository: TestResultRepository
@@ -17,6 +20,12 @@ class TestStatsService(
 
     private val log by Logger()
 
+    /**
+     * Calculates user stats of given test. Computation is done on the fly.
+     * @param user user for which to calculate test stats
+     * @param testDefinitionId id of test definition
+     * @return calculated test statistics
+     */
     fun calculateTestStats(user: User, testDefinitionId: Int): TestStatsResource {
         val definition = getTestDefinition(testDefinitionId)
         val (offset, limit) = getOffsetAndLimit(user.id!!, testDefinitionId)

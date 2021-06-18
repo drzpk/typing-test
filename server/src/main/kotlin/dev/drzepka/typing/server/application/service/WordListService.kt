@@ -8,6 +8,9 @@ import dev.drzepka.typing.server.domain.util.Logger
 import dev.drzepka.typing.server.domain.util.Mockable
 import dev.drzepka.typing.server.domain.value.Language
 
+/**
+ * Manages word lists used in typing tests.
+ */
 @Mockable
 class WordListService(private val wordListRepository: WordListRepository) {
     private val log by Logger()

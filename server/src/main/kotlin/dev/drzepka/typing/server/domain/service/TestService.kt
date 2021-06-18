@@ -13,6 +13,9 @@ import java.util.*
 import kotlin.math.ceil
 import kotlin.math.floor
 
+/**
+ * Manages [Test] entities.
+ */
 @Mockable
 class TestService(
     private val configurationRepository: ConfigurationRepository,
@@ -36,6 +39,9 @@ class TestService(
         return test
     }
 
+    /**
+     * Generates new word list for the given test.
+     */
     fun regenerateWordList(test: Test) {
         log.info("Regenerating word list of test {}", test.id)
         test.selectedWords = createWordSelection(test.testDefinition)
@@ -47,6 +53,10 @@ class TestService(
         return getRandomWords(definition, allWords)
     }
 
+    /**
+     * Picks random words from given collection. Each word has it's own popularity, so more popular words
+     * have proportionally higher probability to be picked.
+     */
     private fun getRandomWords(definition: TestDefinition, orderedWords: Collection<Word>): WordSelection {
         val map = TreeMap<Long, String>()
         var totalPopularity = 0L

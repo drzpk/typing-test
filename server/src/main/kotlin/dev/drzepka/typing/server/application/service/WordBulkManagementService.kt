@@ -6,6 +6,9 @@ import dev.drzepka.typing.server.application.dto.word.AddWordRequest
 import dev.drzepka.typing.server.application.validation.ValidationState
 import dev.drzepka.typing.server.domain.util.Logger
 
+/**
+ * This class is responsible for word bulk-management.
+ */
 class WordBulkManagementService(private val wordListService: WordListService, private val wordService: WordService) {
 
     private val log by Logger()

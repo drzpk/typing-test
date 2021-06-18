@@ -6,6 +6,9 @@ import dev.drzepka.typing.server.application.dto.teststats.TimedData
 import dev.drzepka.typing.server.domain.entity.TestDefinition
 import dev.drzepka.typing.server.domain.entity.TestResult
 
+/**
+ * Calculates statistics based on provided test results.
+ */
 class TestStatsCalculator(initialCapacity: Int) {
 
     private var takenTests = 0

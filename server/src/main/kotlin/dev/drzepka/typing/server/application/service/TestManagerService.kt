@@ -17,6 +17,9 @@ import dev.drzepka.typing.server.domain.value.TestState
 import dev.drzepka.typing.server.domain.value.WordSelection
 import java.time.Instant
 
+/**
+ * Manages test instances.
+ */
 class TestManagerService(
     private val testDefinitionRepository: TestDefinitionRepository,
     private val testRepository: TestRepository,
@@ -26,6 +29,9 @@ class TestManagerService(
 
     private val log by Logger()
 
+    /**
+     * Creates a test from its definition.
+     */
     fun createTest(request: CreateTestRequest, creator: User): TestResource {
         log.info("Creating test from definition {} with user {}", request.testDefinitionId, creator.id)
 
@@ -62,6 +68,9 @@ class TestManagerService(
         testRepository.delete(id)
     }
 
+    /**
+     * Starts a test or returns an error if start time limit has been reached.
+     */
     fun startTest(id: Int, user: User): TestResource {
         log.info("Starting test {}", id)
         val test = doGetTest(id)
@@ -78,6 +87,9 @@ class TestManagerService(
         return TestResource.fromEntity(test)
     }
 
+    /**
+     * Finishes a test or returns an error if finish time limit has been exceeded.
+     */
     fun finishTest(id: Int, request: FinishTestRequest, user: User): TestResource {
         log.info("Finishing test {}", id)
         val test = doGetTest(id)
@@ -103,6 +115,9 @@ class TestManagerService(
         return TestResource.fromEntity(test)
     }
 
+    /**
+     * Generates a new random word list for given test. Test cannot be started or finished.
+     */
     fun regenerateWordList(testId: Int, user: User): TestResource {
         log.info("Regenerating word list of test {}", testId)
 

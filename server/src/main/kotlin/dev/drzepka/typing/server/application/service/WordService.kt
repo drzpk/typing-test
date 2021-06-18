@@ -10,6 +10,9 @@ import dev.drzepka.typing.server.domain.repository.WordListRepository
 import dev.drzepka.typing.server.domain.repository.WordRepository
 import dev.drzepka.typing.server.domain.util.Mockable
 
+/**
+ * Manages words used in typing tests.
+ */
 @Mockable
 class WordService(private val wordListRepository: WordListRepository, private val wordRepository: WordRepository) {
 

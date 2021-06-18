@@ -7,5 +7,6 @@ class TestBestResultResource(
     var testCreatedAt: Instant,
     var speed: Float,
     var accuracy: Float,
+    /** Total score of this result, calculated based on the speed and the accuracy. **/
     var score: Int
 )

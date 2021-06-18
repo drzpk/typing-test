@@ -2,10 +2,20 @@ package dev.drzepka.typing.server.application.security
 
 import java.security.SecureRandom
 
+/**
+ * Geneartes random passwords using a crypographically-secure random number generator.
+ */
 class PasswordGenerator {
 
     private val secureRandom = SecureRandom()
 
+    /**
+     * Generates a random password based on provided parameters.
+     * @param minCharacters minimum number of characters
+     * @param maxCharacters maximum number of characters (inclusive)
+     * @param includeDigits whether to include digits
+     * @return a random password
+     */
     fun generatePassword(minCharacters: Int, maxCharacters: Int, includeDigits: Boolean): String {
         val passwordLength = getRandomNumber(minCharacters, maxCharacters)
 

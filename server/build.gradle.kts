@@ -20,6 +20,7 @@ plugins {
     id("koin")
     id("org.liquibase.gradle") version "2.0.3"
     id("com.github.johnrengelman.shadow") version "5.2.0"
+    id("org.jetbrains.dokka") version "1.4.32"
 }
 
 application {
@@ -59,6 +60,8 @@ dependencies {
 
     liquibaseRuntime("org.liquibase:liquibase-core:4.3.2")
     liquibaseRuntime("mysql:mysql-connector-java:8.0.19")
+
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.32")
 }
 
 allOpen {
