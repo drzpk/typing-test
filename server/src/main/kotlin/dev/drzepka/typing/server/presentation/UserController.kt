@@ -8,7 +8,6 @@ import dev.drzepka.typing.server.application.security.adminInterceptor
 import dev.drzepka.typing.server.application.service.UserService
 import dev.drzepka.typing.server.application.util.getRequiredIntParam
 import dev.drzepka.typing.server.domain.repository.UserRepository
-import dev.drzepka.typing.server.domain.util.clearUserSession
 import dev.drzepka.typing.server.domain.util.getCurrentUser
 import io.ktor.application.*
 import io.ktor.http.*
@@ -50,7 +49,6 @@ fun Route.userController() {
                 userService.changePassword(user, request)
             }
 
-            clearUserSession()
             call.respond(HttpStatusCode.NoContent)
         }
 

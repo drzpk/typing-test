@@ -8,11 +8,29 @@
         </layout>
     </appender>
 
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>${PATTERN}</Pattern>
+        </layout>
+        <file>logs/typingtest.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/typingtest-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>90</maxHistory>
+        </rollingPolicy>
+        <append>true</append>
+    </appender>
+
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
     </root>
 
-    <logger name="Exposed" level="DEBUG" additivity="false">
+    <logger name="dev.drzepka.typing" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <logger name="Exposed" level="OFF" additivity="false">
         <appender-ref ref="CONSOLE"/>
     </logger>
 

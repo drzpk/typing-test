@@ -127,6 +127,8 @@ class UserService(
         log.info("Changing password of the user {}", user.id)
         val newHash = hashService.createHash(request.newPassword)
         user.password = newHash
+
+        userRepository.save(user)
     }
 
     private fun oldPasswordMatches(user: User, oldPassword: String): Boolean {
@@ -171,6 +173,9 @@ class UserService(
         user.displayName = request.displayName!!
         user.password = hashService.createHash(request.password!!)
         user.createdAt = Instant.now()
+
+        if (user.email == ADMIN_USER_EMAIL)
+            user.activate()
 
         userRepository.save(user)
         log.info("Created user {} ({})", user.id, user.email)

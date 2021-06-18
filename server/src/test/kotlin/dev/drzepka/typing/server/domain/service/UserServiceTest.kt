@@ -69,6 +69,7 @@ class UserServiceTest : AbstractDatabaseTest() {
             password = hashService.createHash("password")
             displayName = "display"
             createdAt = Instant.now()
+            activatedAt = Instant.now()
         }
 
         whenever(userRepository.findByEmail("email@email.com")).thenReturn(existingUser)

@@ -39,7 +39,7 @@ fun Route.testDefinitionController() {
             call.respond(resources)
         }
 
-        route("/") {
+        route("") {
             adminInterceptor()
 
             post("") {
