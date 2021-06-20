@@ -7,6 +7,7 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.sessions.*
+import io.ktor.util.pipeline.*
 import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger("Interceptors")
@@ -23,11 +24,15 @@ fun Route.sessionInterceptor() {
 
 fun Route.adminInterceptor() {
     intercept(ApplicationCallPipeline.Features) {
-        val session = call.sessions.get<TypingTestSession>()!!
-        if (!session.isAdmin) {
-            log.warn("Non-admin user attempted to access admin-only resource at " + call.request.uri)
-            call.respond(HttpStatusCode.Forbidden)
-            finish()
-        }
+        adminVerifier()
+    }
+}
+
+suspend fun PipelineContext<Unit, ApplicationCall>.adminVerifier() {
+    val session = call.sessions.get<TypingTestSession>()!!
+    if (!session.isAdmin) {
+        log.warn("Non-admin user attempted to access admin-only resource at " + call.request.uri)
+        call.respond(HttpStatusCode.Forbidden)
+        finish()
     }
 }
