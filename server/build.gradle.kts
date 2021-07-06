@@ -21,6 +21,7 @@ plugins {
     id("org.liquibase.gradle") version "2.0.3"
     id("com.github.johnrengelman.shadow") version "5.2.0"
     id("org.jetbrains.dokka") version "1.4.32"
+    id("com.google.cloud.tools.jib") version "3.1.4"
 }
 
 application {
@@ -81,6 +82,18 @@ liquibase {
     }
 }
 
+jib {
+    from {
+        image = "adoptopenjdk/openjdk11:x86_64-ubuntu-jre-11.0.12_7"
+    }
+    to {
+        image = "typingtest-server:${rootProject.version}"
+    }
+    container {
+        mainClass = "io.ktor.server.tomcat.EngineMain"
+    }
+}
+
 configurations {
     all {
         exclude(group = "junit")
@@ -108,3 +121,6 @@ tasks.register<Delete>("deleteOldFrontendResources") {
 }
 
 tasks.findByName("shadowJar")?.dependsOn("embedFrontend")
+listOf(tasks.findByName("jib"), tasks.findByName("jibDockerBuild")).forEach {
+    it?.dependsOn("shadowJar")
+}

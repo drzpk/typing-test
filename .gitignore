@@ -5,3 +5,4 @@ build/
 /tomcat.*/
 /logs/
 /.sessions/
+/workspace/
