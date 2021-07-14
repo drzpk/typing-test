@@ -129,8 +129,8 @@ class TestManagerService(
                 testId, mapOf("state" to TestResource.State.fromValue(test.state))
             )
 
-        testService.regenerateWordList(test)
-        testRepository.save(test)
+        if (testService.regenerateWordList(test))
+            testRepository.save(test)
 
         return TestResource.fromEntity(test)
     }

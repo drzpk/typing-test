@@ -163,7 +163,7 @@ class TestManagerServiceTest {
             id = 11
         }
         whenever(testRepository.findById(11)).thenReturn(test)
-        whenever(testService.regenerateWordList(any())).thenAnswer { WordSelection() }
+        whenever(testService.regenerateWordList(any())).thenReturn(true)
 
         getService().regenerateWordList(11, getUser())
 

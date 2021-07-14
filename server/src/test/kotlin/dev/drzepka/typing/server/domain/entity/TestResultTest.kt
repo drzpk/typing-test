@@ -88,7 +88,10 @@ class TestResultTest {
         selectedWords: WordSelection,
         duration: Duration
     ): dev.drzepka.typing.server.domain.entity.Test {
-        val definition = TestDefinition().apply { this.duration = duration }
+        val definition = TestDefinition().apply {
+            this.duration = duration
+            this.wordList = WordList()
+        }
         val test = Test(definition, User(), selectedWords)
         test.startedAt = Instant.now()
         test.finishedAt = Instant.now().plus(duration)

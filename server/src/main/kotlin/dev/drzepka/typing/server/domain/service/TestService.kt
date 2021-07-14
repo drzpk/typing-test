@@ -32,7 +32,8 @@ class TestService(
      */
     fun createTest(definition: TestDefinition, user: User): Test {
         log.info("Creating test from definition {}", definition.id)
-        val test = Test(definition, user, createWordSelection(definition))
+        val wordSelection = if (definition.canGenerateWords()) createWordSelection(definition) else null
+        val test = Test(definition, user, wordSelection)
         test.startTimeLimit = configurationRepository.testStartTimeLimit()
         test.finishTimeLimit = configurationRepository.testFinishTimeLimit()
 
@@ -42,10 +43,16 @@ class TestService(
     /**
      * Generates new word list for the given test.
      */
-    fun regenerateWordList(test: Test) {
+    fun regenerateWordList(test: Test): Boolean {
+        if (!test.canGenerateWords()) {
+            log.warn("Cannot regenerate word list of test {}", test.id)
+            return false
+        }
+
         log.info("Regenerating word list of test {}", test.id)
         test.selectedWords = createWordSelection(test.testDefinition)
         test.incrementWordRegenerationCounter()
+        return true
     }
 
     private fun createWordSelection(definition: TestDefinition): WordSelection {

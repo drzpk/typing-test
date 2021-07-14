@@ -16,7 +16,7 @@ object Tests : IntIdTable("tests") {
     var startTimeLimit = integer("start_time_limit").nullable()
     var finishTimeLimit = integer("finish_time_limit").nullable()
 
-    var selectedWords = blob("selected_words")
+    var selectedWords = blob("selected_words").nullable()
     var enteredWords = blob("entered_words").nullable()
 
     var backspaceCount = integer("backspace_count").nullable()

@@ -11,7 +11,10 @@ class TestTest {
     @Test
     fun `should pass through all states`() {
         var instant = getTime(1, 0, 0)
-        val test = object : dev.drzepka.typing.server.domain.entity.Test(TestDefinition(), User(), WordSelection()) {
+        val testDefinition = TestDefinition().apply {
+            wordList = WordList()
+        }
+        val test = object : dev.drzepka.typing.server.domain.entity.Test(testDefinition, User(), WordSelection()) {
             override fun now(): Instant {
                 return instant
             }

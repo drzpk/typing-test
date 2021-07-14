@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="005.tag" author="Dominik Rzepka">
+        <tagDatabase tag="005"/>
+    </changeSet>
+    <changeSet id="006.word_list_types" author="Dominik Rzepka">
+        <addColumn tableName="word_lists">
+            <column name="type" type="char(1)" defaultValue="R">
+                <constraints nullable="false"/>
+            </column>
+            <column name="text" type="clob"/>
+        </addColumn>
+        <dropNotNullConstraint tableName="tests" columnName="selected_words" columnDataType="blob"/>
+        
+        <rollback>
+            <dropColumn tableName="word_lists">
+                <column name="type"/>
+                <column name="text"/>
+            </dropColumn>
+            <addNotNullConstraint tableName="tests" columnName="selected_words" columnDataType="blob"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

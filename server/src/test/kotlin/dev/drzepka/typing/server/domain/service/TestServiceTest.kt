@@ -6,6 +6,7 @@ import dev.drzepka.typing.server.domain.entity.Word
 import dev.drzepka.typing.server.domain.entity.WordList
 import dev.drzepka.typing.server.domain.repository.ConfigurationRepository
 import dev.drzepka.typing.server.domain.repository.WordRepository
+import dev.drzepka.typing.server.domain.value.WordSelection
 import org.assertj.core.api.Assertions.within
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
@@ -33,7 +34,8 @@ class TestServiceTest {
         then(test.startTimeLimit).isEqualTo(Duration.ofMinutes(5))
 
         val selection = test.selectedWords
-        then(selection.size()).isEqualTo(10_000)
+        then(selection).isNotNull
+        then(selection!!.size()).isEqualTo(10_000)
 
         val serialized = selection.serialize()
         val lessWordCount = countWordOccurrences(serialized, "less")
@@ -49,10 +51,27 @@ class TestServiceTest {
         val test = service.createTest(getTestDefinition(), getUser())
 
         val originalSelection = test.selectedWords
-        service.regenerateWordList(test)
+        val regenerated = service.regenerateWordList(test)
 
         then(originalSelection).isNotSameAs(test.selectedWords)
         then(test.wordRegenerationCount).isEqualTo(1)
+        then(regenerated).isTrue
+    }
+
+    @Test
+    fun `should not regenerate word selection for test with fixed words`() {
+        val service = getService()
+        val selection = WordSelection().apply { loadFromText("fixed text") }
+        val testDefinition = getTestDefinition().apply {
+            wordList.fixedTextType(selection)
+        }
+
+        val test = service.createTest(testDefinition, getUser())
+        val regenerated = service.regenerateWordList(test)
+
+        then(test.selectedWords).isNull()
+        then(test.getEffectiveSelectedWords()).isSameAs(selection) // Test with fixed words get them from test definition
+        then(regenerated).isFalse
     }
 
     private fun getTestDefinition(): TestDefinition = TestDefinition().apply {

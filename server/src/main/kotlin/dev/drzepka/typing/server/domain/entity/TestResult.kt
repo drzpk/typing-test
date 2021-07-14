@@ -36,7 +36,7 @@ class TestResult : AbstractEntity<Int>() {
 
     private fun calculateCorrectness(test: Test) {
         for (wordNo in 0 until test.enteredWords!!.size()) {
-            val selected = test.selectedWords.getWord(wordNo)
+            val selected = test.selectedWords!!.getWord(wordNo) // TODO: review this
             val entered = test.enteredWords!!.getWord(wordNo)
 
             calculateWordCorrectness(selected, entered)

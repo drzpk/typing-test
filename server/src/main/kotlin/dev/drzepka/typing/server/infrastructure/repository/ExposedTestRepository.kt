@@ -76,7 +76,7 @@ class ExposedTestRepository(
         stmt[Tests.startTimeLimit] = test.startTimeLimit?.seconds?.toInt()
         stmt[Tests.finishTimeLimit] = test.finishTimeLimit?.seconds?.toInt()
 
-        stmt[Tests.selectedWords] = ExposedBlob(test.selectedWords.serialize().toByteArray())
+        stmt[Tests.selectedWords] = test.selectedWords?.serialize()?.toByteArray()?.let { ExposedBlob(it) }
         stmt[Tests.enteredWords] = test.enteredWords?.serialize()?.toByteArray()?.let { ExposedBlob(it) }
 
         stmt[Tests.backspaceCount] = test.backspaceCount
@@ -86,8 +86,11 @@ class ExposedTestRepository(
     private fun rowToTest(row: ResultRow): Test {
         val definition = testDefinitionRepository.findById(row[Tests.testDefinition].value)!!
         val user = userRepository.findById(row[Tests.user].value)!!
-        val selectedWords =
-            WordSelection().apply { deserialize(String(row[Tests.selectedWords].bytes, StandardCharsets.UTF_8)) }
+        val selectedWords = row[Tests.selectedWords]?.bytes?.let {
+            val selection = WordSelection()
+            selection.deserialize(String(it, StandardCharsets.UTF_8))
+            selection
+        }
 
         return Test(definition, user, selectedWords).apply {
             id = row[Tests.id].value

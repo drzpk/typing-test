@@ -10,4 +10,5 @@
     <include file="db-changelog/003.utf8_collation.xml" relativeToChangelogFile="true"/>
     <include file="db-changelog/004.test_definitions.xml" relativeToChangelogFile="true"/>
     <include file="db-changelog/005.tests.xml" relativeToChangelogFile="true"/>
+    <include file="db-changelog/006.word_list_types.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
