@@ -8,12 +8,13 @@
 </template>
 
 <script lang="ts">
-    import {Component, Vue, Watch} from "vue-property-decorator";
-    import {TestModel} from "@/models/tests";
-    import {mapGetters} from "vuex";
-    import {WordChangeEvent} from "@/models/events";
+import {Component, Vue, Watch} from "vue-property-decorator";
+import {TestModel} from "@/models/tests";
+import {mapGetters} from "vuex";
+import {WordChangeEvent} from "@/models/events";
+import WordService from "@/services/Word.service";
 
-    @Component({
+@Component({
         computed: {
             ...mapGetters(["activeTest"])
         }
@@ -52,7 +53,7 @@
         private onUserWordInput(event: WordChangeEvent): void {
             const currentWord = this.words[this.currentWordNo];
 
-            const match = TextDisplay.wordsMatch(currentWord.word, event.word, event.complete);
+            const match = WordService.wordsMatch(currentWord.word, event.word, event.complete);
             if (event.complete)
                 currentWord.good = match;
             else
@@ -97,43 +98,9 @@
             return words;
         }
 
-        private static wordsMatch(target: string, current: string, matchWhole: boolean): boolean {
-            const length = matchWhole ? Math.max(target.length, current.length) : Math.min(target.length, current.length);
-            for (let i = 0; i < length; i++) {
-                const left = target.length > i ? target.charCodeAt(i) : null;
-                const right = current.length > i ? current.charCodeAt(i) : null;
-
-                if (left != right || left == null || right == null)
-                    return false;
-            }
-
-            return true;
-        }
-
         private static generateRandomWords(): Array<Word> {
-            const words: Array<Word> = [];
-            for (let i = 0; i < 30; i++) {
-                const word = new Word(i, TextDisplay.generateRandomWord());
-                words.push(word);
-            }
-
-            return words;
-        }
-
-        private static generateRandomWord(): string {
-            const asciiStart = "a".charCodeAt(0);
-            const asciiEnd = "z".charCodeAt(0);
-            const diff = asciiEnd - asciiStart;
-
-            const characters = 2 + Math.floor(Math.random() * 14);
-            let word = "";
-            for (let i = 0; i < characters; i++) {
-                const rand = Math.floor(Math.random() * diff);
-                const char = String.fromCharCode(asciiStart + rand);
-                word += char;
-            }
-
-            return word;
+          return WordService.generateRandomWords(30)
+              .map((wordString: string, index: number) => new Word(index, wordString));
         }
     }
 
