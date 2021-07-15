@@ -1,15 +1,9 @@
 class WordService {
     wordsMatch(target: string, current: string, matchWhole: boolean): boolean {
-        const length = matchWhole ? Math.max(target.length, current.length) : Math.min(target.length, current.length);
-        for (let i = 0; i < length; i++) {
-            const left = target.length > i ? target.charCodeAt(i) : null;
-            const right = current.length > i ? current.charCodeAt(i) : null;
-
-            if (left != right || left == null || right == null)
-                return false;
-        }
-
-        return true;
+        if (matchWhole)
+            return current === target;
+        else
+            return target.startsWith(current);
     }
 
     generateRandomWords(size: number): Array<string> {
