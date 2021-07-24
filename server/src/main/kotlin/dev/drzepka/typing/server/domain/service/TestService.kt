@@ -32,7 +32,7 @@ class TestService(
      */
     fun createTest(definition: TestDefinition, user: User): Test {
         log.info("Creating test from definition {}", definition.id)
-        val wordSelection = if (definition.canGenerateWords()) createWordSelection(definition) else null
+        val wordSelection = definition.getFixedText() ?: createWordSelection(definition)
         val test = Test(definition, user, wordSelection)
         test.startTimeLimit = configurationRepository.testStartTimeLimit()
         test.finishTimeLimit = configurationRepository.testFinishTimeLimit()

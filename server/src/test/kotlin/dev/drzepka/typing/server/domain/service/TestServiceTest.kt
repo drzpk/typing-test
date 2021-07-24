@@ -35,7 +35,7 @@ class TestServiceTest {
 
         val selection = test.selectedWords
         then(selection).isNotNull
-        then(selection!!.size()).isEqualTo(10_000)
+        then(selection.size()).isEqualTo(10_000)
 
         val serialized = selection.serialize()
         val lessWordCount = countWordOccurrences(serialized, "less")
@@ -69,8 +69,7 @@ class TestServiceTest {
         val test = service.createTest(testDefinition, getUser())
         val regenerated = service.regenerateWordList(test)
 
-        then(test.selectedWords).isNull()
-        then(test.getEffectiveSelectedWords()).isSameAs(selection) // Test with fixed words get them from test definition
+        then(test.selectedWords).isEqualTo(selection)
         then(regenerated).isFalse
     }
 

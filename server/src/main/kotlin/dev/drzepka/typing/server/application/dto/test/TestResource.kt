@@ -28,7 +28,7 @@ class TestResource {
                 createdAt = entity.createdAt
                 startedAt = entity.startedAt
                 finishedAt = entity.finishedAt
-                selectedWords = entity.selectedWords?.serialize()
+                selectedWords = entity.selectedWords.serialize()
                 enteredWords = entity.enteredWords?.serialize()
                 wordRegenerationCount = entity.wordRegenerationCount
 
