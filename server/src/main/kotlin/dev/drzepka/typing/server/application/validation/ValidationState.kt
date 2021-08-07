@@ -16,7 +16,7 @@ class ValidationState {
 
     fun verify() {
         if (errors.isNotEmpty())
-            throw ValidationException(this)
+            throw ValidationException.fromValidationState(this)
     }
 
     companion object {
@@ -29,8 +29,14 @@ class ValidationState {
     }
 }
 
-sealed class Error(val message: String)
+sealed class Error(val message: String) {
+    abstract fun toLogString(): String
+}
 
-class ObjectError(message: String) : Error(message)
+class ObjectError(message: String) : Error(message) {
+    override fun toLogString(): String = "[object] $message"
+}
 
-class FieldError(val field: String, message: String) : Error(message)
+class FieldError(val field: String, message: String) : Error(message) {
+    override fun toLogString(): String = "[field: $field] $message"
+}
