@@ -6,6 +6,11 @@ import {TestDefinitionModel} from "@/models/test-definition";
 import {SearchUsersRequest, SearchUsersResponse, UserModel} from "@/models/user";
 import {PageMetadata} from "@/models/pagination";
 
+export interface WordListText {
+    id: number;
+    text: string
+}
+
 interface AdminState {
     wordLists: Array<WordList> | null;
     testDefinitions: Array<TestDefinitionModel> | null;
@@ -149,6 +154,12 @@ const adminModule: Module<AdminState, RootState> = {
         deleteUser(context: ActionContext<any, any>, userId: number) {
             ApiService.deleteUser(userId).then(() => {
                 return context.dispatch("reloadUserList");
+            });
+        },
+
+        setWordListText(context: ActionContext<any, any>, text: WordListText) {
+            ApiService.updateWordList(text.id, text.text).then(() => {
+                return context.dispatch("reloadWordLists");
             });
         }
     }

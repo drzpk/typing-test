@@ -10,11 +10,11 @@
 </template>
 
 <script lang="ts">
-    import {Component, Vue} from "vue-property-decorator";
-    import {mapGetters} from "vuex";
-    import {WordList} from "@/models/words";
+import {Component, Vue} from "vue-property-decorator";
+import {mapGetters} from "vuex";
+import {WordList, WordListType} from "@/models/words";
 
-    @Component({
+@Component({
         computed: mapGetters([
             "wordLists"
         ])
@@ -31,6 +31,10 @@
             },
             {
                 key: "language"
+            },
+            {
+                key: "type",
+                formatter: (type: WordListType) => type.substr(0, 1) + type.substr(1).toLowerCase()
             }
         ];
 

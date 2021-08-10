@@ -38,6 +38,21 @@ class WordSelection {
             throw IllegalArgumentException("Text '$text' cannot contain the delimiter character ('$DELIMITER')")
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as WordSelection
+
+        if (words != other.words) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return words.hashCode()
+    }
+
     companion object {
         private const val DELIMITER = "|"
         private const val WHITESPACE_SEPARATOR = " "

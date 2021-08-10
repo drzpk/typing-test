@@ -14,7 +14,7 @@ import {
     ValidationErrorsModel,
     ValidationFailedError
 } from "@/models/error";
-import {WordList, WordListWordsResponse} from "@/models/words";
+import {WordList, WordListType, WordListWordsResponse} from "@/models/words";
 import {PagedRequest} from "@/models/pagination";
 import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/test-definition";
 import {FinishTestRequest, TestBestResultModel, TestModel, TestResultModel} from "@/models/tests";
@@ -143,13 +143,24 @@ class ApiService {
             .catch(errorHandler);
     }
 
-    createWordList(name: string, language: string): Promise<any> {
+    createWordList(name: string, language: string, type: WordListType): Promise<any> {
         const payload = {
             name,
-            language
+            language,
+            type
         };
 
         return axios.post("/api/word-lists", payload)
+            .catch(errorHandler);
+    }
+
+    updateWordList(id: number, text: string): Promise<WordList> {
+        const payload = {
+            text
+        }
+
+        return axios.patch<WordList>(`/api/word-lists/${id}`, payload)
+            .then(response => response.data)
             .catch(errorHandler);
     }
 

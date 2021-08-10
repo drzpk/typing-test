@@ -15,6 +15,11 @@ class WordService {
         return words;
     }
 
+    getFixedTextCharacterLengthWarningThreshold(): number {
+        // return maximum_theoretical_wpm * characters_per_word;
+        return 250 * 5;
+    }
+
     private static generateRandomWord(): string {
         const asciiStart = "a".charCodeAt(0);
         const asciiEnd = "z".charCodeAt(0);

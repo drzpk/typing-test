@@ -4,6 +4,7 @@ export interface WordList {
     id: number;
     name: string;
     language: string;
+    type: WordListType;
 }
 
 export interface WordListWordsResponse {
@@ -15,4 +16,10 @@ export interface WordListWord {
     id: number;
     word: string;
     popularity: number;
+}
+
+export enum WordListType {
+    RANDOM = "RANDOM",
+    FIXED = "FIXED",
+
 }

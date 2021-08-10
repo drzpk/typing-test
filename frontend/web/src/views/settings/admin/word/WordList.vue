@@ -20,13 +20,25 @@
 
                                 <ValidationMessageManager field-name="language" :state="state"/>
                             </b-form-group>
+                            <b-form-group label-for="type" label="Type" label-cols="4">
+                                <b-form-select id="type" name="type" :options="availableTypes"
+                                               v-model="type" :state="validateState('type')"
+                                               @input="resetState('type')" :disabled="isCreated"></b-form-select>
+
+                                <ValidationMessageManager field-name="type" :state="state"/>
+                            </b-form-group>
 
                             <b-button @click="saveButton" v-if="!isCreated">Save</b-button>
                         </b-form>
                     </b-card>
 
-                    <b-card title="Words">
+                    <b-card v-if="typeString === 'RANDOM'" title="Words"
+                            sub-title="List of available words from which random words will be selected for each test.">
                         <WordListWords v-if="isCreated" :word-list-id="currentWordListId"></WordListWords>
+                    </b-card>
+                    <b-card v-if="typeString === 'FIXED'" title="Text"
+                            sub-title="Fixed, always the same text to rewrite by a user.">
+                        <WordListFixedText v-if="isCreated" :word-list-id="currentWordListId"></WordListFixedText>
                     </b-card>
                 </b-col>
             </b-row>
@@ -35,88 +47,111 @@
 </template>
 
 <script lang="ts">
-    import {Component} from "vue-property-decorator";
-    import ValidationHelperMixin from "@/mixins/ValidationHelperMixin";
-    import {maxLength, required} from "vuelidate/lib/validators";
-    import ValidationMessageManager from "@/views/shared/ValidationMessageManager.vue";
-    import {mixins} from "vue-class-component";
-    import ApiService from "@/services/Api.service";
-    import {ValidationFailedError} from "@/models/error";
-    import WordListWords from "@/views/settings/admin/word/WordListWords.vue";
+import {Component} from "vue-property-decorator";
+import ValidationHelperMixin from "@/mixins/ValidationHelperMixin";
+import {maxLength, required} from "vuelidate/lib/validators";
+import ValidationMessageManager from "@/views/shared/ValidationMessageManager.vue";
+import {mixins} from "vue-class-component";
+import ApiService from "@/services/Api.service";
+import {ValidationFailedError} from "@/models/error";
+import WordListWords from "@/views/settings/admin/word/WordListWords.vue";
+import {WordListType} from "@/models/words";
+import {SelectOption} from "@/models/common";
+import WordListFixedText from "@/views/settings/admin/word/WordListFixedText.vue";
 
-    @Component({
-        components: {WordListWords, ValidationMessageManager},
-        validations: {
-            name: {
-                required,
-                maxLength: maxLength(128)
-            },
-            language: {
-                required
-            }
+@Component({
+    components: {WordListFixedText, WordListWords, ValidationMessageManager},
+    validations: {
+        name: {
+            required,
+            maxLength: maxLength(128)
         },
-        validationMessages: {
-            name: {
-                required: "Name is required.",
-                maxLength: "Name length cannot exceel 128 characters"
-            },
-            language: {
-                required: "Language is required"
-            }
+        language: {
+            required
+        },
+        type: {
+            required
         }
-    })
-    export default class WordList extends mixins(ValidationHelperMixin) {
-        availableLanguages: Array<string> = [];
-
-        // Form
-        name = "";
-        language = "";
-
-        private currentWordListId = -1;
-
-        get isCreated(): boolean {
-            return this.currentWordListId != -1;
-        }
-
-        mounted(): void {
-            this.$store.dispatch("getAvailableLanguages").then(languages => this.availableLanguages = languages);
-            if (this.$route.params.id) {
-                this.currentWordListId = parseInt(this.$route.params.id);
-                this.loadWordList();
-            }
-        }
-
-        saveButton(): void {
-            if (this.isCreated)
-                return; // Update is not supported
-
-            this.triggerValidation();
-            if (this.$v.$invalid)
-                return;
-
-            this.createWordList();
-        }
-
-        private loadWordList(): void {
-            const wordList = this.$store.getters.getWordList(this.currentWordListId!);
-            this.name = wordList.name;
-            this.language = wordList.language;
-        }
-
-        private createWordList(): void {
-            ApiService.createWordList(this.name, this.language)
-                .then(() => {
-                    this.$store.dispatch("reloadWordLists");
-                    this.$router.push("/settings/admin");
-                })
-                .catch(error => {
-                    if (error instanceof ValidationFailedError)
-                        this.processValidationError(error);
-                    else
-                        console.error(error);
-                });
+    },
+    validationMessages: {
+        name: {
+            required: "Name is required.",
+            maxLength: "Name length cannot exceel 128 characters."
+        },
+        language: {
+            required: "Language is required."
+        },
+        type: {
+            required: "Type is required."
         }
     }
+})
+export default class WordList extends mixins(ValidationHelperMixin) {
+    availableLanguages: Array<string> = [];
+    availableTypes: SelectOption[] = [];
+
+    // Form
+    name = "";
+    language = "";
+    type: WordListType | null = null;
+
+    private currentWordListId = -1;
+
+    get isCreated(): boolean {
+        return this.currentWordListId != -1;
+    }
+
+    get typeString(): string {
+        return this.type != null ? this.type.toString() : "";
+    }
+
+    mounted(): void {
+        this.$store.dispatch("getAvailableLanguages").then(languages => this.availableLanguages = languages);
+        if (this.$route.params.id) {
+            this.currentWordListId = parseInt(this.$route.params.id);
+            this.loadWordList();
+        }
+
+        this.availableTypes = Object.values(WordListType).map(it => {
+            return {
+                value: it,
+                text: it.substr(0, 1).toUpperCase() + it.substr(1).toLowerCase()
+            };
+        });
+    }
+
+    saveButton(): void {
+        if (this.isCreated)
+            return; // Update is not supported
+
+        this.triggerValidation();
+        if (this.$v.$invalid)
+            return;
+
+        this.createWordList();
+    }
+
+    private loadWordList(): void {
+        const wordList = this.$store.getters.getWordList(this.currentWordListId!); // todo: convert this into action?
+        this.name = wordList.name;
+        this.language = wordList.language;
+        this.type = wordList.type;
+    }
+
+    private createWordList(): void {
+        ApiService.createWordList(this.name, this.language, this.type!)
+            .then(() => {
+                this.$store.dispatch("reloadWordLists");
+                this.$router.push("/settings/admin");
+            })
+            .catch(error => {
+                if (error instanceof ValidationFailedError)
+                    this.processValidationError(error);
+                else
+                    console.error(error);
+            });
+    }
+}
 </script>
 
 <style lang="scss">

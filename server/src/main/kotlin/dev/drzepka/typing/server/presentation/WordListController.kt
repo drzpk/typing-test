@@ -1,6 +1,7 @@
 package dev.drzepka.typing.server.presentation
 
 import dev.drzepka.typing.server.application.dto.wordlist.CreateWordListRequest
+import dev.drzepka.typing.server.application.dto.wordlist.UpdateWordListRequest
 import dev.drzepka.typing.server.application.dto.wordlist.WordListResource
 import dev.drzepka.typing.server.application.security.adminInterceptor
 import dev.drzepka.typing.server.application.service.WordListService
@@ -36,6 +37,17 @@ fun Route.wordListController() {
             call.respond(HttpStatusCode.Created, resource)
         }
 
+        patch("/{id}") {
+            val request = call.receive<UpdateWordListRequest>()
+            request.id = call.parameters["id"]!!.toInt()
+
+            val resource = transaction {
+                val updated = wordListService.updateWordList(request)
+                WordListResource.fromEntity(updated)
+            }
+
+            call.respond(resource)
+        }
 
         route("/{wordListId}") {
            get("") {
