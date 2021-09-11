@@ -164,6 +164,11 @@ class ApiService {
             .catch(errorHandler);
     }
 
+    deleteWordList(id: number): Promise<any> {
+        return axios.delete(`/api/word-lists/${id}`)
+            .catch(errorHandler);
+    }
+
     createTestDefinition(request: CreateUpdateTestDefinitionRequest): Promise<any> {
         return axios.post("/api/test-definitions", request)
             .catch(errorHandler);

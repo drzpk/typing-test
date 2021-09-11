@@ -5,7 +5,7 @@
             <b-row>
                 <b-col cols="8" offset="2">
                     <b-card title="Word list details">
-                        <b-form @submit.stop.prevent="saveButton">
+                        <b-form @submit.stop.prevent>
                             <b-form-group label-for="name" label="Name" label-cols="4">
                                 <b-form-input id="name" type="text" name="name"
                                               v-model="name" :state="validateState('name')"
@@ -28,7 +28,12 @@
                                 <ValidationMessageManager field-name="type" :state="state"/>
                             </b-form-group>
 
-                            <b-button @click="saveButton" v-if="!isCreated">Save</b-button>
+                            <b-button @click="createWordList" v-if="!isCreated">Save</b-button>
+                            <b-button v-b-modal:delete-word-list-modal v-if="isCreated" variant="danger">Delete</b-button>
+
+                            <b-modal id="delete-word-list-modal" title="Deletion of the word list" @ok="deleteWordList">
+                                Are you sure you want to delete this word list?
+                            </b-modal>
                         </b-form>
                     </b-card>
 
@@ -120,7 +125,7 @@ export default class WordList extends mixins(ValidationHelperMixin) {
         });
     }
 
-    saveButton(): void {
+    createWordList(): void {
         if (this.isCreated)
             return; // Update is not supported
 
@@ -128,7 +133,11 @@ export default class WordList extends mixins(ValidationHelperMixin) {
         if (this.$v.$invalid)
             return;
 
-        this.createWordList();
+        this.doCreateWordList();
+    }
+
+    deleteWordList(): void {
+        this.$store.dispatch("deleteWordList", this.currentWordListId);
     }
 
     private loadWordList(): void {
@@ -138,7 +147,7 @@ export default class WordList extends mixins(ValidationHelperMixin) {
         this.type = wordList.type;
     }
 
-    private createWordList(): void {
+    private doCreateWordList(): void {
         ApiService.createWordList(this.name, this.language, this.type!)
             .then(() => {
                 this.$store.dispatch("reloadWordLists");

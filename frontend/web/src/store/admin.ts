@@ -161,6 +161,12 @@ const adminModule: Module<AdminState, RootState> = {
             ApiService.updateWordList(text.id, text.text).then(() => {
                 return context.dispatch("reloadWordLists");
             });
+        },
+
+        deleteWordList(context: ActionContext<any, any>, wordListId: number) {
+            ApiService.deleteWordList(wordListId).then(() => {
+                return context.dispatch("reloadWordLists");
+            });
         }
     }
 };
