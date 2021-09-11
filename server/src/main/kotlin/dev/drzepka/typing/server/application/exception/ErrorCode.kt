@@ -13,7 +13,9 @@ enum class ErrorCode(private val message: String, private val statusCode: HttpSt
 
     TEST_RESULT_NOT_FOUND("Test result wasn't found", HttpStatusCode.NotFound),
 
-    USER_NOT_FOUND("User wasn't found", HttpStatusCode.NotFound);
+    USER_NOT_FOUND("User wasn't found", HttpStatusCode.NotFound),
+
+    WORD_LIST_USED_BY_TEST_DEFINITIONS("Word list is used by one or more test definitions.", HttpStatusCode.UnprocessableEntity);
 
     fun throwError(principal: Any? = null, additionalData: Map<String, Any>? = null): Nothing {
         throw ErrorCodeException(this, message, statusCode, principal, additionalData)

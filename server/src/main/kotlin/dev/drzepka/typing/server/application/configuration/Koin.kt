@@ -18,7 +18,7 @@ fun Application.typingServerKoinModule(): Module = module {
     // Application
     single { WordBulkManagementService(get(), get()) }
     single { UserService(get(), get(), get(), get()) }
-    single { WordListService(get()) }
+    single { WordListService(get(), get()) }
     single { WordService(get(), get()) }
     single { TestDefinitionService(get(), get()) }
     single { TestManagerService(get(), get(), get(), get()) }

@@ -3,9 +3,13 @@ package dev.drzepka.typing.server.domain.service
 import dev.drzepka.typing.server.application.dto.wordlist.CreateWordListRequest
 import dev.drzepka.typing.server.application.dto.wordlist.UpdateWordListRequest
 import dev.drzepka.typing.server.application.dto.wordlist.WordListTypeDTO
+import dev.drzepka.typing.server.application.exception.ErrorCode
+import dev.drzepka.typing.server.application.exception.ErrorCodeException
 import dev.drzepka.typing.server.application.exception.ValidationException
 import dev.drzepka.typing.server.application.service.WordListService
+import dev.drzepka.typing.server.domain.entity.TestDefinition
 import dev.drzepka.typing.server.domain.entity.WordList
+import dev.drzepka.typing.server.domain.repository.TestDefinitionRepository
 import dev.drzepka.typing.server.domain.repository.WordListRepository
 import dev.drzepka.typing.server.domain.value.Language
 import dev.drzepka.typing.server.domain.value.WordSelection
@@ -17,6 +21,7 @@ import org.mockito.kotlin.*
 class WordListServiceTest {
 
     private val wordListRepository = mock<WordListRepository>()
+    private val testDefinitionRepository = mock<TestDefinitionRepository>()
 
     @Test
     fun `should create word list with random words`() {
@@ -125,5 +130,35 @@ class WordListServiceTest {
         then(exception.validationErrors.errors[1].message).contains("Cannot set text of non-FIXED word list type")
     }
 
-    private fun getService(): WordListService = WordListService(wordListRepository)
+    @Test
+    fun `should delete word list`() {
+        val wordListId = 382
+
+        whenever(wordListRepository.delete(eq(wordListId))).thenReturn(true)
+
+        val status = getService().deleteWordList(wordListId)
+        then(status).isTrue
+    }
+
+    @Test
+    fun `should not delete word list used by test definitions`() {
+        val wordListId = 11
+
+        val firstTestDefinition = TestDefinition().apply { id = 1; name = "first" }
+        val secondTestDefinition = TestDefinition().apply { id = 2; name = "second" }
+        whenever(testDefinitionRepository.findByWordList(eq(wordListId)))
+            .thenReturn(listOf(firstTestDefinition, secondTestDefinition))
+
+        val exception = catchThrowable { getService().deleteWordList(wordListId) }
+        then(exception).isInstanceOf(ErrorCodeException::class.java)
+
+        exception as ErrorCodeException
+        then(exception.code).isEqualTo(ErrorCode.WORD_LIST_USED_BY_TEST_DEFINITIONS)
+        then(exception.`object`).isEqualTo(wordListId)
+
+        val expectedAdditionalData = mapOf(Pair("1", "first"), Pair("2", "second"))
+        then(exception.additionalData).isEqualTo(expectedAdditionalData)
+    }
+
+    private fun getService(): WordListService = WordListService(wordListRepository, testDefinitionRepository)
 }

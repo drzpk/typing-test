@@ -22,6 +22,11 @@ class ExposedTestDefinitionRepository(private val wordListRepository: WordListRe
             ?.let { rowToTestDefinition(it) }
     }
 
+    override fun findByWordList(wordListId: Int): Collection<TestDefinition> {
+        return TestDefinitions.select { TestDefinitions.wordList eq wordListId }
+            .map { rowToTestDefinition(it) }
+    }
+
     override fun findAll(active: Boolean?): Collection<TestDefinition> {
         val query = if (active != null)
             TestDefinitions.select { TestDefinitions.isActive eq active }
@@ -32,13 +37,13 @@ class ExposedTestDefinitionRepository(private val wordListRepository: WordListRe
     }
 
     override fun findAllActiveWithCompletedTests(userId: Int): Collection<TestDefinition> {
-        val ids =  (TestDefinitions innerJoin Tests)
+        val ids = (TestDefinitions innerJoin Tests)
             .slice(TestDefinitions.id)
-            .select {Tests.finishedAt.isNotNull() and (TestDefinitions.isActive eq true)}
+            .select { Tests.finishedAt.isNotNull() and (TestDefinitions.isActive eq true) }
             .groupBy(TestDefinitions.id)
             .map { it[TestDefinitions.id].value }
 
-        return TestDefinitions.select {TestDefinitions.id inList ids }
+        return TestDefinitions.select { TestDefinitions.id inList ids }
             .map { rowToTestDefinition(it) }
     }
 

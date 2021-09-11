@@ -3,8 +3,10 @@ package dev.drzepka.typing.server.application.service
 import dev.drzepka.typing.server.application.dto.wordlist.CreateWordListRequest
 import dev.drzepka.typing.server.application.dto.wordlist.UpdateWordListRequest
 import dev.drzepka.typing.server.application.dto.wordlist.WordListTypeDTO
+import dev.drzepka.typing.server.application.exception.ErrorCode
 import dev.drzepka.typing.server.application.validation.ValidationState
 import dev.drzepka.typing.server.domain.entity.WordList
+import dev.drzepka.typing.server.domain.repository.TestDefinitionRepository
 import dev.drzepka.typing.server.domain.repository.WordListRepository
 import dev.drzepka.typing.server.domain.util.Logger
 import dev.drzepka.typing.server.domain.util.Mockable
@@ -15,7 +17,10 @@ import dev.drzepka.typing.server.domain.value.WordSelection
  * Manages word lists used in typing tests.
  */
 @Mockable
-class WordListService(private val wordListRepository: WordListRepository) {
+class WordListService(
+    private val wordListRepository: WordListRepository,
+    private val testDefinitionRepository: TestDefinitionRepository
+) {
     private val log by Logger()
 
     fun createWordList(request: CreateWordListRequest): WordList {
@@ -72,6 +77,13 @@ class WordListService(private val wordListRepository: WordListRepository) {
     }
 
     fun deleteWordList(id: Int): Boolean {
+        val usages = testDefinitionRepository.findByWordList(id)
+        if (usages.isNotEmpty()) {
+            log.warn("Cannot delete word list {} because it is used by {} test definition(s)", id, usages)
+            val testDefinitions = usages.associate { Pair(it.id.toString(), it.name) }
+            ErrorCode.WORD_LIST_USED_BY_TEST_DEFINITIONS.throwError(id, testDefinitions)
+        }
+
         log.info("Deleting word list {}", id)
         return wordListRepository.delete(id)
     }
