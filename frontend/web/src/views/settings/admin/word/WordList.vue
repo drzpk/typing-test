@@ -3,7 +3,7 @@
         <!--suppress HtmlUnknownBooleanAttribute -->
         <b-container fluid>
             <b-row>
-                <b-col cols="8" offset="2">
+                <b-col cols="8" offset="2" v-loading-overlay="pendingRequest">
                     <b-card title="Word list details">
                         <b-form @submit.stop.prevent>
                             <b-form-group label-for="name" label="Name" label-cols="4">
@@ -63,9 +63,13 @@ import WordListWords from "@/views/settings/admin/word/WordListWords.vue";
 import {WordListType} from "@/models/words";
 import {SelectOption} from "@/models/common";
 import WordListFixedText from "@/views/settings/admin/word/WordListFixedText.vue";
+import {mapGetters} from "vuex";
 
 @Component({
     components: {WordListFixedText, WordListWords, ValidationMessageManager},
+    computed: {
+        ...mapGetters(["pendingRequest"])
+    },
     validations: {
         name: {
             required,
@@ -92,6 +96,8 @@ import WordListFixedText from "@/views/settings/admin/word/WordListFixedText.vue
     }
 })
 export default class WordList extends mixins(ValidationHelperMixin) {
+    pendingRequest!: boolean;
+
     availableLanguages: Array<string> = [];
     availableTypes: SelectOption[] = [];
 

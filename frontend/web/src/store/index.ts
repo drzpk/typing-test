@@ -3,6 +3,7 @@ import Vue from 'vue'
 import Vuex, {ActionContext} from 'vuex'
 import {AxiosError} from "axios";
 import {AuthenticationDetails} from "@/models/user";
+import connection from "./ connection";
 import admin from "./admin";
 import test from "./test";
 import testStats from "./test-stats";
@@ -89,6 +90,7 @@ export default new Vuex.Store<RootState>({
         }
     },
     modules: {
+        connection,
         admin,
         test,
         testStats

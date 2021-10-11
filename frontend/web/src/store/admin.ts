@@ -1,3 +1,5 @@
+// noinspection JSIgnoredPromiseFromCall
+
 import {ActionContext, Module} from "vuex";
 import {RootState} from "@/store/index";
 import {WordList} from "@/models/words";
@@ -5,6 +7,7 @@ import ApiService from "@/services/Api.service";
 import {TestDefinitionModel} from "@/models/test-definition";
 import {SearchUsersRequest, SearchUsersResponse, UserModel} from "@/models/user";
 import {PageMetadata} from "@/models/pagination";
+import {withPendingRequest} from "@/utils/store-utils";
 
 export interface WordListText {
     id: number;
@@ -141,7 +144,7 @@ const adminModule: Module<AdminState, RootState> = {
                 inactiveOnly: context.state.usersState && context.state.usersState.inactiveOnly
             };
             ApiService.searchUsers(request).then(users => {
-               context.commit("setUsers", users);
+                context.commit("setUsers", users);
             });
         },
 
@@ -158,8 +161,11 @@ const adminModule: Module<AdminState, RootState> = {
         },
 
         setWordListText(context: ActionContext<any, any>, text: WordListText) {
-            ApiService.updateWordList(text.id, text.text).then(() => {
-                return context.dispatch("reloadWordLists");
+            withPendingRequest("setWordListText", context, () => {
+                return ApiService.updateWordList(text.id, text.text)
+                    .then(() => {
+                        return context.dispatch("reloadWordLists");
+                    });
             });
         },
 

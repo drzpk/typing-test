@@ -79,7 +79,7 @@ class WordListService(
     fun deleteWordList(id: Int): Boolean {
         val usages = testDefinitionRepository.findByWordList(id)
         if (usages.isNotEmpty()) {
-            log.warn("Cannot delete word list {} because it is used by {} test definition(s)", id, usages)
+            log.warn("Cannot delete word list {} because it is used by {} test definition(s)", id, usages.size)
             val testDefinitions = usages.associate { Pair(it.id.toString(), it.name) }
             ErrorCode.WORD_LIST_USED_BY_TEST_DEFINITIONS.throwError(id, testDefinitions)
         }
