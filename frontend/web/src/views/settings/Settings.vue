@@ -21,7 +21,7 @@
                         <b-button @click="$router.push({name: 'TestStats'})">Show statistics</b-button>
                     </b-card>
 
-                    <b-card title="Account settings">
+                    <b-card title="Account settings" v-loading-overlay="pendingRequest">
                         <b-row>
                             <b-col cols="6" class="settings-column">
                                 <AccountSettings/>
@@ -38,39 +38,45 @@
 </template>
 
 <script lang="ts">
-    import {Component, Vue} from "vue-property-decorator";
-    import AccountSettings from "@/views/settings/AccountSettings.vue";
-    import PasswordChangeSettings from "@/views/settings/PasswordChangeSettings.vue";
-    import {mapState} from "vuex";
-    import {AuthenticationDetails} from "@/models/user";
+import {Component, Vue} from "vue-property-decorator";
+import AccountSettings from "@/views/settings/AccountSettings.vue";
+import PasswordChangeSettings from "@/views/settings/PasswordChangeSettings.vue";
+import {mapGetters, mapState} from "vuex";
+import {AuthenticationDetails} from "@/models/user";
 
-    @Component({
-        components: {
-            AccountSettings,
-            PasswordChangeSettings
-        },
-        computed: mapState([
+@Component({
+    components: {
+        AccountSettings,
+        PasswordChangeSettings
+    },
+    computed: {
+        ...mapState([
             "authenticationDetails"
+        ]),
+        ...mapGetters([
+            "pendingRequest"
         ])
-    })
-    export default class Settings extends Vue {
-        authenticationDetails!: AuthenticationDetails
     }
+})
+export default class Settings extends Vue {
+    authenticationDetails!: AuthenticationDetails
+    pendingRequest!: boolean;
+}
 </script>
 
 <style lang="scss">
-    .settings-column {
-        padding-left: 3em;
-        padding-right: 3em;
-    }
+.settings-column {
+    padding-left: 3em;
+    padding-right: 3em;
+}
 
-    div.update-button-wrapper {
-        text-align: right;
+div.update-button-wrapper {
+    text-align: right;
 
-        .error {
-            font-size: 0.8em;
-            margin-bottom: 0.7em;
-            color: red;
-        }
+    .error {
+        font-size: 0.8em;
+        margin-bottom: 0.7em;
+        color: red;
     }
+}
 </style>

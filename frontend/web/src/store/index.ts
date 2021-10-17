@@ -7,6 +7,7 @@ import connection from "./ connection";
 import admin from "./admin";
 import test from "./test";
 import testStats from "./test-stats";
+import {withPendingRequest} from "@/utils/store-utils";
 
 Vue.use(Vuex);
 
@@ -68,7 +69,7 @@ export default new Vuex.Store<RootState>({
 
         logout(context: ActionContext<any, any>) {
             return ApiService.logout().then(() => {
-               context.commit("setAuthenticationDetails", null);
+                context.commit("setAuthenticationDetails", null);
             });
         },
 
@@ -77,14 +78,11 @@ export default new Vuex.Store<RootState>({
                 displayName: newDisplayName
             };
 
-            return new Promise(resolve => {
-                ApiService.updateSettings(request)
-                    .then(() => {
+            return withPendingRequest("changeDisplayName", context, () => {
+                return ApiService.updateSettings(request).then(() => {
                     if (context.state.authenticationDetails) {
                         context.state.authenticationDetails.displayName = newDisplayName;
                     }
-
-                    resolve(null);
                 });
             });
         }

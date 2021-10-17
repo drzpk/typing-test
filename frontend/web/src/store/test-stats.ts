@@ -1,8 +1,11 @@
+// noinspection JSIgnoredPromiseFromCall
+
 import {ActionContext, Module} from "vuex";
 import {RootState} from "@/store/index";
 import ApiService from "@/services/Api.service";
 import {TestDefinitionModel} from "@/models/test-definition";
 import {TestStatsModel} from "@/models/test-stats";
+import {withPendingRequest} from "@/utils/store-utils";
 
 interface TestStatsState {
     testDefinitionsWithStats: Array<TestDefinitionModel> | null;
@@ -38,14 +41,18 @@ const testStatsModule: Module<TestStatsState, RootState> = {
 
     actions: {
         refreshTestDefinitionWithStats(context: ActionContext<any, any>) {
-            ApiService.getTestDefinitionsWithStats().then(response => {
-                context.commit("setTestDefinitionsWithStats", response);
+            withPendingRequest("refreshTestDefinitionWithStats", context, () => {
+                return ApiService.getTestDefinitionsWithStats().then(response => {
+                    context.commit("setTestDefinitionsWithStats", response);
+                });
             });
         },
 
         refreshTestStats(context: ActionContext<any, any>, testDefinitionId: number) {
-            ApiService.getStatsForTestDefinition(testDefinitionId).then(response => {
-                context.commit("setTestStats", response);
+            withPendingRequest("refreshTestStats", context, () => {
+                return ApiService.getStatsForTestDefinition(testDefinitionId).then(response => {
+                    context.commit("setTestStats", response);
+                });
             });
         }
     }

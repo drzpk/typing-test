@@ -105,19 +105,23 @@ const adminModule: Module<AdminState, RootState> = {
     },
     actions: {
         reloadWordLists(context: ActionContext<any, any>) {
-            ApiService.getWordLists().then(lists => {
-                context.commit("setWordLists", lists);
-            }).catch(error => {
-                console.error(error);
+            withPendingRequest("loadWordLists", context, () => {
+                return ApiService.getWordLists().then(lists => {
+                    context.commit("setWordLists", lists);
+                }).catch(error => {
+                    console.error(error);
+                });
             });
         },
 
         reloadTestDefinitions(context: ActionContext<any, any>) {
-            ApiService.getTestDefinitions().then(definitions => {
-                context.commit("setTestDefinitions", definitions);
-            }).catch(error => {
-                console.error(error);
-            })
+            withPendingRequest("loadTestDefinitions", context, () => {
+                return ApiService.getTestDefinitions().then(definitions => {
+                    context.commit("setTestDefinitions", definitions);
+                }).catch(error => {
+                    console.error(error);
+                });
+            });
         },
 
         getAvailableLanguages(context: ActionContext<any, any>): Promise<Array<string>> {
@@ -143,8 +147,11 @@ const adminModule: Module<AdminState, RootState> = {
                 size: 20,
                 inactiveOnly: context.state.usersState && context.state.usersState.inactiveOnly
             };
-            ApiService.searchUsers(request).then(users => {
-                context.commit("setUsers", users);
+
+            withPendingRequest("loadUsers", context, () => {
+                return ApiService.searchUsers(request).then(users => {
+                    context.commit("setUsers", users);
+                });
             });
         },
 

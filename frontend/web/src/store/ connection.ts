@@ -15,6 +15,11 @@ const connectionModule: Module<ConnectionState, RootState> = {
     getters: {
         pendingRequest(state): boolean {
             return state.pendingRequests.length > 0;
+        },
+        hasPendingRequest(state): (name: string) => boolean {
+            return (name: string) => {
+                return state.pendingRequests.indexOf(name) > -1;
+            };
         }
     },
     mutations: {
