@@ -63,7 +63,7 @@ class TestManagerService(
         checkPermissionsToTest(user, test)
 
         if (test.state == TestState.FINISHED)
-            ErrorCode.CANNOT_DELETE_FINISHED_TEST.throwError(id)
+            ErrorCode.CANNOT_DELETE_FINISHED_TEST.throwException(id)
 
         testRepository.delete(id)
     }
@@ -77,9 +77,9 @@ class TestManagerService(
         checkPermissionsToTest(user, test)
 
         if (test.state == TestState.CREATED_TIMEOUT)
-            ErrorCode.TEST_START_TIMEOUT.throwError(id, mapOf("timeout" to test.createdAt.plus(test.startTimeLimit!!)))
+            ErrorCode.TEST_START_TIMEOUT.throwException(id, mapOf("timeout" to test.createdAt.plus(test.startTimeLimit!!)))
         else if (test.state != TestState.CREATED)
-            ErrorCode.TEST_START_WRONG_STATE.throwError(id, mapOf("state" to TestResource.State.fromValue(test.state)))
+            ErrorCode.TEST_START_WRONG_STATE.throwException(id, mapOf("state" to TestResource.State.fromValue(test.state)))
 
         test.start()
         testRepository.save(test)
@@ -96,11 +96,11 @@ class TestManagerService(
         checkPermissionsToTest(user, test)
 
         if (test.state == TestState.STARTED_TIMEOUT)
-            ErrorCode.TEST_FINISH_TIMEOUT.throwError(
+            ErrorCode.TEST_FINISH_TIMEOUT.throwException(
                 id, mapOf("timeout" to test.startedAt!!.plus(test.finishTimeLimit!!))
             )
         else if (test.state != TestState.STARTED)
-            ErrorCode.TEST_FINISH_WRONG_STATE.throwError(id, mapOf("state" to TestResource.State.fromValue(test.state)))
+            ErrorCode.TEST_FINISH_WRONG_STATE.throwException(id, mapOf("state" to TestResource.State.fromValue(test.state)))
 
         test.finish()
         test.enteredWords = WordSelection().deserialize(request.enteredWords)
@@ -125,7 +125,7 @@ class TestManagerService(
         checkPermissionsToTest(user, test)
 
         if (test.state != TestState.CREATED)
-            ErrorCode.TEST_REGENERATE_WORD_ERROR.throwError(
+            ErrorCode.TEST_REGENERATE_WORD_ERROR.throwException(
                 testId, mapOf("state" to TestResource.State.fromValue(test.state))
             )
 
@@ -153,7 +153,7 @@ class TestManagerService(
     private fun createNewTest(request: CreateTestRequest, creator: User): Test {
         val testDefinition = testDefinitionRepository.findById(request.testDefinitionId)
         if (testDefinition == null || !testDefinition.isActive)
-            ErrorCode.TEST_DEFINITION_NOT_FOUND.throwError(request.testDefinitionId)
+            ErrorCode.TEST_DEFINITION_NOT_FOUND.throwException(request.testDefinitionId)
 
         val createdTest = testService.createTest(testDefinition, creator)
         testRepository.save(createdTest)
@@ -163,6 +163,6 @@ class TestManagerService(
     }
 
     private fun doGetTest(id: Int): Test {
-        return testRepository.findById(id) ?: ErrorCode.TEST_DEFINITION_NOT_FOUND.throwError(id)
+        return testRepository.findById(id) ?: ErrorCode.TEST_DEFINITION_NOT_FOUND.throwException(id)
     }
 }

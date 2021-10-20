@@ -44,7 +44,7 @@ class TestStatsService(
 
     private fun getTestDefinition(testDefinitionId: Int): TestDefinition {
         return testDefinitionRepository.findById(testDefinitionId)
-            ?: ErrorCode.TEST_DEFINITION_NOT_FOUND.throwError(testDefinitionId)
+            ?: ErrorCode.TEST_DEFINITION_NOT_FOUND.throwException(testDefinitionId)
     }
 
     private fun getOffsetAndLimit(userId: Int, testDefinitionId: Int): Pair<Int, Int> {

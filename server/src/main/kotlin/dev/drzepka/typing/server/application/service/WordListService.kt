@@ -81,7 +81,7 @@ class WordListService(
         if (usages.isNotEmpty()) {
             log.warn("Cannot delete word list {} because it is used by {} test definition(s)", id, usages.size)
             val testDefinitions = usages.associate { Pair(it.id.toString(), it.name) }
-            ErrorCode.WORD_LIST_USED_BY_TEST_DEFINITIONS.throwError(id, testDefinitions)
+            ErrorCode.WORD_LIST_USED_BY_TEST_DEFINITIONS.throwException(id, testDefinitions)
         }
 
         log.info("Deleting word list {}", id)

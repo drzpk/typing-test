@@ -6,4 +6,4 @@ interface ExceptionHandler<T : Exception> {
     fun handle(exception: T): HandlerResult
 }
 
-data class HandlerResult(val statusCode: HttpStatusCode = HttpStatusCode.OK, val body: Any?)
+data class HandlerResult(val statusCode: HttpStatusCode = HttpStatusCode.OK, val body: Any? = null)

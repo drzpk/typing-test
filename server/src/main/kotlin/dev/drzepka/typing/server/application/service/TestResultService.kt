@@ -15,7 +15,7 @@ class TestResultService(
 ) {
 
     fun getResultForTest(testId: Int): TestResultResource {
-        val entity = testResultRepository.findById(testId) ?: ErrorCode.TEST_RESULT_NOT_FOUND.throwError(testId)
+        val entity = testResultRepository.findById(testId) ?: ErrorCode.TEST_RESULT_NOT_FOUND.throwException(testId)
         return TestResultResource.fromEntity(entity)
     }
 

@@ -4,11 +4,10 @@ import dev.drzepka.typing.server.application.dto.ErrorCodeDTO
 import dev.drzepka.typing.server.application.exception.ErrorCodeException
 
 class ErrorCodeExceptionHandler : ExceptionHandler<ErrorCodeException> {
+    override fun handle(exception: ErrorCodeException): HandlerResult = exception.toHandlerResult()
+}
 
-    override fun handle(exception: ErrorCodeException): HandlerResult {
-        val dto = ErrorCodeDTO(exception.code.name, exception.message, exception.`object`, exception.additionalData)
-        return HandlerResult(exception.statusCode, dto)
-    }
-
-
+fun ErrorCodeException.toHandlerResult(): HandlerResult {
+    val dto = ErrorCodeDTO(code.name, message, `object`, additionalData)
+    return HandlerResult(statusCode, dto)
 }

@@ -1,64 +1,33 @@
 package dev.drzepka.typing.server.application.configuration
 
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException
-import dev.drzepka.typing.server.application.exception.ErrorCodeException
-import dev.drzepka.typing.server.application.exception.SecurityException
-import dev.drzepka.typing.server.application.exception.ValidationException
-import dev.drzepka.typing.server.application.handler.ErrorCodeExceptionHandler
-import dev.drzepka.typing.server.application.handler.SecurityExceptionHandler
-import dev.drzepka.typing.server.application.handler.UnrecognizedPropertyExceptionHandler
-import dev.drzepka.typing.server.application.handler.ValidationExceptionHandler
+import dev.drzepka.typing.server.application.handler.*
+import dev.drzepka.typing.server.application.handler.domain.FixedTextTooShortExceptionHandler
 import io.ktor.application.*
 import io.ktor.features.*
-import io.ktor.http.*
 import io.ktor.response.*
-import org.slf4j.LoggerFactory
 
 fun Application.setupStatusPages() {
-    val log = LoggerFactory.getLogger("StatusPages")
-
     install(StatusPages) {
+        // Application exceptions
+        addExceptionHandler(ValidationExceptionHandler())
+        addExceptionHandler(UnrecognizedPropertyExceptionHandler())
+        addExceptionHandler(SecurityExceptionHandler())
 
-        val validationExceptionHandler = ValidationExceptionHandler()
-        val unrecognizedPropertyExceptionhandler = UnrecognizedPropertyExceptionHandler()
-        val errorCodeExceptionHandler = ErrorCodeExceptionHandler()
-        val securityExceptionHandler = SecurityExceptionHandler()
+        // Domain exceptions
+        addExceptionHandler(FixedTextTooShortExceptionHandler())
 
-        exception<ValidationException> { cause ->
-            val result = validationExceptionHandler.handle(cause)
-            if (result.body != null)
-                call.respond(result.statusCode, result.body)
-            else
-                call.respond(result.statusCode)
-        }
+        // Other cases
+        addExceptionHandler(UnknownExceptionHandler())
+        addExceptionHandler(ErrorCodeExceptionHandler()) // Must be at the end because other handlers may generate this exception
+    }
+}
 
-        exception<UnrecognizedPropertyException> { cause ->
-            val result = unrecognizedPropertyExceptionhandler.handle(cause)
-            if (result.body != null)
-                call.respond(result.statusCode, result.body)
-            else
-                call.respond(result.statusCode)
-        }
-
-        exception<ErrorCodeException> { cause ->
-            val result = errorCodeExceptionHandler.handle(cause)
-            if (result.body != null)
-                call.respond(result.statusCode, result.body)
-            else
-                call.respond(result.statusCode)
-        }
-
-        exception<SecurityException> { cause ->
-            val result = securityExceptionHandler.handle(cause)
-            if (result.body != null)
-                call.respond(result.statusCode, result.body)
-            else
-                call.respond(result.statusCode)
-        }
-
-        exception<Throwable> { cause ->
-            log.error("Unhandled excetion", cause)
-            call.respond(HttpStatusCode.InternalServerError)
-        }
+inline fun <reified T : Exception> StatusPages.Configuration.addExceptionHandler(handler: ExceptionHandler<T>) {
+    exception<T> { cause ->
+        val result = handler.handle(cause)
+        if (result.body != null)
+            call.respond(result.statusCode, result.body)
+        else
+            call.respond(result.statusCode)
     }
 }

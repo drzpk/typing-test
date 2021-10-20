@@ -72,7 +72,7 @@ class UserService(
 
     fun deleteUser(userId: Int) {
         log.info("Deleting user {}", userId)
-        userRepository.findById(userId) ?: ErrorCode.USER_NOT_FOUND.throwError(userId)
+        userRepository.findById(userId) ?: ErrorCode.USER_NOT_FOUND.throwException(userId)
 
         val deletedResults = testResultRepository.deleteByUserId(userId)
         log.info("Deleted {} test result of user {}", deletedResults, userId)
@@ -85,7 +85,7 @@ class UserService(
 
     fun activateUser(userId: Int) {
         log.info("Activating user {}", userId)
-        val user = userRepository.findById(userId) ?: ErrorCode.USER_NOT_FOUND.throwError(userId)
+        val user = userRepository.findById(userId) ?: ErrorCode.USER_NOT_FOUND.throwException(userId)
 
         if (!user.isActive()) {
             user.activate()
