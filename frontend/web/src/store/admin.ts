@@ -2,7 +2,7 @@
 
 import {ActionContext, Module} from "vuex";
 import {RootState} from "@/store/index";
-import {WordList} from "@/models/words";
+import {WordListModel} from "@/models/words";
 import ApiService from "@/services/Api.service";
 import {TestDefinitionModel} from "@/models/test-definition";
 import {SearchUsersRequest, SearchUsersResponse, UserModel} from "@/models/user";
@@ -15,10 +15,11 @@ export interface WordListText {
 }
 
 interface AdminState {
-    wordLists: Array<WordList> | null;
+    wordLists: Array<WordListModel> | null;
     testDefinitions: Array<TestDefinitionModel> | null;
     availableLanguages: Array<string> | null;
-    currentWordList: WordList | null;
+    currentTestDefinition: TestDefinitionModel | null;
+    currentWordList: WordListModel | null;
     usersState: UsersState;
 }
 
@@ -33,15 +34,19 @@ const adminModule: Module<AdminState, RootState> = {
         wordLists: null,
         testDefinitions: null,
         availableLanguages: null,
+        currentTestDefinition: null,
         currentWordList: null,
         usersState: new UsersState()
     },
     getters: {
-        wordLists(state): Array<WordList> {
+        wordLists(state): Array<WordListModel> {
             if (state.wordLists != null)
                 return state.wordLists;
             else
                 return [];
+        },
+        currentWordList(state): WordListModel | null {
+          return state.currentWordList;
         },
         testDefinitions(state): Array<TestDefinitionModel> {
             if (state.testDefinitions != null)
@@ -49,31 +54,8 @@ const adminModule: Module<AdminState, RootState> = {
             else
                 return [];
         },
-        getWordList(state): (wordListId: number) => WordList {
-            return (wordListId: number): WordList => {
-                if (state.wordLists == null)
-                    throw new Error("Word lists not available");
-
-                for (let i = 0; i < state.wordLists.length; i++) {
-                    if (state.wordLists[i].id === wordListId)
-                        return state.wordLists[i];
-                }
-
-                throw new Error(`Word list with id ${wordListId} wasn't found.`);
-            };
-        },
-        getTestDefinition(state): (testDefinitionId: number) => TestDefinitionModel {
-            return (testDefinitionId: number) => {
-                if (state.testDefinitions == null)
-                    throw new Error("Test definitions not available");
-
-                for (let i = 0; i < state.testDefinitions.length; i++) {
-                    if (state.testDefinitions[i].id === testDefinitionId)
-                        return state.testDefinitions[i];
-                }
-
-                throw new Error(`Test definition with id ${testDefinitionId} wasn't found.`)
-            };
+        currentTestDefinition(state): TestDefinitionModel | null {
+            return state.currentTestDefinition;
         },
         users(state): UserModel[] {
             if (state.usersState.users)
@@ -86,11 +68,17 @@ const adminModule: Module<AdminState, RootState> = {
         }
     },
     mutations: {
-        setWordLists(state, wordLists: WordList[]) {
+        setWordLists(state, wordLists: WordListModel[]) {
             state.wordLists = wordLists;
+        },
+        setCurrentWordList(state, wordList: WordListModel | null) {
+            state.currentWordList = wordList;
         },
         setTestDefinitions(state, testDefinitions: TestDefinitionModel[]) {
             state.testDefinitions = testDefinitions;
+        },
+        setCurrentTestDefinition(state, testDefinition: TestDefinitionModel | null) {
+            state.currentTestDefinition = testDefinition;
         },
         setAvailableLanguages(state, availableLanguages: string[]) {
             state.availableLanguages = availableLanguages;
@@ -155,6 +143,31 @@ const adminModule: Module<AdminState, RootState> = {
             });
         },
 
+        setCurrentTestDefinition(context: ActionContext<any, any>, id: number) {
+            let testDefinitionPromise: Promise<TestDefinitionModel>;
+
+            if (context.state.testDefinitions != null) {
+                testDefinitionPromise = new Promise<TestDefinitionModel>((resolve, reject) => {
+                    for (let i = 0; i < context.state.testDefinitions.length; i++) {
+                        if (context.state.testDefinitions[i].id === id) {
+                            resolve(context.state.testDefinitions[i]);
+                            break;
+                        }
+                    }
+
+                    reject(new Error(`Test definition with id ${id} wasn't found.`));
+                });
+            } else {
+                testDefinitionPromise = withPendingRequest("getTestDefinition", context, () => {
+                    return ApiService.getTestDefinition(id);
+                });
+            }
+
+            testDefinitionPromise.then((testDefinition: TestDefinitionModel) => {
+                context.commit("setCurrentTestDefinition", testDefinition);
+            });
+        },
+
         activateUser(context: ActionContext<any, any>, userId: number) {
             ApiService.activateUser(userId).then(() => {
                 return context.dispatch("reloadUserList");
@@ -164,6 +177,31 @@ const adminModule: Module<AdminState, RootState> = {
         deleteUser(context: ActionContext<any, any>, userId: number) {
             ApiService.deleteUser(userId).then(() => {
                 return context.dispatch("reloadUserList");
+            });
+        },
+
+        setCurrentWordList(context: ActionContext<any, any>, id: number) {
+            let wordListPromise: Promise<WordListModel>;
+
+            if (context.state.wordLists != null) {
+                wordListPromise = new Promise<WordListModel>((resolve, reject) => {
+                    for (let i = 0; i < context.state.wordLists.length; i++) {
+                        if (context.state.wordLists[i].id === id) {
+                            resolve(context.state.wordLists[i]);
+                            break;
+                        }
+                    }
+
+                    reject(new Error(`Word list with id ${id} wasn't found.`));
+                });
+            } else {
+                wordListPromise = withPendingRequest("getWordList", context, () => {
+                    return ApiService.getWordList(id);
+                });
+            }
+
+            wordListPromise.then((wordList: WordListModel) => {
+                context.commit("setCurrentWordList", wordList);
             });
         },
 

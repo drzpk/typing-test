@@ -4,7 +4,7 @@
         <b-container fluid>
             <b-row>
                 <b-col cols="8" offset="2">
-                    <b-card :title="isCreated ? 'Test definition details' : 'New test definition'">
+                    <b-card :title="isCreated ? 'Test definition details' : 'New test definition'" v-loading-overlay="pendingRequest">
                         <b-form @submit.stop.prevent="saveButton">
                             <b-form-group label-for="name" label="Name" label-cols="4">
                                 <b-form-input id="name" type="text" name="name"
@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import {Component} from "vue-property-decorator";
+import {Component, Watch} from "vue-property-decorator";
 import ValidationHelperMixin from "@/mixins/ValidationHelperMixin";
 import {maxLength, minValue, required} from "vuelidate/lib/validators";
 import ValidationMessageManager from "@/views/shared/ValidationMessageManager.vue";
@@ -58,13 +58,17 @@ import {ValidationFailedError} from "@/models/error";
 import WordListWords from "@/views/settings/admin/word/WordListWords.vue";
 import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/test-definition";
 import {mapGetters} from "vuex";
-import {WordList} from "@/models/words";
+import {WordListModel} from "@/models/words";
 import {SelectOption} from "@/models/common";
 
 @Component({
     components: {WordListWords, ValidationMessageManager},
     computed: {
-        ...mapGetters(["wordLists"])
+        ...mapGetters([
+            "currentTestDefinition",
+            "wordLists",
+            "pendingRequest"
+        ])
     },
     validations: {
         model: {
@@ -98,9 +102,11 @@ import {SelectOption} from "@/models/common";
     }
 })
 export default class TestDefinition extends mixins(ValidationHelperMixin) {
-    wordLists!: Array<WordList>;
+    currentTestDefinition!: TestDefinitionModel | null;
+    wordLists!: Array<WordListModel>;
+    pendingRequest!: boolean;
 
-    testDefinition: TestDefinitionModel | null = null;
+    currentTestDefinitionId: number | null = null;
 
     model = {
         name: "",
@@ -110,7 +116,7 @@ export default class TestDefinition extends mixins(ValidationHelperMixin) {
     };
 
     get isCreated(): boolean {
-        return this.testDefinition != null;
+        return this.currentTestDefinitionId != null;
     }
 
     get wordListOptions(): Array<SelectOption> {
@@ -126,11 +132,20 @@ export default class TestDefinition extends mixins(ValidationHelperMixin) {
         return options;
     }
 
+    @Watch("currentTestDefinition")
+    onCurrentTestDefinitionChanged(current: TestDefinitionModel | null) {
+        if (current != null)
+            this.loadTestDefinition();
+    }
+
     mounted(): void {
         if (this.$route.params.id) {
-            const id = parseInt(this.$route.params.id);
-            this.loadTestDefinition(id);
+            this.currentTestDefinitionId = parseInt(this.$route.params.id);
+            this.$store.dispatch("setCurrentTestDefinition", this.currentTestDefinitionId);
         }
+
+        if (this.wordLists.length == 0)
+            this.$store.dispatch("reloadWordLists");
     }
 
     saveButton(): void {
@@ -144,14 +159,11 @@ export default class TestDefinition extends mixins(ValidationHelperMixin) {
             this.createTestDefinition();
     }
 
-    private loadTestDefinition(id: number): void {
-        const testDefinition = this.$store.getters.getTestDefinition(id);
-        this.testDefinition = testDefinition;
-
-        this.model.name = testDefinition.name;
-        this.model.wordListId = testDefinition.wordList.id;
-        this.model.duration = testDefinition.duration;
-        this.model.isActive = testDefinition.isActive;
+    private loadTestDefinition(): void {
+        this.model.name = this.currentTestDefinition.name;
+        this.model.wordListId = this.currentTestDefinition.wordList.id;
+        this.model.duration = this.currentTestDefinition.duration;
+        this.model.isActive = this.currentTestDefinition.isActive;
     }
 
     private createTestDefinition(): void {

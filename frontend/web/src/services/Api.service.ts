@@ -14,7 +14,7 @@ import {
     ValidationErrorsModel,
     ValidationFailedError
 } from "@/models/error";
-import {WordList, WordListType, WordListWordsResponse} from "@/models/words";
+import {WordListModel, WordListType, WordListWordsResponse} from "@/models/words";
 import {PagedRequest} from "@/models/pagination";
 import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/test-definition";
 import {FinishTestRequest, TestBestResultModel, TestModel, TestResultModel} from "@/models/tests";
@@ -91,14 +91,26 @@ class ApiService {
             .catch(errorHandler);
     }
 
-    getWordLists(): Promise<Array<WordList>> {
+    getWordLists(): Promise<Array<WordListModel>> {
         return axios.get("/api/word-lists")
+            .then(response => response.data)
+            .catch(errorHandler);
+    }
+
+    getWordList(id: number): Promise<WordListModel> {
+        return axios.get(`/api/word-lists/${id}`)
             .then(response => response.data)
             .catch(errorHandler);
     }
 
     getTestDefinitions(): Promise<Array<TestDefinitionModel>> {
         return axios.get("/api/test-definitions?active=true")
+            .then(response => response.data)
+            .catch(errorHandler);
+    }
+
+    getTestDefinition(id: number): Promise<TestDefinitionModel> {
+        return axios.get(`/api/test-definitions/${id}`)
             .then(response => response.data)
             .catch(errorHandler);
     }
@@ -154,12 +166,12 @@ class ApiService {
             .catch(errorHandler);
     }
 
-    updateWordList(id: number, text: string): Promise<WordList> {
+    updateWordList(id: number, text: string): Promise<WordListModel> {
         const payload = {
             text
         }
 
-        return axios.patch<WordList>(`/api/word-lists/${id}`, payload)
+        return axios.patch<WordListModel>(`/api/word-lists/${id}`, payload)
             .then(response => response.data)
             .catch(errorHandler);
     }

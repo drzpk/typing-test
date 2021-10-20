@@ -36,6 +36,11 @@ class TestDefinitionService(private val testDefinitionRepository: TestDefinition
             .map { TestDefinitionResource.fromEntity(it) }
     }
 
+    fun getTestDefinition(id: Int): TestDefinitionResource? {
+        return testDefinitionRepository.findById(id)
+            ?.let { TestDefinitionResource.fromEntity(it) }
+    }
+
     fun updateTestDefinition(request: UpdateTestDefinitionRequest): TestDefinitionResource? {
         log.info("Updating test definition {}", request)
         validateUpdateTestDefinition(request)

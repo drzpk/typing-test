@@ -52,7 +52,7 @@
 </template>
 
 <script lang="ts">
-import {Component} from "vue-property-decorator";
+import {Component, Watch} from "vue-property-decorator";
 import ValidationHelperMixin from "@/mixins/ValidationHelperMixin";
 import {maxLength, required} from "vuelidate/lib/validators";
 import ValidationMessageManager from "@/views/shared/ValidationMessageManager.vue";
@@ -60,7 +60,7 @@ import {mixins} from "vue-class-component";
 import ApiService from "@/services/Api.service";
 import {ValidationFailedError} from "@/models/error";
 import WordListWords from "@/views/settings/admin/word/WordListWords.vue";
-import {WordListType} from "@/models/words";
+import {WordListModel, WordListType} from "@/models/words";
 import {SelectOption} from "@/models/common";
 import WordListFixedText from "@/views/settings/admin/word/WordListFixedText.vue";
 import {mapGetters} from "vuex";
@@ -68,7 +68,10 @@ import {mapGetters} from "vuex";
 @Component({
     components: {WordListFixedText, WordListWords, ValidationMessageManager},
     computed: {
-        ...mapGetters(["pendingRequest"])
+        ...mapGetters([
+            "currentWordList",
+            "pendingRequest"
+        ])
     },
     validations: {
         name: {
@@ -96,6 +99,7 @@ import {mapGetters} from "vuex";
     }
 })
 export default class WordList extends mixins(ValidationHelperMixin) {
+    currentWordList!: WordListModel | null;
     pendingRequest!: boolean;
 
     availableLanguages: Array<string> = [];
@@ -116,11 +120,17 @@ export default class WordList extends mixins(ValidationHelperMixin) {
         return this.type != null ? this.type.toString() : "";
     }
 
+    @Watch("currentWordList")
+    onCurrentWordListChanged(current: WordListModel | null, old: WordListModel | null) {
+        if (current != null)
+            this.loadWordList();
+    }
+
     mounted(): void {
         this.$store.dispatch("getAvailableLanguages").then(languages => this.availableLanguages = languages);
         if (this.$route.params.id) {
             this.currentWordListId = parseInt(this.$route.params.id);
-            this.loadWordList();
+            this.$store.dispatch("setCurrentWordList", this.currentWordListId);
         }
 
         this.availableTypes = Object.values(WordListType).map(it => {
@@ -147,10 +157,9 @@ export default class WordList extends mixins(ValidationHelperMixin) {
     }
 
     private loadWordList(): void {
-        const wordList = this.$store.getters.getWordList(this.currentWordListId!); // todo: convert this into action?
-        this.name = wordList.name;
-        this.language = wordList.language;
-        this.type = wordList.type;
+        this.name = this.currentWordList.name;
+        this.language = this.currentWordList.language;
+        this.type = this.currentWordList.type;
     }
 
     private doCreateWordList(): void {

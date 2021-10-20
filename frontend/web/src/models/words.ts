@@ -1,6 +1,6 @@
 import {PageMetadata} from "@/models/pagination";
 
-export interface WordList {
+export interface WordListModel {
     id: number;
     name: string;
     language: string;

@@ -29,6 +29,19 @@ fun Route.testDefinitionController() {
             call.respond(collection)
         }
 
+        get("{testDefinitionid}") {
+            val testDefinitionId = getRequiredIntParam("testDefinitionId")
+
+            val resource = transaction {
+                testDefinitionService.getTestDefinition(testDefinitionId)
+            }
+
+            if (resource != null)
+                call.respond(resource)
+            else
+                call.respond(HttpStatusCode.NotFound)
+        }
+
         get("/{testDefinitionId}/best-results") {
             val testDefinitionId = getRequiredIntParam("testDefinitionId")
 
