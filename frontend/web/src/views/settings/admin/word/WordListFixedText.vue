@@ -8,10 +8,10 @@
         ></b-form-textarea>
         <b-form-invalid-feedback :force-show="hasError">Text cannot contain the '|' character.</b-form-invalid-feedback>
 
-        <p>Words: {{wordCount}} &nbsp;Characters: {{characterCount}}</p>
+        <p>Words: {{ wordCount }} &nbsp;Characters: {{ characterCount }}</p>
         <b-alert variant="warning" :show="showShortTextWarning">
             The text is very short and won't be accepted even by short tests (1 minute).
-            At least {{minimumCharactersToHideShortTextWarning}} characters-long text is recommended.
+            At least {{ minimumCharactersToHideShortTextWarning }} characters-long text is recommended.
         </b-alert>
 
         <b-button @click="saveText" :disabled="hasError">Save</b-button>
@@ -19,14 +19,22 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from "vue-property-decorator";
+import {Component, Prop, Vue, Watch} from "vue-property-decorator";
 import {WordListText} from "@/store/admin";
 import WordService from "@/services/Word.service";
+import {WordListModel} from "@/models/words";
+import {mapGetters} from "vuex";
 
-@Component
+@Component({
+    computed: mapGetters([
+        "currentWordList"
+    ])
+})
 export default class WordListFixedText extends Vue {
     @Prop()
     wordListId!: number;
+
+    currentWordList!: WordListModel | null
 
     wordCount = 0;
     characterCount = 0;
@@ -41,9 +49,19 @@ export default class WordListFixedText extends Vue {
         return WordService.getFixedTextCharacterLengthWarningThreshold();
     }
 
+    @Watch("currentWordList")
+    onWordListUpdated() {
+        this.updateText();
+    }
+
     mounted(): void {
-        this.text = this.$store.getters.getWordList(this.wordListId).text;
+        this.updateText();
         this.updateState();
+    }
+
+    private updateText(): void {
+        if (this.currentWordList !== null)
+            this.text = this.currentWordList.text;
     }
 
     private updateState(): void {

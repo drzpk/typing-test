@@ -5,6 +5,7 @@ export interface WordListModel {
     name: string;
     language: string;
     type: WordListType;
+    text: string | null;
 }
 
 export interface WordListWordsResponse {
