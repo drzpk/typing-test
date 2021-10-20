@@ -1,5 +1,6 @@
 package dev.drzepka.typing.server.application.service
 
+import dev.drzepka.typing.server.application.DomainTestDefinitionService
 import dev.drzepka.typing.server.application.dto.testdefinition.CreateTestDefinitionRequest
 import dev.drzepka.typing.server.application.dto.testdefinition.TestDefinitionResource
 import dev.drzepka.typing.server.application.dto.testdefinition.UpdateTestDefinitionRequest
@@ -13,7 +14,11 @@ import java.time.Duration
 /**
  * Manages test definitions.
  */
-class TestDefinitionService(private val testDefinitionRepository: TestDefinitionRepository, private val wordListRepository: WordListRepository) {
+class TestDefinitionService(
+    private val domainTestDefinitionService: DomainTestDefinitionService,
+    private val testDefinitionRepository: TestDefinitionRepository,
+    private val wordListRepository: WordListRepository
+) {
     private val log by Logger()
 
     fun createTestDefinition(request: CreateTestDefinitionRequest): TestDefinitionResource {
@@ -26,6 +31,7 @@ class TestDefinitionService(private val testDefinitionRepository: TestDefinition
         definition.isActive = request.isActive
         definition.wordList = wordListRepository.findById(request.wordListId)!!
 
+        postValidateTestDefinition(definition)
         testDefinitionRepository.save(definition)
         log.info("Created test definition {}", definition.id)
         return TestDefinitionResource.fromEntity(definition)
@@ -58,6 +64,7 @@ class TestDefinitionService(private val testDefinitionRepository: TestDefinition
         if (request.isActive != null)
             definition.isActive = request.isActive!!
 
+        postValidateTestDefinition(definition)
         testDefinitionRepository.save(definition)
         return TestDefinitionResource.fromEntity(definition)
     }
@@ -94,5 +101,9 @@ class TestDefinitionService(private val testDefinitionRepository: TestDefinition
     private fun validateWordListId(wordListId: Int, state: ValidationState) {
         if (wordListRepository.findById(wordListId) == null)
             state.addFieldError("wordListId", "Word list with given id doesn't exist.")
+    }
+
+    private fun postValidateTestDefinition(testDefinition: TestDefinition) {
+        domainTestDefinitionService.checkIfFixedTextIsLongEnough(testDefinition)
     }
 }

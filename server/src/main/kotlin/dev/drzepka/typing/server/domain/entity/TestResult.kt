@@ -1,5 +1,6 @@
 package dev.drzepka.typing.server.domain.entity
 
+import dev.drzepka.typing.server.domain.TestConstants
 import dev.drzepka.typing.server.domain.value.TestState
 import java.time.Duration
 import kotlin.math.max
@@ -67,7 +68,7 @@ class TestResult : AbstractEntity<Int>() {
     }
 
     private fun calculateAccuracy(backspaceCount: Int) {
-        val backspaceIncorrectKeystrokeValue = backspaceCount * BACKSPACE_INCORRECT_KEYSTROKE_WEIGHT
+        val backspaceIncorrectKeystrokeValue = backspaceCount * TestConstants.BACKSPACE_INCORRECT_KEYSTROKE_WEIGHT
         val totalIncorrectKeystrokes = incorrectKeystrokes + backspaceIncorrectKeystrokeValue
         val totalKeystrokes = correctKeystrokes + totalIncorrectKeystrokes
         accuracy = correctKeystrokes / totalKeystrokes
@@ -76,23 +77,6 @@ class TestResult : AbstractEntity<Int>() {
     private fun calculateWordsPerMinute(testDuration: Duration) {
         val durationSeconds = testDuration.seconds.toFloat()
         val durationMinutes = durationSeconds / 60
-        wordsPerMinute = correctKeystrokes / durationMinutes / CHARACTERS_PER_WORD
-    }
-
-    companion object {
-        /**
-         * "Weight" of backspace key in terms of incorrect keystrokes.
-         *
-         * Example: if backspace weight is 0.5 and backspace count is 10, these backspace hits are treated as if they
-         * were 5 incorrect keystrokes.
-         */
-        private const val BACKSPACE_INCORRECT_KEYSTROKE_WEIGHT = 0.5f
-
-        /**
-         * How many characters (on average) are there in a single word. Used to calculate the words-per-minute speed.
-         * Value of this variable was set based on other online typing test available on the Internet
-         * to ensure consistency.
-         */
-        private const val CHARACTERS_PER_WORD = 5
+        wordsPerMinute = correctKeystrokes / durationMinutes / TestConstants.CHARACTERS_PER_WORD
     }
 }

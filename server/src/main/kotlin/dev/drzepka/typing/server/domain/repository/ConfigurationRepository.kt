@@ -1,5 +1,6 @@
 package dev.drzepka.typing.server.domain.repository
 
+import dev.drzepka.typing.server.domain.TestConstants
 import java.time.Duration
 
 interface ConfigurationRepository {
@@ -18,4 +19,9 @@ interface ConfigurationRepository {
      * Used to adjust amount of generated words for the tests.
      */
     fun maxWPM(): Int = 250
+
+    /**
+     * Similar to [maxWPM], but expressed in characters-per-minute.
+     */
+    fun maxCPM(): Int = maxWPM() * TestConstants.CHARACTERS_PER_WORD
 }

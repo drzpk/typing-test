@@ -21,6 +21,7 @@ import java.time.Duration
 @ExtendWith(MockitoExtension::class)
 class TestServiceTest {
 
+    private val testDefinitionService = mock<TestDefinitionService>()
     private val configurationRepository = mock<ConfigurationRepository>()
     private val wordRepository = mock<WordRepository>()
 
@@ -97,7 +98,7 @@ class TestServiceTest {
         return words
     }
 
-    private fun getService(): TestService = TestService(configurationRepository, wordRepository)
+    private fun getService(): TestService = TestService(testDefinitionService, configurationRepository, wordRepository)
 
     private fun countWordOccurrences(string: String, word: String): Int {
         val lengthBefore = string.length

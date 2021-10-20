@@ -20,13 +20,14 @@ fun Application.typingServerKoinModule(): Module = module {
     single { UserService(get(), get(), get(), get()) }
     single { WordListService(get(), get()) }
     single { WordService(get(), get()) }
-    single { TestDefinitionService(get(), get()) }
+    single { TestDefinitionService(get(), get(), get()) }
     single { TestManagerService(get(), get(), get(), get()) }
     single { TestResultService(get(), get(), get()) }
     single { TestStatsService(get(), get()) }
 
     // Domain
-    single { TestService(get(), get()) }
+    single { dev.drzepka.typing.server.domain.service.TestDefinitionService(get()) }
+    single { TestService(get(), get(), get()) }
     single { TestScoreCalculatorService() }
 
     // Infrastructure

@@ -195,7 +195,7 @@ export default class TestDefinition extends mixins(ValidationHelperMixin) {
             isActive: this.model.isActive
         };
 
-        ApiService.updateTestDefinition(this.testDefinition!.id, request)
+        ApiService.updateTestDefinition(this.currentTestDefinition!.id, request)
             .then(() => {
                 this.$store.dispatch("reloadTestDefinitions");
             })

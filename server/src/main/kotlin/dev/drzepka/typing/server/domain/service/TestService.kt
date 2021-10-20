@@ -18,6 +18,7 @@ import kotlin.math.floor
  */
 @Mockable
 class TestService(
+    private val testDefinitionService: TestDefinitionService,
     private val configurationRepository: ConfigurationRepository,
     private val wordRepository: WordRepository
 ) {
@@ -32,7 +33,7 @@ class TestService(
      */
     fun createTest(definition: TestDefinition, user: User): Test {
         log.info("Creating test from definition {}", definition.id)
-        val wordSelection = definition.getFixedText() ?: createWordSelection(definition)
+        val wordSelection = getWordSelection(definition)
         val test = Test(definition, user, wordSelection)
         test.startTimeLimit = configurationRepository.testStartTimeLimit()
         test.finishTimeLimit = configurationRepository.testFinishTimeLimit()
@@ -50,12 +51,22 @@ class TestService(
         }
 
         log.info("Regenerating word list of test {}", test.id)
-        test.selectedWords = createWordSelection(test.testDefinition)
+        test.selectedWords = createRandomWordSelection(test.testDefinition)
         test.incrementWordRegenerationCounter()
         return true
     }
 
-    private fun createWordSelection(definition: TestDefinition): WordSelection {
+    private fun getWordSelection(definition: TestDefinition): WordSelection {
+        val fixedText = definition.getFixedText()
+        if (fixedText != null) {
+            testDefinitionService.checkIfFixedTextIsLongEnough(definition)
+            return fixedText
+        }
+
+        return createRandomWordSelection(definition)
+    }
+
+    private fun createRandomWordSelection(definition: TestDefinition): WordSelection {
         val allWords = wordRepository.findAll(definition.wordList.id!!, true)
         return getRandomWords(definition, allWords)
     }

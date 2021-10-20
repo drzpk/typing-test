@@ -76,7 +76,7 @@ fun Route.testDefinitionController() {
             }
 
             if (resource != null)
-                call.respond(HttpStatusCode.Created, resource)
+                call.respond(resource)
             else
                 call.respond(HttpStatusCode.NotFound)
         }

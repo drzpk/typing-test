@@ -1,5 +1,6 @@
 package dev.drzepka.typing.server.domain.entity
 
+import dev.drzepka.typing.server.domain.TestConstants
 import dev.drzepka.typing.server.domain.value.WordSelection
 import org.assertj.core.api.BDDAssertions.then
 import org.assertj.core.data.Offset
@@ -81,7 +82,7 @@ class TestResultTest {
         result.calculateResult(test)
 
         // This value is calculated based on keystrokes, not words.
-        then(result.wordsPerMinute).isEqualTo(57 / (10 / 60f) / 5, Offset.offset(0.01f))
+        then(result.wordsPerMinute).isEqualTo(57 / (10 / 60f) / TestConstants.CHARACTERS_PER_WORD, Offset.offset(0.01f))
     }
 
     private fun createTest(
