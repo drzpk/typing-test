@@ -10,10 +10,10 @@
         </b-table>
 
         <b-pagination
-                v-if="words"
-                v-model="pagedRequest.page"
-                :total-rows="words.metadata.totalElements"
-                :per-page="pagedRequest.size"
+            v-if="words"
+            v-model="pagedRequest.page"
+            :total-rows="words.metadata.totalElements"
+            :per-page="pagedRequest.size"
         ></b-pagination>
 
         <b-button @click="addWord">Add a word</b-button>
@@ -36,158 +36,158 @@
         </b-modal>
 
         <b-modal id="word-delete-modal" title="Confirmation" @ok="doDeleteWord">
-            Are you sure you want to delete the word '{{wordEditor.word}}'?
+            Are you sure you want to delete the word '{{ wordEditor.word }}'?
         </b-modal>
     </div>
 </template>
 
 <script lang="ts">
-    import ApiService from "@/services/Api.service";
-    import {Component, Watch} from "vue-property-decorator";
-    import {PagedRequest} from "@/models/pagination";
-    import {WordListWord, WordListWordsResponse} from "@/models/words";
-    import {mixins} from "vue-class-component";
-    import ValidationHelperMixin from "@/mixins/ValidationHelperMixin";
-    import ValidationMessageManager from "@/views/shared/ValidationMessageManager.vue";
-    import {maxLength, minValue, required} from "vuelidate/lib/validators";
-    import {BvModalEvent} from "bootstrap-vue";
-    import {ValidationFailedError} from "@/models/error";
+import ApiService from "@/services/Api.service";
+import {Component, Watch} from "vue-property-decorator";
+import {PagedRequest} from "@/models/pagination";
+import {WordListWord, WordListWordsResponse} from "@/models/words";
+import {mixins} from "vue-class-component";
+import ValidationHelperMixin from "@/mixins/ValidationHelperMixin";
+import ValidationMessageManager from "@/views/shared/ValidationMessageManager.vue";
+import {maxLength, minValue, required} from "vuelidate/lib/validators";
+import {BvModalEvent} from "bootstrap-vue";
+import {ValidationFailedError} from "@/models/error";
 
-    @Component({
-        components: {ValidationMessageManager},
-        props: [
-            "wordListId"
-        ],
-        validations: function () {
-            const rules: { [key: string]: any } = {
-                wordEditor: {
-                    word: {
-                        required,
-                        maxLength: maxLength(64)
-                    },
-                    popularity: {
-                        required,
-                        minValue: minValue(1)
-                    }
-                }
-            };
-
-            if (!(this as WordListWords).wordEditor.createMode)
-                delete rules.wordEditor.word;
-
-            return rules;
-        },
-        validationMessages: {
+@Component({
+    components: {ValidationMessageManager},
+    props: [
+        "wordListId"
+    ],
+    validations: function () {
+        const rules: { [key: string]: any } = {
             wordEditor: {
                 word: {
-                    required: "Word is required.",
-                    maxLength: "Max length is 64."
+                    required,
+                    maxLength: maxLength(64)
                 },
                 popularity: {
-                    required: "Popularity is required.",
-                    minValue: "Popularity must be a positive number."
+                    required,
+                    minValue: minValue(1)
                 }
             }
-        },
-        serverFieldNameMapping: {
-            word: "wordEditor.word",
-            popularity: "wordEditor.popularity"
-        }
-    })
-    export default class WordListWords extends mixins(ValidationHelperMixin) {
-        wordListId!: number;
-        words: WordListWordsResponse | null = null;
-        pagedRequest = new PagedRequest();
-
-        wordEditor = {
-            id: -1,
-            word: "",
-            popularity: 1,
-            createMode: false
         };
 
-        fields = [
-            {
-                key: "id",
-                label: "Identifier"
+        if (!(this as WordListWords).wordEditor.createMode)
+            delete rules.wordEditor.word;
+
+        return rules;
+    },
+    validationMessages: {
+        wordEditor: {
+            word: {
+                required: "Word is required.",
+                maxLength: "Max length is 64."
             },
-            {
-                key: "word"
-            },
-            {
-                key: "popularity"
-            },
-            {
-                key: "actions"
+            popularity: {
+                required: "Popularity is required.",
+                minValue: "Popularity must be a positive number."
             }
-        ];
-
-        mounted(): void {
-            this.pagedRequest.size = 10;
-            this.refreshWordList();
         }
-
-        @Watch("pagedRequest.page")
-        onPageChanged(): void {
-            this.refreshWordList();
-        }
-
-        addWord(): void {
-            this.wordEditor.createMode = true;
-            this.wordEditor.word = "";
-            this.wordEditor.popularity = 1;
-            this.$bvModal.show("word-editor-modal");
-        }
-
-        editWord(word: WordListWord): void {
-            this.wordEditor.createMode = false;
-            this.wordEditor.id = word.id;
-            this.wordEditor.popularity = word.popularity;
-            this.$bvModal.show("word-editor-modal");
-        }
-
-        saveWord(event: BvModalEvent): void {
-            event.preventDefault();
-
-            this.triggerValidation();
-            if (this.$v.$anyError)
-                return;
-
-            let promise: Promise<any>;
-            if (this.wordEditor.createMode) {
-                promise = ApiService.createWord(this.wordListId, this.wordEditor.word, this.wordEditor.popularity);
-            } else {
-                promise = ApiService.updateWordPopularity(this.wordListId, this.wordEditor.id, this.wordEditor.popularity);
-            }
-
-            promise.catch(error => {
-                if (error instanceof ValidationFailedError)
-                    this.processValidationError(error);
-                else
-                    console.error(error);
-            }).then(() => {
-                this.$bvModal.hide("word-editor-modal");
-                this.refreshWordList();
-            })
-        }
-
-        confirmDeleteWord(word: WordListWord): void {
-            this.wordEditor.id = word.id;
-            this.wordEditor.word = word.word;
-            this.$bvModal.show("word-delete-modal");
-        }
-
-        doDeleteWord(): void {
-            ApiService.deleteWord(this.wordListId, this.wordEditor.id)
-                .then(() => this.refreshWordList())
-                .catch(error => console.error(error));
-        }
-
-        private refreshWordList(): void {
-            ApiService.getWordListWords(this.wordListId, this.pagedRequest)
-                .then(words => this.words = words)
-        }
+    },
+    serverFieldNameMapping: {
+        word: "wordEditor.word",
+        popularity: "wordEditor.popularity"
     }
+})
+export default class WordListWords extends mixins(ValidationHelperMixin) {
+    wordListId!: number;
+    words: WordListWordsResponse | null = null;
+    pagedRequest = new PagedRequest();
+
+    wordEditor = {
+        id: -1,
+        word: "",
+        popularity: 1,
+        createMode: false
+    };
+
+    fields = [
+        {
+            key: "id",
+            label: "Identifier"
+        },
+        {
+            key: "word"
+        },
+        {
+            key: "popularity"
+        },
+        {
+            key: "actions"
+        }
+    ];
+
+    mounted(): void {
+        this.pagedRequest.size = 10;
+        this.refreshWordList();
+    }
+
+    @Watch("pagedRequest.page")
+    onPageChanged(): void {
+        this.refreshWordList();
+    }
+
+    addWord(): void {
+        this.wordEditor.createMode = true;
+        this.wordEditor.word = "";
+        this.wordEditor.popularity = 1;
+        this.$bvModal.show("word-editor-modal");
+    }
+
+    editWord(word: WordListWord): void {
+        this.wordEditor.createMode = false;
+        this.wordEditor.id = word.id;
+        this.wordEditor.popularity = word.popularity;
+        this.$bvModal.show("word-editor-modal");
+    }
+
+    saveWord(event: BvModalEvent): void {
+        event.preventDefault();
+
+        this.triggerValidation();
+        if (this.$v.$anyError)
+            return;
+
+        let promise: Promise<any>;
+        if (this.wordEditor.createMode) {
+            promise = ApiService.createWord(this.wordListId, this.wordEditor.word, this.wordEditor.popularity);
+        } else {
+            promise = ApiService.updateWordPopularity(this.wordListId, this.wordEditor.id, this.wordEditor.popularity);
+        }
+
+        promise.catch(error => {
+            if (error instanceof ValidationFailedError)
+                this.processValidationError(error);
+            else
+                console.error(error);
+        }).then(() => {
+            this.$bvModal.hide("word-editor-modal");
+            this.refreshWordList();
+        })
+    }
+
+    confirmDeleteWord(word: WordListWord): void {
+        this.wordEditor.id = word.id;
+        this.wordEditor.word = word.word;
+        this.$bvModal.show("word-delete-modal");
+    }
+
+    doDeleteWord(): void {
+        ApiService.deleteWord(this.wordListId, this.wordEditor.id)
+            .then(() => this.refreshWordList())
+            .catch(error => console.error(error));
+    }
+
+    private refreshWordList(): void {
+        ApiService.getWordListWords(this.wordListId, this.pagedRequest)
+            .then(words => this.words = words)
+    }
+}
 </script>
 
 <style lang="scss">
