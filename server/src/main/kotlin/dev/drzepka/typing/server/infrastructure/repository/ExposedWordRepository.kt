@@ -4,7 +4,7 @@ import dev.drzepka.typing.server.domain.Page
 import dev.drzepka.typing.server.domain.entity.Word
 import dev.drzepka.typing.server.domain.repository.WordRepository
 import dev.drzepka.typing.server.infrastructure.repository.table.Words
-import dev.drzepka.typing.server.infrastructure.util.countAllRows
+import dev.drzepka.typing.server.infrastructure.util.countWhere
 import org.jetbrains.exposed.sql.*
 
 class ExposedWordRepository : WordRepository {
@@ -20,7 +20,8 @@ class ExposedWordRepository : WordRepository {
             .limit(size, (page - 1) * size.toLong())
             .map { rowToWord(it) }
 
-        return Page(result, page, size, Words.countAllRows())
+        val total = Words.countWhere { Words.wordList eq wordListId }
+        return Page(result, page, size, total)
     }
 
     override fun findAll(wordListId: Int, sortDescendingByPopularity: Boolean): Collection<Word> {

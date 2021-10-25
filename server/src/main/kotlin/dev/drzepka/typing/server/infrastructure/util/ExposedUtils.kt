@@ -3,13 +3,18 @@ package dev.drzepka.typing.server.infrastructure.util
 import dev.drzepka.typing.server.domain.PagedQuery
 import dev.drzepka.typing.server.domain.SearchQuery
 import dev.drzepka.typing.server.domain.SortingQuery
-import dev.drzepka.typing.server.infrastructure.repository.table.Words
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.*
 
 fun IdTable<*>.countAllRows(): Long {
-    val countExpression = this.id.count()
-    val countQuery = Words.slice(countExpression).selectAll()
+    val countExpression = id.count()
+    val countQuery = slice(countExpression).selectAll()
+    return countQuery.first()[countExpression]
+}
+
+fun IdTable<*>.countWhere(builder: SqlExpressionBuilder.() -> Op<Boolean>): Long {
+    val countExpression = id.count()
+    val countQuery = slice(countExpression).select(builder)
     return countQuery.first()[countExpression]
 }
 
