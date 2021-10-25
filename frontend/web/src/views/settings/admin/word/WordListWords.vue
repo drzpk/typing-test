@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-table v-if="words" :items="words.content" :fields="fields">
+        <b-table v-if="currentWordListWords" :items="currentWordListWords.content" :fields="fields">
             <!--suppress HtmlUnknownAttribute -->
             <template #cell(actions)="word">
                 <font-awesome-icon icon="pencil-alt" style="cursor: pointer" @click="editWord(word.item)"/>
@@ -10,10 +10,11 @@
         </b-table>
 
         <b-pagination
-            v-if="words"
+            v-if="currentWordListWords"
             v-model="pagedRequest.page"
-            :total-rows="words.metadata.totalElements"
-            :per-page="pagedRequest.size"
+            :total-rows="currentWordListWords.metadata.totalElements"
+            :per-page="currentWordListWords.metadata.size"
+            @change="onPageChanged"
         ></b-pagination>
 
         <b-button @click="addWord">Add a word</b-button>
@@ -42,22 +43,21 @@
 </template>
 
 <script lang="ts">
-import ApiService from "@/services/Api.service";
-import {Component, Watch} from "vue-property-decorator";
+import {Component} from "vue-property-decorator";
 import {PagedRequest} from "@/models/pagination";
-import {WordListWord, WordListWordsResponse} from "@/models/words";
+import {WordListWord, WordListWordsModel} from "@/models/words";
 import {mixins} from "vue-class-component";
 import ValidationHelperMixin from "@/mixins/ValidationHelperMixin";
 import ValidationMessageManager from "@/views/shared/ValidationMessageManager.vue";
 import {maxLength, minValue, required} from "vuelidate/lib/validators";
 import {BvModalEvent} from "bootstrap-vue";
 import {ValidationFailedError} from "@/models/error";
+import {mapGetters} from "vuex";
+import {CreateWordData, UpdateWordPopularityData} from "@/store/admin";
 
 @Component({
     components: {ValidationMessageManager},
-    props: [
-        "wordListId"
-    ],
+    computed: mapGetters(["currentWordListWords"]),
     validations: function () {
         const rules: { [key: string]: any } = {
             wordEditor: {
@@ -95,8 +95,7 @@ import {ValidationFailedError} from "@/models/error";
     }
 })
 export default class WordListWords extends mixins(ValidationHelperMixin) {
-    wordListId!: number;
-    words: WordListWordsResponse | null = null;
+    currentWordListWords!: WordListWordsModel;
     pagedRequest = new PagedRequest();
 
     wordEditor = {
@@ -127,8 +126,8 @@ export default class WordListWords extends mixins(ValidationHelperMixin) {
         this.refreshWordList();
     }
 
-    @Watch("pagedRequest.page")
-    onPageChanged(): void {
+    onPageChanged(newPageNo: number): void {
+        this.pagedRequest.page = newPageNo;
         this.refreshWordList();
     }
 
@@ -155,9 +154,17 @@ export default class WordListWords extends mixins(ValidationHelperMixin) {
 
         let promise: Promise<any>;
         if (this.wordEditor.createMode) {
-            promise = ApiService.createWord(this.wordListId, this.wordEditor.word, this.wordEditor.popularity);
+            const payload: CreateWordData = {
+                word: this.wordEditor.word,
+                popularity: this.wordEditor.popularity
+            };
+            promise = this.$store.dispatch("createWord", payload);
         } else {
-            promise = ApiService.updateWordPopularity(this.wordListId, this.wordEditor.id, this.wordEditor.popularity);
+            const payload: UpdateWordPopularityData = {
+                wordId: this.wordEditor.id,
+                popularity: this.wordEditor.popularity
+            };
+            promise = this.$store.dispatch("updateWordPopularity", payload);
         }
 
         promise.catch(error => {
@@ -167,7 +174,7 @@ export default class WordListWords extends mixins(ValidationHelperMixin) {
                 console.error(error);
         }).then(() => {
             this.$bvModal.hide("word-editor-modal");
-            this.refreshWordList();
+            this.onWordListRefreshed();
         })
     }
 
@@ -178,14 +185,19 @@ export default class WordListWords extends mixins(ValidationHelperMixin) {
     }
 
     doDeleteWord(): void {
-        ApiService.deleteWord(this.wordListId, this.wordEditor.id)
-            .then(() => this.refreshWordList())
+        this.$store.dispatch("deleteWord", this.wordEditor.id)
             .catch(error => console.error(error));
     }
 
     private refreshWordList(): void {
-        ApiService.getWordListWords(this.wordListId, this.pagedRequest)
-            .then(words => this.words = words)
+        this.$store.dispatch("refreshCurrentWordListWords", this.pagedRequest).then(this.onWordListRefreshed);
+    }
+
+    private onWordListRefreshed(): void {
+        // Page number must be bound to a local instance.
+        // When it was bound directly by :value to currentWordList.metadata.page, the number
+        // wasn't updated on page change even though the internal state of the pagination component was.
+        this.pagedRequest.page = this.currentWordListWords.metadata.page;
     }
 }
 </script>

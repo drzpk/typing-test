@@ -2,16 +2,26 @@
 
 import {ActionContext, Module} from "vuex";
 import {RootState} from "@/store/index";
-import {WordListModel} from "@/models/words";
+import {WordListModel, WordListWordsModel} from "@/models/words";
 import ApiService from "@/services/Api.service";
 import {TestDefinitionModel} from "@/models/test-definition";
 import {SearchUsersRequest, SearchUsersResponse, UserModel} from "@/models/user";
-import {PageMetadata} from "@/models/pagination";
+import {PagedRequest, PageMetadata} from "@/models/pagination";
 import {withPendingRequest} from "@/utils/store-utils";
 
 export interface WordListText {
     id: number;
     text: string
+}
+
+export interface CreateWordData {
+    word: string;
+    popularity: number;
+}
+
+export interface UpdateWordPopularityData {
+    wordId: number;
+    popularity: number;
 }
 
 interface AdminState {
@@ -20,6 +30,7 @@ interface AdminState {
     availableLanguages: Array<string> | null;
     currentTestDefinition: TestDefinitionModel | null;
     currentWordList: WordListModel | null;
+    currentWordListWords: WordListWordsModel | null;
     usersState: UsersState;
 }
 
@@ -36,6 +47,7 @@ const adminModule: Module<AdminState, RootState> = {
         availableLanguages: null,
         currentTestDefinition: null,
         currentWordList: null,
+        currentWordListWords: null,
         usersState: new UsersState()
     },
     getters: {
@@ -46,7 +58,10 @@ const adminModule: Module<AdminState, RootState> = {
                 return [];
         },
         currentWordList(state): WordListModel | null {
-          return state.currentWordList;
+            return state.currentWordList;
+        },
+        currentWordListWords(state): WordListWordsModel | null {
+            return state.currentWordListWords;
         },
         testDefinitions(state): Array<TestDefinitionModel> {
             if (state.testDefinitions != null)
@@ -73,6 +88,9 @@ const adminModule: Module<AdminState, RootState> = {
         },
         setCurrentWordList(state, wordList: WordListModel | null) {
             state.currentWordList = wordList;
+        },
+        setCurrentWordListWords(state, wordListWords: WordListWordsModel | null) {
+            state.currentWordListWords = wordListWords;
         },
         setTestDefinitions(state, testDefinitions: TestDefinitionModel[]) {
             state.testDefinitions = testDefinitions;
@@ -217,6 +235,88 @@ const adminModule: Module<AdminState, RootState> = {
         deleteWordList(context: ActionContext<any, any>, wordListId: number) {
             ApiService.deleteWordList(wordListId).then(() => {
                 return context.dispatch("reloadWordLists");
+            });
+        },
+
+        refreshCurrentWordListWords(context: ActionContext<any, any>, pagination: PagedRequest | undefined) {
+            if (!context.state.currentWordList)
+                throw new Error("No current word list selected.");
+
+            let requestPagination: PagedRequest;
+            if (!pagination) {
+                if (context.state.currentWordListWords)
+                    requestPagination = PagedRequest.fromPageMetadata(context.state.currentWordListWords.metadata);
+                else
+                    requestPagination = new PagedRequest();
+            } else {
+                requestPagination = pagination;
+            }
+
+            return withPendingRequest("refreshCurrentWordListWords", context, () => {
+                return ApiService.getWordListWords(context.state.currentWordList.id, requestPagination);
+            }).then((model: WordListWordsModel) => {
+                context.commit("setCurrentWordListWords", model);
+            });
+        },
+
+        createWord(context: ActionContext<any, any>, data: CreateWordData) {
+            if (!context.state.currentWordList)
+                throw new Error("No current word list selected.");
+
+            return withPendingRequest("createWord", context, () => {
+                return ApiService.createWord(context.state.currentWordList.id, data.word, data.popularity).then(() => {
+                    let isOnLastPage = false;
+                    let shouldChangePage = false;
+
+                    if (context.state.currentWordListWords) {
+                        const metadata = context.state.currentWordListWords.metadata as PageMetadata;
+                        isOnLastPage = metadata.page == metadata.totalPages;
+                        shouldChangePage = metadata.totalElements % metadata.size == 0;
+                    }
+
+                    let pagination: PagedRequest | undefined = undefined;
+                    if (isOnLastPage && shouldChangePage) {
+                        pagination = PagedRequest.fromPageMetadata(context.state.currentWordListWords);
+                        pagination.page = pagination.page + 1;
+                    }
+
+                    return context.dispatch("refreshCurrentWordListWords", pagination);
+                })
+            });
+        },
+
+        updateWordPopularity(context: ActionContext<any, any>, data: UpdateWordPopularityData) {
+            if (!context.state.currentWordList)
+                throw new Error("No current word list selected.");
+
+            return withPendingRequest("updateWordPopularity", context, () => {
+                return ApiService.updateWordPopularity(context.state.currentWordList.id, data.wordId, data.popularity).then(() => {
+                    return context.dispatch("refreshCurrentWordListWords");
+                });
+            });
+        },
+
+        deleteWord(context: ActionContext<any, any>, wordId: number) {
+            if (!context.state.currentWordList)
+                throw new Error("No current word list selected.");
+
+            return withPendingRequest("deleteWord", context, () => {
+                return ApiService.deleteWord(context.state.currentWordList.id, wordId).then(() => {
+
+                    let pagination: PagedRequest | undefined = undefined;
+                    const words: WordListWordsModel | null = context.state.currentWordListWords;
+                    if (words) {
+                        const metadata: PageMetadata = words.metadata;
+                        const wasLastOnPage = words.content.length == 1 && metadata.page == metadata.totalPages;
+
+                        if (wasLastOnPage) {
+                            pagination = PagedRequest.fromPageMetadata(metadata);
+                            pagination.page = Math.max(1, pagination.page - 1);
+                        }
+                    }
+
+                    return context.dispatch("refreshCurrentWordListWords", pagination);
+                });
             });
         }
     }

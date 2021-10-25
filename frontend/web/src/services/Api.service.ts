@@ -14,7 +14,7 @@ import {
     ValidationErrorsModel,
     ValidationFailedError
 } from "@/models/error";
-import {WordListModel, WordListType, WordListWordsResponse} from "@/models/words";
+import {WordListModel, WordListType, WordListWordsModel} from "@/models/words";
 import {PagedRequest} from "@/models/pagination";
 import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/test-definition";
 import {FinishTestRequest, TestBestResultModel, TestModel, TestResultModel} from "@/models/tests";
@@ -191,7 +191,7 @@ class ApiService {
             .catch(errorHandler);
     }
 
-    getWordListWords(wordListId: number, pagedRequest: PagedRequest): Promise<WordListWordsResponse> {
+    getWordListWords(wordListId: number, pagedRequest: PagedRequest): Promise<WordListWordsModel> {
         const params = {
             page: pagedRequest.page,
             size: pagedRequest.size

@@ -39,7 +39,7 @@
 
                     <b-card v-if="typeString === 'RANDOM'" title="Words"
                             sub-title="List of available words from which random words will be selected for each test.">
-                        <WordListWords v-if="isCreated" :word-list-id="currentWordListId"></WordListWords>
+                        <WordListWords v-if="isCreated"></WordListWords>
                     </b-card>
                     <b-card v-if="typeString === 'FIXED'" title="Text"
                             sub-title="Fixed, always the same text to rewrite by a user.">
@@ -121,7 +121,7 @@ export default class WordList extends mixins(ValidationHelperMixin) {
     }
 
     @Watch("currentWordList")
-    onCurrentWordListChanged(current: WordListModel | null, old: WordListModel | null) {
+    onCurrentWordListChanged(current: WordListModel | null) {
         if (current != null)
             this.loadWordList();
     }
@@ -157,9 +157,9 @@ export default class WordList extends mixins(ValidationHelperMixin) {
     }
 
     private loadWordList(): void {
-        this.name = this.currentWordList.name;
-        this.language = this.currentWordList.language;
-        this.type = this.currentWordList.type;
+        this.name = this.currentWordList!.name;
+        this.language = this.currentWordList!.language;
+        this.type = this.currentWordList!.type;
     }
 
     private doCreateWordList(): void {

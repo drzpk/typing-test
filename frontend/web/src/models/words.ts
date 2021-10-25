@@ -8,7 +8,7 @@ export interface WordListModel {
     text: string | null;
 }
 
-export interface WordListWordsResponse {
+export interface WordListWordsModel {
     content: Array<WordListWord>;
     metadata: PageMetadata;
 }
