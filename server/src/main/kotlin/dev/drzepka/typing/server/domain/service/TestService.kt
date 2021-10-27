@@ -68,7 +68,7 @@ class TestService(
 
     private fun createRandomWordSelection(definition: TestDefinition): WordSelection {
         val allWords = wordRepository.findAll(definition.wordList.id!!, true)
-        return getRandomWords(definition, allWords)
+        return getRandomWords(definition, allWords.toList())
     }
 
     /**

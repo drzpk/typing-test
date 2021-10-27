@@ -16,7 +16,8 @@ import org.koin.dsl.module
 fun Application.typingServerKoinModule(): Module = module {
 
     // Application
-    single { WordBulkManagementService(get(), get()) }
+    single { WordImportService(get(), get()) }
+    single { WordExportService(get()) }
     single { UserService(get(), get(), get(), get()) }
     single { WordListService(get(), get()) }
     single { WordService(get(), get()) }

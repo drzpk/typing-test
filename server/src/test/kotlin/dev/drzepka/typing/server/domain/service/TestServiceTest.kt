@@ -48,6 +48,8 @@ class TestServiceTest {
 
     @Test
     fun `should regenerate word selection`() {
+        whenever(wordRepository.findAll(any(), any())).thenReturn(emptySequence())
+
         val service = getService()
         val test = service.createTest(getTestDefinition(), getUser())
 
@@ -84,7 +86,7 @@ class TestServiceTest {
         id = 200
     }
 
-    private fun generateWordList(): Collection<Word> {
+    private fun generateWordList(): Sequence<Word> {
         val words = ArrayList<Word>()
 
         // Generate a high quantity of words with small popularity to decrease amount of "Trial limit has been reached" messages
@@ -95,7 +97,7 @@ class TestServiceTest {
         words.add(Word().apply { popularity = 25; word = "less" })
         words.add(Word().apply { popularity = 75; word = "more" })
 
-        return words
+        return words.asSequence()
     }
 
     private fun getService(): TestService = TestService(testDefinitionService, configurationRepository, wordRepository)

@@ -14,7 +14,7 @@ import {
     ValidationErrorsModel,
     ValidationFailedError
 } from "@/models/error";
-import {WordListModel, WordListType, WordListWordsModel} from "@/models/words";
+import {ImportWordsRequest, WordListModel, WordListType, WordListWordsModel} from "@/models/words";
 import {PagedRequest} from "@/models/pagination";
 import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/test-definition";
 import {FinishTestRequest, TestBestResultModel, TestModel, TestResultModel} from "@/models/tests";
@@ -178,6 +178,18 @@ class ApiService {
 
     deleteWordList(id: number): Promise<any> {
         return axios.delete(`/api/word-lists/${id}`)
+            .catch(errorHandler);
+    }
+
+    exportWords(wordListId: number): Promise<any> {
+        return axios.get(`/api/word-lists/${wordListId}/words/export`)
+            .then(response => response.data)
+            .catch(errorHandler);
+    }
+
+    importWords(request: ImportWordsRequest): Promise<any> {
+        return axios.post(`/api/word-lists/${request.wordListId}/words/import`, request)
+            .then(() => null)
             .catch(errorHandler);
     }
 

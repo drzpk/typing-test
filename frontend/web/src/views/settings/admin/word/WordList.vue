@@ -29,7 +29,8 @@
                             </b-form-group>
 
                             <b-button @click="createWordList" v-if="!isCreated">Save</b-button>
-                            <b-button v-b-modal:delete-word-list-modal v-if="isCreated" variant="danger">Delete</b-button>
+                            <b-button v-b-modal:delete-word-list-modal v-if="isCreated" variant="danger">Delete
+                            </b-button>
 
                             <b-modal id="delete-word-list-modal" title="Deletion of the word list" @ok="deleteWordList">
                                 Are you sure you want to delete this word list?
@@ -44,6 +45,11 @@
                     <b-card v-if="typeString === 'FIXED'" title="Text"
                             sub-title="Fixed, always the same text to rewrite by a user.">
                         <WordListFixedText v-if="isCreated" :word-list-id="currentWordListId"></WordListFixedText>
+                    </b-card>
+
+                    <b-card v-if="typeString === 'RANDOM' && isCreated" title="Word import/export"
+                            sub-title="Import or export words using a JSON file.">
+                        <WordListImportExport></WordListImportExport>
                     </b-card>
                 </b-col>
             </b-row>
@@ -64,9 +70,10 @@ import {WordListModel, WordListType} from "@/models/words";
 import {SelectOption} from "@/models/common";
 import WordListFixedText from "@/views/settings/admin/word/WordListFixedText.vue";
 import {mapGetters} from "vuex";
+import WordListImportExport from "@/views/settings/admin/word/WordListImportExport.vue";
 
 @Component({
-    components: {WordListFixedText, WordListWords, ValidationMessageManager},
+    components: {WordListImportExport, WordListFixedText, WordListWords, ValidationMessageManager},
     computed: {
         ...mapGetters([
             "currentWordList",

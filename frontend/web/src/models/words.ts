@@ -22,5 +22,15 @@ export interface WordListWord {
 export enum WordListType {
     RANDOM = "RANDOM",
     FIXED = "FIXED",
+}
 
+export interface ImportWordsRequest {
+    wordListId: number;
+    deleteExisting: boolean;
+    updateExisting: boolean;
+    words: any;
+}
+
+export interface ExportedWords {
+    words: any;
 }

@@ -2,8 +2,9 @@
 
 import {ActionContext, Module} from "vuex";
 import {RootState} from "@/store/index";
-import {WordListModel, WordListWordsModel} from "@/models/words";
+import {ExportedWords, ImportWordsRequest, WordListModel, WordListWordsModel} from "@/models/words";
 import ApiService from "@/services/Api.service";
+import FileService from "@/services/File.service";
 import {TestDefinitionModel} from "@/models/test-definition";
 import {SearchUsersRequest, SearchUsersResponse, UserModel} from "@/models/user";
 import {PagedRequest, PageMetadata} from "@/models/pagination";
@@ -22,6 +23,12 @@ export interface CreateWordData {
 export interface UpdateWordPopularityData {
     wordId: number;
     popularity: number;
+}
+
+export interface WordImportData {
+    mode: "append" | "delete";
+    updateExisting: boolean;
+    file: File;
 }
 
 interface AdminState {
@@ -316,6 +323,43 @@ const adminModule: Module<AdminState, RootState> = {
                     }
 
                     return context.dispatch("refreshCurrentWordListWords", pagination);
+                });
+            });
+        },
+
+        exportWords(context: ActionContext<any, any>) {
+            if (!context.state.currentWordList)
+                throw new Error("No current word list selected.");
+
+            const wordListId = context.state.currentWordList.id;
+
+            withPendingRequest("exportWords", context, () => {
+                return ApiService.exportWords(wordListId);
+            }).then((data: any) => {
+                const name = `word_list_${wordListId}_words.json`;
+                const stringified = JSON.stringify(data, null, 2);
+                FileService.saveToFile(stringified, name);
+            });
+        },
+
+        importWords(context: ActionContext<any, any>, data: WordImportData) {
+            if (!context.state.currentWordList)
+                throw new Error("No current word list selected.");
+
+            return withPendingRequest("importWords", context, () => {
+                return data.file.text().then((content: string) => {
+                    const parsed = JSON.parse(content) as ExportedWords;
+
+                    const request: ImportWordsRequest = {
+                        wordListId: context.state.currentWordList.id,
+                        deleteExisting: data.mode === "delete",
+                        updateExisting: data.mode === "append" && data.updateExisting,
+                        words: parsed.words
+                    };
+
+                    return ApiService.importWords(request);
+                }).then(() => {
+                    return context.dispatch("refreshCurrentWordListWords");
                 });
             });
         }

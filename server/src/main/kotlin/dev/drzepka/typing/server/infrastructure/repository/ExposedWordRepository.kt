@@ -6,6 +6,7 @@ import dev.drzepka.typing.server.domain.repository.WordRepository
 import dev.drzepka.typing.server.infrastructure.repository.table.Words
 import dev.drzepka.typing.server.infrastructure.util.countWhere
 import org.jetbrains.exposed.sql.*
+import kotlin.sequences.Sequence
 
 class ExposedWordRepository : WordRepository {
 
@@ -24,12 +25,14 @@ class ExposedWordRepository : WordRepository {
         return Page(result, page, size, total)
     }
 
-    override fun findAll(wordListId: Int, sortDescendingByPopularity: Boolean): Collection<Word> {
+    override fun findAll(wordListId: Int, sortDescendingByPopularity: Boolean): Sequence<Word> {
         val query = Words.select { Words.wordList eq wordListId }
         if (sortDescendingByPopularity)
             query.orderBy(Words.popularity to SortOrder.DESC)
 
-        return query.map { rowToWord(it) }
+        return query
+            .asSequence()
+            .map { rowToWord(it) }
     }
 
     override fun findByWordListAndWord(wordListId: Int, word: String): Word? {
@@ -59,6 +62,10 @@ class ExposedWordRepository : WordRepository {
     override fun delete(id: Int): Boolean {
         val count = Words.deleteWhere { Words.id eq id }
         return count > 0
+    }
+
+    override fun deleteByWordList(wordListId: Int): Int {
+        return Words.deleteWhere { Words.wordList eq wordListId }
     }
 
     private fun rowToWord(row: ResultRow): Word {
