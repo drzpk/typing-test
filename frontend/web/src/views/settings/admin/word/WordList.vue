@@ -63,7 +63,6 @@ import ValidationHelperMixin from "@/mixins/ValidationHelperMixin";
 import {maxLength, required} from "vuelidate/lib/validators";
 import ValidationMessageManager from "@/views/shared/ValidationMessageManager.vue";
 import {mixins} from "vue-class-component";
-import ApiService from "@/services/Api.service";
 import {ValidationFailedError} from "@/models/error";
 import WordListWords from "@/views/settings/admin/word/WordListWords.vue";
 import {WordListModel, WordListType} from "@/models/words";
@@ -71,6 +70,7 @@ import {SelectOption} from "@/models/common";
 import WordListFixedText from "@/views/settings/admin/word/WordListFixedText.vue";
 import {mapGetters} from "vuex";
 import WordListImportExport from "@/views/settings/admin/word/WordListImportExport.vue";
+import {CreateWordListData} from "@/store/admin";
 
 @Component({
     components: {WordListImportExport, WordListFixedText, WordListWords, ValidationMessageManager},
@@ -170,17 +170,20 @@ export default class WordList extends mixins(ValidationHelperMixin) {
     }
 
     private doCreateWordList(): void {
-        ApiService.createWordList(this.name, this.language, this.type!)
-            .then(() => {
-                this.$store.dispatch("reloadWordLists");
-                this.$router.push("/settings/admin");
-            })
-            .catch(error => {
-                if (error instanceof ValidationFailedError)
-                    this.processValidationError(error);
-                else
-                    console.error(error);
-            });
+        const data: CreateWordListData = {
+            name: this.name,
+            language: this.language,
+            type: this.type
+        };
+
+        this.$store.dispatch("createWordList", data).then(() => {
+            this.$router.push("/settings/admin");
+        }).catch(error => {
+            if (error instanceof ValidationFailedError)
+                this.processValidationError(error);
+            else
+                console.error(error);
+        });
     }
 }
 </script>

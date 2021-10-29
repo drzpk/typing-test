@@ -2,13 +2,19 @@
 
 import {ActionContext, Module} from "vuex";
 import {RootState} from "@/store/index";
-import {ExportedWords, ImportWordsRequest, WordListModel, WordListWordsModel} from "@/models/words";
+import {ExportedWords, ImportWordsRequest, WordListModel, WordListType, WordListWordsModel} from "@/models/words";
 import ApiService from "@/services/Api.service";
 import FileService from "@/services/File.service";
 import {TestDefinitionModel} from "@/models/test-definition";
 import {SearchUsersRequest, SearchUsersResponse, UserModel} from "@/models/user";
 import {PagedRequest, PageMetadata} from "@/models/pagination";
 import {withPendingRequest} from "@/utils/store-utils";
+
+export interface CreateWordListData {
+    name: string;
+    language: string;
+    type: WordListType;
+}
 
 export interface WordListText {
     id: number;
@@ -203,6 +209,14 @@ const adminModule: Module<AdminState, RootState> = {
             ApiService.deleteUser(userId).then(() => {
                 return context.dispatch("reloadUserList");
             });
+        },
+
+        createWordList(context: ActionContext<any, any>, data: CreateWordListData) {
+            return withPendingRequest("createWordList", context, () => {
+                return ApiService.createWordList(data.name, data.language, data.type);
+            }).then(() => {
+                return context.dispatch("reloadWordLists");
+            })
         },
 
         setCurrentWordList(context: ActionContext<any, any>, id: number) {
