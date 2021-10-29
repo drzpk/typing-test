@@ -3,6 +3,7 @@
         <div v-if="applicationLoaded">
             <Header/>
             <router-view/>
+            <ErrorModal/>
         </div>
         <div v-if="!applicationLoaded">
             <Loading/>
@@ -15,17 +16,16 @@ import Header from "@/views/shared/Header.vue";
 import {Component, Vue} from "vue-property-decorator";
 import {mapState} from "vuex";
 import Loading from "@/views/Loading.vue";
+import ErrorModal from "@/views/ErrorModal.vue";
 
 @Component({
-    components: {Loading, Header},
+    components: {ErrorModal, Loading, Header},
     computed: mapState([
-        "applicationLoaded",
-        "pendingRequest"
+        "applicationLoaded"
     ])
 })
 export default class App extends Vue {
     applicationLoaded!: boolean;
-    pendingRequest!: boolean;
 }
 </script>
 

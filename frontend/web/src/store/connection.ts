@@ -4,13 +4,19 @@ import {RootState} from "@/store/index";
 
 interface ConnectionState {
     pendingRequests: string[];
-    errorCode: ErrorCodeModel | null;
+    error: {
+        code: ErrorCodeModel | null;
+        requestName: string | null;
+    }
 }
 
 const connectionModule: Module<ConnectionState, RootState> = {
     state: {
       pendingRequests: [],
-      errorCode: null
+      error: {
+          code: null,
+          requestName: null
+      }
     },
     getters: {
         pendingRequest(state): boolean {
@@ -20,6 +26,12 @@ const connectionModule: Module<ConnectionState, RootState> = {
             return (name: string) => {
                 return state.pendingRequests.indexOf(name) > -1;
             };
+        },
+        errorCode(state): ErrorCodeModel | null {
+            return state.error ? state.error.code : null;
+        },
+        errorRequestName(state): string | null {
+            return state.error ? state.error.requestName : null;
         }
     },
     mutations: {
@@ -32,8 +44,15 @@ const connectionModule: Module<ConnectionState, RootState> = {
             if (index > -1)
                 state.pendingRequests.splice(index, 1);
         },
-        setErrorCode(state, errorCode: ErrorCodeModel | null) {
-            state.errorCode = errorCode;
+        setErrorCode(state, errorCode: ErrorCodeModel) {
+            state.error.code = errorCode;
+        },
+        setErrorRequestName(state, requestName: string) {
+            state.error.requestName = requestName;
+        },
+        clearError(state) {
+            state.error.code = null;
+            state.error.requestName = null;
         }
     }
 };

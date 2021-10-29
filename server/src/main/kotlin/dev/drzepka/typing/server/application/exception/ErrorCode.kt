@@ -6,6 +6,10 @@ enum class ErrorCode(
     private val defaultMessage: String,
     private val statusCode: HttpStatusCode = HttpStatusCode.BadRequest
 ) {
+    REQUEST_SYNTAX_INCORRECT(
+        "The request syntax is incorrect. Ensure that request was properly formed.",
+        HttpStatusCode.BadRequest
+    ),
     TEST_DEFINITION_NOT_FOUND("Test definition wasn't found.", HttpStatusCode.NotFound),
     CANNOT_DELETE_FINISHED_TEST("Finished test cannot be deleted."),
     TEST_START_TIMEOUT("Time for starting the test has expired."),

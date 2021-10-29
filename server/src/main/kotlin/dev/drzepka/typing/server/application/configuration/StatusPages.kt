@@ -10,6 +10,8 @@ fun Application.setupStatusPages() {
     install(StatusPages) {
         // Application exceptions
         addExceptionHandler(ValidationExceptionHandler())
+        addExceptionHandler(ErrorCodeExceptionHandler())
+        addExceptionHandler(JsonMappingExceptionHandler())
         addExceptionHandler(UnrecognizedPropertyExceptionHandler())
         addExceptionHandler(SecurityExceptionHandler())
 
@@ -18,7 +20,6 @@ fun Application.setupStatusPages() {
 
         // Other cases
         addExceptionHandler(UnknownExceptionHandler())
-        addExceptionHandler(ErrorCodeExceptionHandler()) // Must be at the end because other handlers may generate this exception
     }
 }
 
