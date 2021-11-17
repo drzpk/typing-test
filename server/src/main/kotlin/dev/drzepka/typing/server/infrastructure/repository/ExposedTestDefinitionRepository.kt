@@ -53,7 +53,7 @@ class ExposedTestDefinitionRepository(private val wordListRepository: WordListRe
             TestDefinitions.update({ TestDefinitions.id eq definition.id }) {
                 it[name] = definition.name
                 it[wordList] = definition.wordList.id!!
-                it[duration] = definition.duration.seconds.toInt()
+                it[duration] = definition.duration?.seconds?.toInt()
                 it[isActive] = definition.isActive
                 it[createdAt] = definition.createdAt
                 it[modifiedAt] = definition.modifiedAt
@@ -62,7 +62,7 @@ class ExposedTestDefinitionRepository(private val wordListRepository: WordListRe
             val id = TestDefinitions.insertAndGetId {
                 it[name] = definition.name
                 it[wordList] = definition.wordList.id!!
-                it[duration] = definition.duration.seconds.toInt()
+                it[duration] = definition.duration?.seconds?.toInt()
                 it[isActive] = definition.isActive
                 it[createdAt] = definition.createdAt
                 it[modifiedAt] = definition.modifiedAt
@@ -82,7 +82,7 @@ class ExposedTestDefinitionRepository(private val wordListRepository: WordListRe
             id = row[TestDefinitions.id].value
             name = row[TestDefinitions.name]
             wordList = wordListRepository.findById(row[TestDefinitions.wordList].value)!!
-            duration = Duration.ofSeconds(row[TestDefinitions.duration].toLong())
+            duration = row[TestDefinitions.duration]?.toLong()?.let { Duration.ofSeconds(it) }
             isActive = row[TestDefinitions.isActive]
             createdAt = row[TestDefinitions.createdAt]
             modifiedAt = row[TestDefinitions.modifiedAt]

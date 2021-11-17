@@ -10,7 +10,7 @@ interface ConfigurationRepository {
     fun testStartTimeLimit(): Duration = Duration.ofMinutes(5)
 
     /**
-     * Maximum delay after test start within which it must be finished.
+     * Maximum delay, starting from test supposed end time (start + duration), after which it must be finished.
      */
     fun testFinishTimeLimit(): Duration = Duration.ofSeconds(15)
 
@@ -19,6 +19,11 @@ interface ConfigurationRepository {
      * Used to adjust amount of generated words for the tests.
      */
     fun maxWPM(): Int = 250
+
+    /**
+     * Minimum speed accepted by the application. Everything below will be rejected.
+     */
+    fun minWPM(): Int = 15
 
     /**
      * Similar to [maxWPM], but expressed in characters-per-minute.

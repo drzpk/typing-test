@@ -47,14 +47,15 @@ class TestTest {
         // STARTED_TIMEOUT
         test.createdAt = getTime(2, 0, 0)
         test.startTimeLimit = Duration.ofMinutes(5)
+        test.testDefinition.duration = Duration.ofMinutes(2)
         test.startedAt = getTime(2, 1, 0)
 
-        test.finishTimeLimit = Duration.ofSeconds(15)
+        test.finishTimeLimit = test.testDefinition.duration!! + Duration.ofSeconds(15)
 
-        instant = getTime(2, 1, 15)
+        instant = getTime(2, 3, 15)
         then(test.state).isEqualTo(TestState.STARTED)
 
-        instant = getTime(2, 1, 16)
+        instant = getTime(2, 3, 16)
         then(test.state).isEqualTo(TestState.STARTED_TIMEOUT)
 
 
@@ -63,6 +64,32 @@ class TestTest {
         test.finishedAt = getTime(3, 2, 0)
 
         then(test.state).isEqualTo(TestState.FINISHED)
+    }
+
+    @Test
+    fun `should get duration from test definition with specified duration`() {
+        val definition = TestDefinition().apply {
+            duration = Duration.ofMinutes(2)
+        }
+        val test = Test(definition, User(), WordSelection())
+
+        then(test.duration).isEqualTo(Duration.ofMinutes(2))
+    }
+
+    @Test
+    fun `should get duration directly from test with definition without specified duration`() {
+        val testDefinition = TestDefinition().apply {
+            wordList = WordList().apply { fixedTextType("test text") }
+            duration = null
+        }
+
+        val test = Test(testDefinition, User(), WordSelection()).apply {
+            val now = Instant.now()
+            startedAt = now
+            finishedAt = now.plusSeconds(72)
+        }
+
+        then(test.duration).isEqualTo(Duration.ofSeconds(72))
     }
 
     private fun getTime(h: Int, m: Int, s: Int): Instant {

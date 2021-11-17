@@ -9,9 +9,15 @@ import java.time.Instant
 class TestDefinition : AbstractEntity<Int>() {
     var name = ""
     lateinit var wordList: WordList
-    var duration: Duration = Duration.ZERO
+    /** Test duration. If null, the test will last until all words from [fixed word list](WordListType.FIXED) are typed in. */
+    var duration: Duration? = Duration.ZERO
+        get() {
+            validateDuration(field)
+            return field
+        }
         set(value) {
-            if (value.isZero || value.isNegative)
+            validateDuration(value)
+            if (value != null && (value.isZero || value.isNegative))
                 throw DomainValidationException("Duration must be a positive value")
             field = value
         }
@@ -20,12 +26,17 @@ class TestDefinition : AbstractEntity<Int>() {
     var modifiedAt: Instant = Instant.now()
 
     fun getFixedText(): WordSelection? {
-        if (wordList.type == WordListType.RANDOM)
+        if (wordList.type != WordListType.FIXED)
             return null
 
         if (wordList.text == null)
             throw IllegalStateException("Word list ${wordList.id} doesn't contain fixed text!")
 
         return wordList.text
+    }
+
+    private fun validateDuration(value: Duration?) {
+        if (value == null && wordList.type != WordListType.FIXED)
+            throw DomainValidationException("Null duration may only be used with fixed-type word lists.")
     }
 }

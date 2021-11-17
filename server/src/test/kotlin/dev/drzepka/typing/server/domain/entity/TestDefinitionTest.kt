@@ -1,7 +1,8 @@
 package dev.drzepka.typing.server.domain.entity
 
+import dev.drzepka.typing.server.domain.exception.DomainValidationException
 import dev.drzepka.typing.server.domain.value.WordSelection
-import org.assertj.core.api.BDDAssertions.then
+import org.assertj.core.api.BDDAssertions.*
 import org.junit.jupiter.api.Test
 
 internal class TestDefinitionTest {
@@ -30,5 +31,20 @@ internal class TestDefinitionTest {
 
         val returnedSelection = definition.getFixedText()
         then(returnedSelection).isNull()
+    }
+
+    @Test
+    fun `should only allow null duration with fixed test-typed word list`() {
+        val testDefinition = TestDefinition()
+        testDefinition.wordList = WordList().apply { fixedTextType("test") }
+
+        assertThatCode {
+            testDefinition.duration = null
+        }.doesNotThrowAnyException()
+
+        testDefinition.wordList.randomTextType()
+        assertThatExceptionOfType(DomainValidationException::class.java).isThrownBy {
+            testDefinition.duration = null
+        }.withMessage("Null duration may only be used with fixed-type word lists.")
     }
 }

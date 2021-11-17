@@ -7,6 +7,7 @@ import dev.drzepka.typing.server.domain.dao.TestResultDAO
 import dev.drzepka.typing.server.domain.dto.TestResultDataDTO
 import dev.drzepka.typing.server.domain.repository.TestResultRepository
 import dev.drzepka.typing.server.domain.service.TestScoreCalculatorService
+import java.time.Duration
 
 class TestResultService(
     private val testResultRepository: TestResultRepository,
@@ -32,6 +33,7 @@ class TestResultService(
         val uniqueResults = HashSet<Int>()
         val resourceList = ArrayList<TestBestResultResource>(BEST_RESULTS_SIZE)
 
+        // todo: is this correct?
         for (dto in combinedDTOs) {
             if (uniqueResults.contains(dto.testResultId))
                 continue
@@ -44,13 +46,19 @@ class TestResultService(
     }
 
     private fun convertToResource(input: TestResultDataDTO): TestBestResultResource {
+        val duration = getTestDurationSeconds(input)
         return TestBestResultResource(
             input.userDisplayName,
-            input.testCreatedAt,
+            input.testStartedAt,
             input.speed,
             input.accuracy,
-            testScoreCalculatorService.calculateScore(input.speed, input.accuracy, input.testDuration)
+            testScoreCalculatorService.calculateScore(input.speed, input.accuracy, duration)
         )
+    }
+
+    private fun getTestDurationSeconds(input: TestResultDataDTO): Int {
+        return input.testDuration
+            ?: (Duration.between(input.testStartedAt, input.testFinishedAt)).seconds.toInt()
     }
 
     companion object {

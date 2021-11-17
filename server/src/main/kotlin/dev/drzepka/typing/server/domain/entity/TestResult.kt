@@ -43,7 +43,7 @@ class TestResult : AbstractEntity<Int>() {
             calculateWordCorrectness(selected, entered)
             calculateKeystrokeCorrectness(selected, entered)
             calculateAccuracy(test.backspaceCount!!)
-            calculateWordsPerMinute(test.testDefinition.duration)
+            calculateWordsPerMinute(test.duration)
         }
     }
 

@@ -9,6 +9,7 @@ import dev.drzepka.typing.server.domain.repository.WordRepository
 import dev.drzepka.typing.server.domain.util.Logger
 import dev.drzepka.typing.server.domain.util.Mockable
 import dev.drzepka.typing.server.domain.value.WordSelection
+import java.time.Duration
 import java.util.*
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -36,7 +37,7 @@ class TestService(
         val wordSelection = getWordSelection(definition)
         val test = Test(definition, user, wordSelection)
         test.startTimeLimit = configurationRepository.testStartTimeLimit()
-        test.finishTimeLimit = configurationRepository.testFinishTimeLimit()
+        test.finishTimeLimit = getFinishTimeLimit(definition)
 
         return test
     }
@@ -121,8 +122,25 @@ class TestService(
      * greater than user can possibly type within the test duration.
      */
     private fun getWordCountToDraw(definition: TestDefinition): Int {
-        val minutes = definition.duration.seconds.toFloat() / 60
+        val duration = definition.duration
+            ?: throw IllegalArgumentException("Duration is null in test definition ${definition.id}")
+        val minutes = duration.seconds.toFloat() / 60
         return ceil(configurationRepository.maxWPM() * minutes).toInt()
+    }
+
+    private fun getFinishTimeLimit(definition: TestDefinition): Duration {
+        return if (definition.duration != null)
+            definition.duration!! + configurationRepository.testFinishTimeLimit()
+        else
+            calculateDynamicTestFinishLimit(definition)
+    }
+
+    private fun calculateDynamicTestFinishLimit(definition: TestDefinition): Duration {
+        val text = definition.wordList.text!!
+        val maxTestMinutes = text.size().toFloat() / configurationRepository.minWPM()
+        val maxTestSeconds = ceil(maxTestMinutes * 60).toLong()
+
+        return Duration.ofSeconds(maxTestSeconds)
     }
 
     companion object {

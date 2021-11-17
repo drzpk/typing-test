@@ -30,11 +30,12 @@ open class Test(
         get() = when {
             finishedAt != null -> TestState.FINISHED
             finishedAt == null && finishTimeLimit != null && startedAt != null && now().isAfter(
-                startedAt!!.plus(testDefinition.duration).plus(finishTimeLimit)
+                startedAt!!.plus(finishTimeLimit)
             ) -> TestState.STARTED_TIMEOUT
             startedAt != null && finishedAt == null -> TestState.STARTED
             startedAt == null && startTimeLimit != null && now().isAfter(createdAt.plus(startTimeLimit)) -> TestState.CREATED_TIMEOUT
             startedAt == null && finishedAt == null -> TestState.CREATED
+
             else -> throw IllegalStateException(
                 String.format(
                     "Illegal test state (startedAt: %s, finishedAt: %s, startTimeLimit: %s, finishTimeLimit: %s)",
@@ -44,6 +45,13 @@ open class Test(
                     finishTimeLimit
                 )
             )
+        }
+
+    val duration: Duration
+        get() = when {
+            testDefinition.duration != null -> testDefinition.duration!!
+            finishedAt != null -> Duration.between(startedAt, finishedAt)
+            else -> throw IllegalStateException("Test duration not available for state $state")
         }
 
     fun start() {

@@ -6,6 +6,7 @@ import dev.drzepka.typing.server.domain.exception.FixedTextTooShortException
 import dev.drzepka.typing.server.domain.repository.ConfigurationRepository
 import dev.drzepka.typing.server.domain.value.WordSelection
 import org.assertj.core.api.Assertions.catchThrowable
+import org.assertj.core.api.BDDAssertions.assertThatCode
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -41,6 +42,29 @@ internal class TestDefinitionServiceTest {
         checkException(10, null, false) // Test definition doesn't use fixed text
         checkException(60, "0".repeat(testCpm), false) // Text is long enough (edge case)
         checkException(60, "0".repeat(testCpm - 1), true) // Text is not long enough (edge case)
+    }
+
+    @Test
+    fun `should skip checking text length if word list text is null`() {
+        val definition = TestDefinition().apply {
+            wordList = WordList().apply { randomTextType() }
+        }
+
+        assertThatCode {
+            getService().checkIfFixedTextIsLongEnough(definition)
+        }.doesNotThrowAnyException()
+    }
+
+    @Test
+    fun `should skip checking text length if duration is null`() {
+        val definition = TestDefinition().apply {
+            wordList = WordList().apply { fixedTextType("testing") }
+            duration = null
+        }
+
+        assertThatCode {
+            getService().checkIfFixedTextIsLongEnough(definition)
+        }.doesNotThrowAnyException()
     }
 
     private fun getTestDefinitionWithText(durationSeconds: Int, text: String?): TestDefinition {

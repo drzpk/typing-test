@@ -12,10 +12,7 @@ import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.junit.jupiter.MockitoExtension
-import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
+import org.mockito.kotlin.*
 import java.time.Duration
 
 @ExtendWith(MockitoExtension::class)
@@ -24,6 +21,37 @@ class TestServiceTest {
     private val testDefinitionService = mock<TestDefinitionService>()
     private val configurationRepository = mock<ConfigurationRepository>()
     private val wordRepository = mock<WordRepository>()
+
+    @Test
+    fun `should create test`() {
+        val startTimeLimit = Duration.ofMinutes(23)
+        val finishTimeLimit = Duration.ofMinutes(38)
+
+        whenever(configurationRepository.testStartTimeLimit()).thenReturn(startTimeLimit)
+        whenever(configurationRepository.testFinishTimeLimit()).thenReturn(finishTimeLimit)
+        whenever(wordRepository.findAll(any(), eq(true))).thenReturn(generateWordList())
+
+        val definition = getTestDefinition()
+        val test = getService().createTest(definition, getUser())
+
+        then(test.startTimeLimit).isEqualTo(startTimeLimit)
+        then(test.finishTimeLimit).isEqualTo(finishTimeLimit + definition.duration!!)
+    }
+
+    @Test
+    fun `should calculate test finish time limit if definition doesn't have the duration set`() {
+        whenever(configurationRepository.minWPM()).thenReturn(5)
+
+        val selection = WordSelection()
+        selection.loadFromText("word ".repeat(13).trim())
+        val wordList = WordList()
+        wordList.fixedTextType(selection)
+
+        val test = getService().createTest(getTestDefinition(null, wordList), getUser())
+
+        then(test.finishTimeLimit).isEqualTo(Duration.ofSeconds(156))
+        verify(configurationRepository, times(0)).testFinishTimeLimit()
+    }
 
     @Test
     fun `should create random word selection`() {
@@ -76,11 +104,17 @@ class TestServiceTest {
         then(regenerated).isFalse
     }
 
-    private fun getTestDefinition(): TestDefinition = TestDefinition().apply {
-        id = 100
-        duration = Duration.ofMinutes(1)
-        wordList = WordList().apply { id = 50 }
-    }
+    private fun getTestDefinition(): TestDefinition = getTestDefinition(
+        Duration.ofMinutes(1),
+        WordList().apply { id = 50 }
+    )
+
+    private fun getTestDefinition(duration: Duration?, wordList: WordList): TestDefinition =
+        TestDefinition().apply {
+            id = 100
+            this.wordList = wordList
+            this.duration = duration
+        }
 
     private fun getUser(): User = User().apply {
         id = 200

@@ -21,6 +21,12 @@ class WordList : AbstractEntity<Int>() {
         text = null
     }
 
+    fun fixedTextType(text: String) {
+        val selection = WordSelection()
+        selection.loadFromText(text)
+        fixedTextType(selection)
+    }
+
     fun fixedTextType(text: WordSelection) {
         type = WordListType.FIXED
         this.text = text

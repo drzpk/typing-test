@@ -31,6 +31,7 @@ class ExposedTestResultDAO : TestResultDAO {
                 TestResults.wordsPerMinute,
                 TestResults.accuracy,
                 Tests.startedAt,
+                Tests.finishedAt,
                 TestDefinitions.duration,
                 Users.displayName
             )
@@ -43,6 +44,7 @@ class ExposedTestResultDAO : TestResultDAO {
             row[TestResults.id].value,
             row[Users.displayName],
             row[Tests.startedAt]!!,
+            row[Tests.finishedAt]!!,
             row[TestDefinitions.duration],
             row[TestResults.wordsPerMinute],
             row[TestResults.accuracy]

@@ -8,9 +8,7 @@ import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.junit.jupiter.MockitoExtension
-import org.mockito.kotlin.any
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
+import org.mockito.kotlin.*
 import java.time.Instant
 
 @ExtendWith(MockitoExtension::class)
@@ -18,16 +16,18 @@ class TestResultServiceTest {
 
     private val testResultRepository = mock<TestResultRepository>()
     private val testResultDAO = mock<TestResultDAO>()
+    private val testScoreCalculatorService = spy<TestScoreCalculatorService> { TestScoreCalculatorService() }
 
     @Test
     fun `should get best results`() {
+        val now = Instant.now()
         val bestSpeedResults = listOf(
-            TestResultDataDTO(1, "disp1", Instant.now(), 60, 30f, 0.67f),
-            TestResultDataDTO(2, "disp2", Instant.now(), 90, 80f, 0.67f)
+            TestResultDataDTO(1, "disp1", now, now, 60, 30f, 0.67f),
+            TestResultDataDTO(2, "disp2",now, now.plusSeconds(82),null, 80f, 0.67f)
         )
         val bestAccuracyResults = listOf(
             // Deliberately the same ID as above
-            TestResultDataDTO(1, "disp1", Instant.now(), 60, 30f, 0.67f)
+            TestResultDataDTO(1, "disp1", now, now, 60, 30f, 0.67f)
         )
 
         whenever(testResultDAO.findHighestResultsBySpeed(any(), any())).thenReturn(bestSpeedResults)
@@ -38,8 +38,11 @@ class TestResultServiceTest {
         then(bestResults).hasSize(2)
         then(bestResults[0].userDisplayName).isEqualTo("disp2")
         then(bestResults[1].userDisplayName).isEqualTo("disp1")
+
+        verify(testScoreCalculatorService).calculateScore(eq(30f), eq(0.67f), eq(60))
+        verify(testScoreCalculatorService).calculateScore(eq(80f), eq(0.67f), eq(82))
     }
 
     private fun getService(): TestResultService =
-        TestResultService(testResultRepository, testResultDAO, TestScoreCalculatorService())
+        TestResultService(testResultRepository, testResultDAO, testScoreCalculatorService)
 }

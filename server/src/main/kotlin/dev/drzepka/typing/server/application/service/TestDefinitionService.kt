@@ -27,9 +27,9 @@ class TestDefinitionService(
 
         val definition = TestDefinition()
         definition.name = request.name
-        definition.duration = Duration.ofSeconds(request.duration.toLong())
-        definition.isActive = request.isActive
         definition.wordList = wordListRepository.findById(request.wordListId)!!
+        definition.duration = request.duration?.let { Duration.ofSeconds(it.toLong()) }
+        definition.isActive = request.isActive
 
         postValidateTestDefinition(definition)
         testDefinitionRepository.save(definition)
@@ -72,7 +72,8 @@ class TestDefinitionService(
     private fun validateCreateTestDefinition(request: CreateTestDefinitionRequest) {
         val state = ValidationState()
         validateName(request.name, state)
-        validateDuration(request.duration, state)
+        if (request.duration != null)
+            validateDuration(request.duration!!, state)
         validateWordListId(request.wordListId, state)
     }
 
