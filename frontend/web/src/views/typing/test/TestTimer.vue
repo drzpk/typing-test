@@ -70,15 +70,19 @@ export default class TestTimer extends Vue {
             return;
 
         this.additionalText = "Remaining time to start:";
-        this.createTimer(startDueTime);
+        this.createCountdownTimer(startDueTime);
     }
 
     private onTestStarted(): void {
-        const endTime = new Date().getTime() + this.activeUserTestDefinition!.duration * 1000;
-        this.createTimer(new Date(endTime));
+        if (this.activeUserTestDefinition?.duration != null) {
+            const endTime = new Date().getTime() + this.activeUserTestDefinition!.duration * 1000;
+            this.createCountdownTimer(new Date(endTime));
+        } else {
+            this.createForwardTimer();
+        }
     }
 
-    private createTimer(endTime: Date): void {
+    private createCountdownTimer(endTime: Date): void {
         let id: number;
         const handler = () => {
             const diff = Math.floor((endTime.getTime() - new Date().getTime()) / 1000);
@@ -91,6 +95,18 @@ export default class TestTimer extends Vue {
         handler();
         id = setInterval(handler, 1000);
         this.intervalId = id;
+    }
+
+    private createForwardTimer(): void {
+        const startTime = new Date();
+        const handler = () => {
+            const now = new Date();
+            const diff = Math.floor((now.getTime() - startTime.getTime()) / 1000);
+            this.setTime(diff);
+        };
+
+        handler();
+        this.intervalId = setInterval(handler, 1000);
     }
 
     private stopTimer(): void {
