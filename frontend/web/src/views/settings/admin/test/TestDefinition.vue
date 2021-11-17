@@ -204,7 +204,7 @@ export default class TestDefinition extends mixins(ValidationHelperMixin) {
     private updateTestDefinition(): void {
         const request: CreateUpdateTestDefinitionRequest = {
             name: this.model.name,
-            duration: this.model.duration,
+            duration: this.model.variableDuration ? null : this.model.duration,
             wordListId: this.model.wordListId,
             isActive: this.model.isActive
         };
