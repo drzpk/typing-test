@@ -1,12 +1,22 @@
 class DateService {
     formatDateToString(dateObj: Date): string {
-        function pad(input: number): string {
-            return input.toString().padStart(2, "0");
-        }
-
-        const date = `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}`;
-        const time = `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}`;
+        const date = `${dateObj.getFullYear()}-${DateService.pad(dateObj.getMonth() + 1)}-${DateService.pad(dateObj.getDate())}`;
+        const time = `${DateService.pad(dateObj.getHours())}:${DateService.pad(dateObj.getMinutes())}`;
         return `${date} ${time}`;
+    }
+
+    formatDurationToString(totalSeconds: number): string {
+        let result = "";
+
+        const hours = Math.floor(totalSeconds / 60 / 60);
+        if (hours > 0)
+            result += `${DateService.pad(hours)}:`;
+
+        const minutes = Math.floor((totalSeconds % (60 * 60)) / 60);
+        const seconds = totalSeconds % 60;
+        result += `${DateService.pad(minutes)}:${DateService.pad(seconds)}`;
+
+        return result;
     }
 
     convertFieldsToDate<T>(object: T, ...fields: Array<string>): T {
@@ -43,6 +53,10 @@ class DateService {
         } else if (!isTerminal && typeof (fieldValue) === "object" && fieldValue !== null) {
             this.convertFieldToDate(fieldValue, remainingParts!, false);
         }
+    }
+
+    private static pad(input: number): string {
+        return input.toString().padStart(2, "0");
     }
 }
 

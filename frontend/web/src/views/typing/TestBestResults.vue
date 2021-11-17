@@ -4,27 +4,30 @@
         <b-table striped hover :items="testBestResults" :fields="fields">
             <!--suppress HtmlUnknownAttribute -->
             <template #cell(no)="data">
-                #{{data.index + 1}}
+                #{{ data.index + 1 }}
             </template>
         </b-table>
     </div>
 </template>
 
 <script lang="ts">
-    import {Component, Vue} from "vue-property-decorator";
-    import {mapGetters} from "vuex";
-    import {TestBestResultModel} from "@/models/tests";
-    import DateService from "@/services/Date.service";
+import {Component, Vue} from "vue-property-decorator";
+import {mapGetters} from "vuex";
+import {TestBestResultModel} from "@/models/tests";
+import DateService from "@/services/Date.service";
+import {TestDefinitionModel} from "@/models/test-definition";
 
-    @Component({
-        computed: {
-            ...mapGetters(["testBestResults"])
-        }
-    })
-    export default class TestBestResults extends Vue {
-        testBestResults!: TestBestResultModel[];
+@Component({
+    computed: {
+        ...mapGetters(["testBestResults", "activeUserTestDefinition"])
+    }
+})
+export default class TestBestResults extends Vue {
+    testBestResults!: TestBestResultModel[];
+    activeUserTestDefinition!: TestDefinitionModel | null;
 
-        fields = [
+    get fields(): [any] {
+        const fields = [
             {
                 key: "no",
                 label: "Position"
@@ -48,10 +51,21 @@
                 formatter: (accuracy: number) => `${Math.floor(accuracy * 100 + 0.5)}%`
             },
             {
+                key: "durationSeconds",
+                label: "Duration",
+                formatter: (duration: number) => DateService.formatDurationToString(duration)
+            },
+            {
                 key: "score"
             }
-        ]
+        ];
+
+        if (this.activeUserTestDefinition?.duration != null)
+            fields.splice(fields.length - 2, 1);
+
+        return fields;
     }
+}
 </script>
 
 <style lang="scss">

@@ -25,24 +25,17 @@ export interface TestResultModel {
     wordsPerMinute: number;
 }
 
-/*
-class TestBestResultResource(
-    var userDisplayName: String,
-    var testCreatedAt: Instant,
-    var speed: Float,
-    var accuracy: Float,
-    var score: Int
-)
- */
 export interface TestBestResultModel {
     userDisplayName: string;
     testCreatedAt: Date;
     speed: number;
     accuracy: number;
+    durationSeconds: number;
     score: number;
 }
 
 export enum TestStateModel {
+    // noinspection JSUnusedGlobalSymbols
     CREATED = "CREATED",
     CREATED_TIMEOUT = "CREATED_TIMEOUT",
     STARTED = "STARTED",

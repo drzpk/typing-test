@@ -52,6 +52,7 @@ class TestResultService(
             input.testStartedAt,
             input.speed,
             input.accuracy,
+            duration,
             testScoreCalculatorService.calculateScore(input.speed, input.accuracy, duration)
         )
     }
