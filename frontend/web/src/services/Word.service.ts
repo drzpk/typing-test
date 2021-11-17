@@ -1,3 +1,5 @@
+import {WordListModel} from "@/models/words";
+
 class WordService {
     wordsMatch(target: string, current: string, matchWhole: boolean): boolean {
         if (matchWhole)
@@ -13,6 +15,12 @@ class WordService {
         }
 
         return words;
+    }
+
+    countWords(wordList: WordListModel): number {
+        const text = wordList.text;
+        const split = text?.split(/\s+/);
+        return split!.length;
     }
 
     getFixedTextCharacterLengthWarningThreshold(): number {

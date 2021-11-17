@@ -10,7 +10,7 @@
 
         <p>Words: {{ wordCount }} &nbsp;Characters: {{ characterCount }}</p>
         <b-alert variant="warning" :show="showShortTextWarning">
-            The text is very short and won't be accepted even by short tests (1 minute).
+            The text is very short and may not be accepted by tests with fixed time under 1 minute.
             At least {{ minimumCharactersToHideShortTextWarning }} characters-long text is recommended.
         </b-alert>
 

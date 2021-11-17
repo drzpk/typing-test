@@ -4,6 +4,8 @@ import {TestDefinitionModel} from "@/models/test-definition";
 import ApiService from "@/services/Api.service";
 import {TestBestResultModel, TestModel, TestResultModel, TestStateModel} from "@/models/tests";
 import {ErrorCode, ErrorCodeModel, ServerError} from "@/models/error";
+import {WordListType} from "@/models/words";
+import WordService from "@/services/Word.service";
 
 export interface TestState {
     loading: boolean;
@@ -17,6 +19,8 @@ export interface TestState {
 
     enteredWords: Array<string>;
     backspaceCount: number;
+
+    testFinishDetectorCancelFn: (() => void) | null;
 }
 
 const testModule: Module<TestState, RootState> = {
@@ -31,12 +35,19 @@ const testModule: Module<TestState, RootState> = {
         testBestResults: null,
 
         enteredWords: [],
-        backspaceCount: 0
+        backspaceCount: 0,
+
+        testFinishDetectorCancelFn: null
     },
 
     getters: {
         isLoading(state) {
             return state.loading;
+        },
+        isTestResetAvailable(state) {
+            return state.activeTest != null
+                || state.activeTestDefinition != null
+                && state.activeTestDefinition.wordList!.type == WordListType.RANDOM;
         },
         userTestDefinitions(state) {
             if (state.testDefinitions)
@@ -117,6 +128,9 @@ const testModule: Module<TestState, RootState> = {
             state.enteredWords = [];
             state.backspaceCount = 0;
             state.testResult = null;
+        },
+        setTestFinishDetectorCancelFn(state, value: (() => void) | null) {
+            state.testFinishDetectorCancelFn = value;
         }
     },
 
@@ -133,6 +147,12 @@ const testModule: Module<TestState, RootState> = {
         createTest(context: ActionContext<any, any>) {
             if (!context.state.activeTestDefinition)
                 throw new Error("Cannot start test, there's no active test definition");
+
+            // If there was an active test before, cancel any pending handlers
+            if (context.state.testFinishDetectorCancelFn) {
+                context.state.testFinishDetectorCancelFn();
+                context.commit("setTestFinishDetectorCancelFn", null);
+            }
 
             const testDefinitionId = context.state.activeTestDefinition.id;
             context.commit("setLoading", true);
@@ -164,6 +184,9 @@ const testModule: Module<TestState, RootState> = {
         },
 
         resetTest(context: ActionContext<any, any>) {
+            if (!context.getters.isTestResetAvailable)
+                return;
+
             if (context.state.activeTest != null && context.state.activeTest.state == TestStateModel.CREATED) {
                 context.commit("setLoading", true);
 
@@ -191,14 +214,45 @@ const testModule: Module<TestState, RootState> = {
             ApiService.startTest(context.state.activeTest.id).then(test => {
                 context.commit("setActiveTest", test);
 
-                setTimeout(() => {
-                    if (context.state.activeTest?.id == test.id && context.state.activeTest?.state == test.state) {
-                        // noinspection JSIgnoredPromiseFromCall
-                        context.dispatch("finishTest");
-                    }
-                }, test.definition.duration * 1000);
-            }).catch((error: ServerError) => {
-                context.commit("setTestError", error.data);
+                if (test.definition.duration != null) {
+                    const timeoutNo = setTimeout(() => {
+                        if (context.state.activeTest?.id == test.id && context.state.activeTest?.state == test.state) {
+                            // noinspection JSIgnoredPromiseFromCall
+                            context.dispatch("finishTest");
+                        }
+                    }, test.definition.duration * 1000);
+
+                    const stopHandle = () => clearTimeout(timeoutNo);
+                    context.commit("setTestFinishDetectorCancelFn", stopHandle);
+
+                } else {
+                    // eslint-disable-next-line prefer-const
+                    let stopHandle: (() => void);
+                    const wordCount = WordService.countWords(context.state.activeTestDefinition.wordList);
+
+                    const intervalNo = setInterval(() => {
+                        if (context.state.activeTest?.id != test.id || context.state.activeTest?.state != test.state) {
+                            stopHandle();
+                            return;
+                        }
+
+                        console.log("entered words : ", context.state.enteredWords.length);
+                        console.log("total words: " + wordCount);
+                        if (context.state.enteredWords.length === wordCount) {
+                            // noinspection JSIgnoredPromiseFromCall
+                            context.dispatch("finishTest");
+                        }
+                    }, 500);
+
+                    stopHandle = () => clearInterval(intervalNo);
+                    context.commit("setTestFinishDetectorCancelFn", stopHandle);
+                }
+
+            }).catch((error: any) => {
+                if (error instanceof ServerError)
+                    context.commit("setTestError", error.data);
+                else
+                    console.error(error);
             });
         },
 

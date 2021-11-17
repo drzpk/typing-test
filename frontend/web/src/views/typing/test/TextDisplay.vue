@@ -52,6 +52,8 @@ export default class TextDisplay extends Vue {
 
     private onUserWordInput(event: WordChangeEvent): void {
         const currentWord = this.words[this.currentWordNo];
+        if (!currentWord)
+            return;
 
         const match = WordService.wordsMatch(currentWord.word, event.word, event.complete);
         if (event.complete)
@@ -62,8 +64,10 @@ export default class TextDisplay extends Vue {
         if (event.complete) {
             currentWord.current = false;
             this.currentWordNo++;
-            this.words[this.currentWordNo].current = true;
-            this.updateDisplayOffset(this.currentWordNo - 1, this.currentWordNo);
+            if (this.words[currentWord]) {
+                this.words[this.currentWordNo].current = true;
+                this.updateDisplayOffset(this.currentWordNo - 1, this.currentWordNo);
+            }
         }
     }
 

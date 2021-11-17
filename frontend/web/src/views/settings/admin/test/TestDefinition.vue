@@ -4,7 +4,8 @@
         <b-container fluid>
             <b-row>
                 <b-col cols="8" offset="2">
-                    <b-card :title="isCreated ? 'Test definition details' : 'New test definition'" v-loading-overlay="pendingRequest">
+                    <b-card :title="isCreated ? 'Test definition details' : 'New test definition'"
+                            v-loading-overlay="pendingRequest">
                         <b-form @submit.stop.prevent="saveButton">
                             <b-form-group label-for="name" label="Name" label-cols="4">
                                 <b-form-input id="name" type="text" name="name"
@@ -14,8 +15,17 @@
                                 <ValidationMessageManager field-name="model.name" :state="state"/>
                             </b-form-group>
 
+                            <b-form-group label-for="variableDuration" label="Variable duration" label-cols="4"
+                                          description="User will have to type all words from the list.">
+                                <b-form-checkbox id="variableDuration" name="variableDuration"
+                                                 v-model="model.variableDuration"
+                                                 :state="validateState('model.variableDuration')"
+                                                 @input="resetState('model.variableDuration')"></b-form-checkbox>
+                            </b-form-group>
+
                             <b-form-group label-for="duration" label="Duration (seconds)" label-cols="4">
                                 <b-form-input id="duration" type="number" name="duration"
+                                              :disabled="model.variableDuration"
                                               v-model="model.duration" :state="validateState('model.duration')"
                                               @input="resetState('model.duration')"></b-form-input>
 
@@ -32,10 +42,7 @@
 
                             <b-form-group label-for="isActive" label="Is active" label-cols="4">
                                 <b-form-checkbox id="isActive" name="isActive"
-                                                 v-model="model.isActive"
-                                                 :state="validateState('model.isActive')"></b-form-checkbox>
-
-                                <ValidationMessageManager field-name="model.isActive" :state="state"/>
+                                                 v-model="model.isActive"></b-form-checkbox>
                             </b-form-group>
 
                             <b-button @click="saveButton">Save</b-button>
@@ -50,7 +57,7 @@
 <script lang="ts">
 import {Component, Watch} from "vue-property-decorator";
 import ValidationHelperMixin from "@/mixins/ValidationHelperMixin";
-import {maxLength, minValue, required} from "vuelidate/lib/validators";
+import {maxLength, required, requiredIf} from "vuelidate/lib/validators";
 import ValidationMessageManager from "@/views/shared/ValidationMessageManager.vue";
 import {mixins} from "vue-class-component";
 import ApiService from "@/services/Api.service";
@@ -60,6 +67,10 @@ import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/t
 import {mapGetters} from "vuex";
 import {WordListModel} from "@/models/words";
 import {SelectOption} from "@/models/common";
+import Vue from "vue";
+
+const requiredIfDurationIsVariable = requiredIf((vm: any, parentVm?: Vue) => (parentVm as TestDefinition)?.model?.variableDuration == true);
+const positiveIfDurationIsVariable = (value: any, siblings: Model) => siblings.variableDuration || value > 0;
 
 @Component({
     components: {WordListWords, ValidationMessageManager},
@@ -77,8 +88,8 @@ import {SelectOption} from "@/models/common";
                 maxLength: maxLength(128)
             },
             duration: {
-                required,
-                minValue: minValue(1)
+                required: requiredIfDurationIsVariable,
+                minValue: positiveIfDurationIsVariable
             },
             wordListId: {
                 required
@@ -108,12 +119,7 @@ export default class TestDefinition extends mixins(ValidationHelperMixin) {
 
     currentTestDefinitionId: number | null = null;
 
-    model = {
-        name: "",
-        wordListId: null,
-        duration: 0,
-        isActive: false
-    };
+    model = new Model();
 
     get isCreated(): boolean {
         return this.currentTestDefinitionId != null;
@@ -140,8 +146,11 @@ export default class TestDefinition extends mixins(ValidationHelperMixin) {
 
     mounted(): void {
         if (this.$route.params.id) {
-            this.currentTestDefinitionId = parseInt(this.$route.params.id);
-            this.$store.dispatch("setCurrentTestDefinition", this.currentTestDefinitionId);
+            const parsed = parseInt(this.$route.params.id);
+            if (!isNaN(parsed)) {
+                this.currentTestDefinitionId = parsed;
+                this.$store.dispatch("setCurrentTestDefinition", this.currentTestDefinitionId);
+            }
         }
 
         if (this.wordLists.length == 0)
@@ -160,20 +169,25 @@ export default class TestDefinition extends mixins(ValidationHelperMixin) {
     }
 
     private loadTestDefinition(): void {
+        if (this.currentTestDefinition == null)
+            return;
+
         this.model.name = this.currentTestDefinition.name;
-        this.model.wordListId = this.currentTestDefinition.wordList.id;
-        this.model.duration = this.currentTestDefinition.duration;
+        this.model.wordListId = this.currentTestDefinition.wordList ? this.currentTestDefinition.wordList.id : null;
+        this.model.variableDuration = this.currentTestDefinition.duration == null;
+        this.model.duration = this.currentTestDefinition.duration ? this.currentTestDefinition.duration : 0;
         this.model.isActive = this.currentTestDefinition.isActive;
     }
 
     private createTestDefinition(): void {
         const request: CreateUpdateTestDefinitionRequest = {
             name: this.model.name,
-            duration: this.model.duration,
+            duration: this.model.variableDuration ? null : this.model.duration,
             wordListId: this.model.wordListId,
             isActive: this.model.isActive
         };
 
+        // Todo: move the API call into the store
         ApiService.createTestDefinition(request)
             .then(() => {
                 this.$store.dispatch("reloadTestDefinitions");
@@ -206,6 +220,14 @@ export default class TestDefinition extends mixins(ValidationHelperMixin) {
                     console.error(error);
             });
     }
+}
+
+class Model {
+    name = "";
+    wordListId: number | null = null;
+    variableDuration = false;
+    duration = 0;
+    isActive = false;
 }
 </script>
 

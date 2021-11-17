@@ -1,4 +1,4 @@
-import {WordList} from "@/models/words";
+import {WordListModel} from "@/models/words";
 
 export interface CreateUpdateTestDefinitionRequest {
     name: string | null;
@@ -10,8 +10,8 @@ export interface CreateUpdateTestDefinitionRequest {
 export interface TestDefinitionModel {
     id: number;
     name: string;
-    wordList: WordList | null;
-    duration: number;
+    wordList: WordListModel | null;
+    duration: number | null;
     isActive: boolean;
     createdAt: Date | null;
     modifiedAt: Date | null;
