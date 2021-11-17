@@ -64,7 +64,7 @@ export default class TextDisplay extends Vue {
         if (event.complete) {
             currentWord.current = false;
             this.currentWordNo++;
-            if (this.words[currentWord]) {
+            if (this.words[this.currentWordNo]) {
                 this.words[this.currentWordNo].current = true;
                 this.updateDisplayOffset(this.currentWordNo - 1, this.currentWordNo);
             }
