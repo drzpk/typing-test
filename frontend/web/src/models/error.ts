@@ -37,7 +37,8 @@ export enum ErrorCode {
     TEST_FINISH_WRONG_STATE = "TEST_FINISH_WRONG_STATE",
     TEST_REGENERATE_WORD_ERROR = "TEST_REGENERATE_WORD_ERROR",
 
-    // Artifical, client-side error
+    // Artifical, client-side errors
+    WORD_LIST_NOT_FOUND = "WORD_LIST_NOT_FOUND",
     UNKNOWN_ERROR = "UNKNOWN_ERROR"
 }
 

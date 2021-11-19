@@ -8,7 +8,8 @@ import FileService from "@/services/File.service";
 import {TestDefinitionModel} from "@/models/test-definition";
 import {SearchUsersRequest, SearchUsersResponse, UserModel} from "@/models/user";
 import {PagedRequest, PageMetadata} from "@/models/pagination";
-import {withPendingRequest} from "@/utils/store-utils";
+import {displayError, withPendingRequest} from "@/utils/store-utils";
+import {ErrorCode} from "@/models/error";
 
 export interface CreateWordListData {
     name: string;
@@ -124,7 +125,7 @@ const adminModule: Module<AdminState, RootState> = {
     },
     actions: {
         reloadWordLists(context: ActionContext<any, any>) {
-            withPendingRequest("loadWordLists", context, () => {
+            return withPendingRequest("loadWordLists", context, () => {
                 return ApiService.getWordLists().then(lists => {
                     context.commit("setWordLists", lists);
                 }).catch(error => {
@@ -211,12 +212,14 @@ const adminModule: Module<AdminState, RootState> = {
             });
         },
 
-        createWordList(context: ActionContext<any, any>, data: CreateWordListData) {
+        createWordList(context: ActionContext<any, any>, data: CreateWordListData): Promise<WordListModel> {
             return withPendingRequest("createWordList", context, () => {
                 return ApiService.createWordList(data.name, data.language, data.type);
-            }).then(() => {
-                return context.dispatch("reloadWordLists");
-            })
+            }).then((wordList: WordListModel) => {
+                return context.dispatch("reloadWordLists").then(() => {
+                    return wordList;
+                });
+            });
         },
 
         setCurrentWordList(context: ActionContext<any, any>, id: number) {
@@ -227,11 +230,13 @@ const adminModule: Module<AdminState, RootState> = {
                     for (let i = 0; i < context.state.wordLists.length; i++) {
                         if (context.state.wordLists[i].id === id) {
                             resolve(context.state.wordLists[i]);
-                            break;
+                            return;
                         }
                     }
 
-                    reject(new Error(`Word list with id ${id} wasn't found.`));
+                    debugger;
+                    displayError(context, ErrorCode.WORD_LIST_NOT_FOUND, `Word list with id ${id} wasn't found.`);
+                    reject();
                 });
             } else {
                 wordListPromise = withPendingRequest("getWordList", context, () => {
@@ -241,6 +246,8 @@ const adminModule: Module<AdminState, RootState> = {
 
             wordListPromise.then((wordList: WordListModel) => {
                 context.commit("setCurrentWordList", wordList);
+            }).catch(error => {
+                console.error(error);
             });
         },
 

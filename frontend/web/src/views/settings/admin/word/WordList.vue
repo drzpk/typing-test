@@ -129,6 +129,7 @@ export default class WordList extends mixins(ValidationHelperMixin) {
 
     @Watch("currentWordList")
     onCurrentWordListChanged(current: WordListModel | null) {
+        this.currentWordListId = current?.id || -1;
         if (current != null)
             this.loadWordList();
     }
@@ -160,7 +161,7 @@ export default class WordList extends mixins(ValidationHelperMixin) {
     }
 
     deleteWordList(): void {
-        this.$store.dispatch("deleteWordList", this.currentWordListId);
+        this.$store.dispatch("deleteWordList", this.currentWordListId).then(() => this.goBack());
     }
 
     private loadWordList(): void {
@@ -176,14 +177,20 @@ export default class WordList extends mixins(ValidationHelperMixin) {
             type: this.type!
         };
 
-        this.$store.dispatch("createWordList", data).then(() => {
-            this.$router.push("/settings/admin");
+        this.$store.dispatch("createWordList", data).then((created: WordListModel) => {
+            this.$store.dispatch("setCurrentWordList", created.id);
+            this.$router.replace(this.$route.fullPath.replace("/new", `/${created.id}`));
+            this.$v.$reset();
         }).catch(error => {
             if (error instanceof ValidationFailedError)
                 this.processValidationError(error);
             else
                 console.error(error);
         });
+    }
+
+    private goBack(): void {
+        this.$router.push("/settings/admin");
     }
 }
 </script>

@@ -155,14 +155,15 @@ class ApiService {
             .catch(errorHandler);
     }
 
-    createWordList(name: string, language: string, type: WordListType): Promise<any> {
+    createWordList(name: string, language: string, type: WordListType): Promise<WordListModel> {
         const payload = {
             name,
             language,
             type
         };
 
-        return axios.post("/api/word-lists", payload)
+        return axios.post<WordListModel>("/api/word-lists", payload)
+            .then(response => response.data)
             .catch(errorHandler);
     }
 

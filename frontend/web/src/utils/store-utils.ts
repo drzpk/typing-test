@@ -1,5 +1,5 @@
 import {ActionContext} from "vuex";
-import {ServerError} from "@/models/error";
+import {ErrorCode, ErrorCodeModel, ServerError} from "@/models/error";
 
 export function withPendingRequest<T>(requestName: string, context: ActionContext<any, any>, callback: () => Promise<T>): Promise<T> {
     return new Promise(resolve => {
@@ -24,4 +24,21 @@ export function withPendingRequest<T>(requestName: string, context: ActionContex
 
         throw e;
     });
+}
+
+export function displayError(
+    context: ActionContext<any, any>,
+    code: ErrorCode,
+    message: string,
+    object: any | null = null,
+    additionalData: { [key: string]: any } | null = null) {
+
+    const model: ErrorCodeModel = {
+        code,
+        message,
+        object,
+        additionalData
+    };
+
+    context.commit("setErrorCode", model);
 }
