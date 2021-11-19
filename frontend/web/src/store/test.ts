@@ -6,6 +6,8 @@ import {TestBestResultModel, TestModel, TestResultModel, TestStateModel} from "@
 import {ErrorCode, ErrorCodeModel, ServerError} from "@/models/error";
 import {WordListType} from "@/models/words";
 import WordService from "@/services/Word.service";
+import {WordChangeEvent} from "@/models/events";
+import appRoot from "@/main";
 
 export interface TestState {
     loading: boolean;
@@ -230,21 +232,21 @@ const testModule: Module<TestState, RootState> = {
                     let stopHandle: (() => void);
                     const wordCount = WordService.countWords(context.state.activeTestDefinition.wordList);
 
-                    const intervalNo = setInterval(() => {
+                    const handler = () => {
                         if (context.state.activeTest?.id != test.id || context.state.activeTest?.state != test.state) {
                             stopHandle();
                             return;
                         }
 
-                        console.log("entered words : ", context.state.enteredWords.length);
-                        console.log("total words: " + wordCount);
                         if (context.state.enteredWords.length === wordCount) {
                             // noinspection JSIgnoredPromiseFromCall
                             context.dispatch("finishTest");
                         }
-                    }, 500);
+                    };
 
-                    stopHandle = () => clearInterval(intervalNo);
+                    appRoot.$on(WordChangeEvent.NAME, handler);
+
+                    stopHandle = () => appRoot.$off(WordChangeEvent.NAME, handler);
                     context.commit("setTestFinishDetectorCancelFn", stopHandle);
                 }
 

@@ -8,12 +8,12 @@ import {TestStateModel} from "@/models/tests";
 </template>
 
 <script lang="ts">
-    import {Component, Vue, Watch} from "vue-property-decorator";
-    import {mapGetters} from "vuex";
-    import {TestStateModel} from "@/models/tests";
-    import {WordChangeEvent} from "@/models/events";
+import {Component, Vue, Watch} from "vue-property-decorator";
+import {mapGetters} from "vuex";
+import {TestStateModel} from "@/models/tests";
+import {WordChangeEvent} from "@/models/events";
 
-    @Component({
+@Component({
         computed: {
             ...mapGetters(["testState", "activeTestStarted"])
         }
@@ -54,13 +54,14 @@ import {TestStateModel} from "@/models/tests";
                 element.value = "";
 
             const completeWord = endsWithSpace && containsWord;
-            const wordChangeEvent = new WordChangeEvent(trimmedInput, completeWord);
-            this.$root.$emit(WordChangeEvent.NAME, wordChangeEvent);
 
             if (completeWord)
                 this.$store.commit("addEnteredWord", trimmedInput);
             if (event.type === "deleteContentBackward")
                 this.$store.commit("incrementBackspaceCount");
+
+            const wordChangeEvent = new WordChangeEvent(trimmedInput, completeWord);
+            this.$root.$emit(WordChangeEvent.NAME, wordChangeEvent);
         }
 
         private startTestIfNecessary(): void {

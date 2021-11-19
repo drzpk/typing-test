@@ -21,8 +21,10 @@ Vue.use(BootstrapVue);
 
 Vue.config.productionTip = false;
 
-new Vue({
+const appRoot = new Vue({
   router,
   store,
   render: h => h(App)
 }).$mount('#app');
+
+export default appRoot;
