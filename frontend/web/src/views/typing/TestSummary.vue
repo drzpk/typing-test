@@ -25,6 +25,8 @@
                             <b-col cols="7" class="stats-container">
                                 <div class="stats-list">
                                     <div class="stats-content">
+                                        <div>Test time: <span
+                                            class="value">{{ duration }}</span></div>
                                         <div>Correct words: <span
                                             class="value">{{ testResult.correctWords }}</span></div>
                                         <div>Incorrect words: <span
@@ -48,6 +50,7 @@
 import {TestResultModel} from "@/models/tests";
 import {Component, Vue} from "vue-property-decorator";
 import {mapGetters} from "vuex";
+import DateService from "@/services/Date.service";
 
 @Component({
     computed: {
@@ -70,6 +73,13 @@ export default class TestSummary extends Vue {
 
         const accuracy = Math.floor(this.testResult.accuracy * 1000);
         return (accuracy / 10).toString();
+    }
+
+    get duration(): string {
+        if (this.testResult)
+            return DateService.formatDurationToString(this.testResult.durationSeconds);
+        else
+            return "";
     }
 }
 </script>

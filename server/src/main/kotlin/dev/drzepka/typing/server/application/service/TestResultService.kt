@@ -5,19 +5,22 @@ import dev.drzepka.typing.server.application.dto.testresult.TestResultResource
 import dev.drzepka.typing.server.application.exception.ErrorCode
 import dev.drzepka.typing.server.domain.dao.TestResultDAO
 import dev.drzepka.typing.server.domain.dto.TestResultDataDTO
+import dev.drzepka.typing.server.domain.repository.TestRepository
 import dev.drzepka.typing.server.domain.repository.TestResultRepository
 import dev.drzepka.typing.server.domain.service.TestScoreCalculatorService
 import java.time.Duration
 
 class TestResultService(
     private val testResultRepository: TestResultRepository,
+    private val testRepository: TestRepository,
     private val testResultsDAO: TestResultDAO,
     private val testScoreCalculatorService: TestScoreCalculatorService
 ) {
 
     fun getResultForTest(testId: Int): TestResultResource {
-        val entity = testResultRepository.findById(testId) ?: ErrorCode.TEST_RESULT_NOT_FOUND.throwException(testId)
-        return TestResultResource.fromEntity(entity)
+        val testResult = testResultRepository.findById(testId) ?: ErrorCode.TEST_RESULT_NOT_FOUND.throwException(testId)
+        val test = testRepository.findById(testId) ?: ErrorCode.TEST_RESULT_NOT_FOUND.throwException(testId)
+        return TestResultResource.fromEntity(testResult, test)
     }
 
     /**

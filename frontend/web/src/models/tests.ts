@@ -23,6 +23,7 @@ export interface TestResultModel {
     incorrectKeystrokes: number;
     accuracy: number;
     wordsPerMinute: number;
+    durationSeconds: number;
 }
 
 export interface TestBestResultModel {

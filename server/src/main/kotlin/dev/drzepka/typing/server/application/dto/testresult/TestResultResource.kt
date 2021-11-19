@@ -1,5 +1,6 @@
 package dev.drzepka.typing.server.application.dto.testresult
 
+import dev.drzepka.typing.server.domain.entity.Test
 import dev.drzepka.typing.server.domain.entity.TestResult
 
 data class TestResultResource(
@@ -9,19 +10,21 @@ data class TestResultResource(
     var correctKeystrokes: Int,
     var incorrectKeystrokes: Int,
     var accuracy: Float,
-    var wordsPerMinute: Float
+    var wordsPerMinute: Float,
+    var durationSeconds: Int
 ) {
 
     companion object {
-        fun fromEntity(entity: TestResult): TestResultResource {
+        fun fromEntity(resultEntity: TestResult, testEntity: Test): TestResultResource {
             return TestResultResource(
-                entity.id!!,
-                entity.correctWords,
-                entity.incorrectWords,
-                entity.correctKeystrokes,
-                entity.incorrectKeystrokes,
-                entity.accuracy,
-                entity.wordsPerMinute
+                resultEntity.id!!,
+                resultEntity.correctWords,
+                resultEntity.incorrectWords,
+                resultEntity.correctKeystrokes,
+                resultEntity.incorrectKeystrokes,
+                resultEntity.accuracy,
+                resultEntity.wordsPerMinute,
+                testEntity.duration.seconds.toInt()
             )
         }
     }

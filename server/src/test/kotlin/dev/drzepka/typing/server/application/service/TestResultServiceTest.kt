@@ -2,6 +2,7 @@ package dev.drzepka.typing.server.application.service
 
 import dev.drzepka.typing.server.domain.dao.TestResultDAO
 import dev.drzepka.typing.server.domain.dto.TestResultDataDTO
+import dev.drzepka.typing.server.domain.repository.TestRepository
 import dev.drzepka.typing.server.domain.repository.TestResultRepository
 import dev.drzepka.typing.server.domain.service.TestScoreCalculatorService
 import org.assertj.core.api.BDDAssertions.then
@@ -15,6 +16,7 @@ import java.time.Instant
 class TestResultServiceTest {
 
     private val testResultRepository = mock<TestResultRepository>()
+    private val testRepository = mock<TestRepository>()
     private val testResultDAO = mock<TestResultDAO>()
     private val testScoreCalculatorService = spy<TestScoreCalculatorService> { TestScoreCalculatorService() }
 
@@ -44,5 +46,5 @@ class TestResultServiceTest {
     }
 
     private fun getService(): TestResultService =
-        TestResultService(testResultRepository, testResultDAO, testScoreCalculatorService)
+        TestResultService(testResultRepository, testRepository, testResultDAO, testScoreCalculatorService)
 }
