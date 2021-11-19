@@ -22,6 +22,11 @@ export interface LoginData {
     password: string;
 }
 
+export interface ChangePasswordData {
+    oldPassword: string;
+    newPassword: string;
+}
+
 export interface RootState {
     applicationLoaded: boolean;
     authenticationDetails: AuthenticationDetails | null;
@@ -84,6 +89,12 @@ export default new Vuex.Store<RootState>({
                         context.state.authenticationDetails.displayName = newDisplayName;
                     }
                 });
+            });
+        },
+
+        changePassword(context: ActionContext<any, any>, passwordData: ChangePasswordData) {
+            return withPendingRequest("changePassword", context, () => {
+                return ApiService.changePassword(passwordData);
             });
         }
     },

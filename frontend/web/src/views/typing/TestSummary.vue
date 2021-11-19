@@ -50,7 +50,7 @@
 import {TestResultModel} from "@/models/tests";
 import {Component, Vue} from "vue-property-decorator";
 import {mapGetters} from "vuex";
-import DateService from "@/services/Date.service";
+import {formatDuration} from "@/utils/time-utils";
 
 @Component({
     computed: {
@@ -77,7 +77,7 @@ export default class TestSummary extends Vue {
 
     get duration(): string {
         if (this.testResult)
-            return DateService.formatDurationToString(this.testResult.durationSeconds);
+            return formatDuration(this.testResult.durationSeconds);
         else
             return "";
     }

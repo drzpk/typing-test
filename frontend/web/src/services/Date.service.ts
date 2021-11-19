@@ -5,20 +5,6 @@ class DateService {
         return `${date} ${time}`;
     }
 
-    formatDurationToString(totalSeconds: number): string {
-        let result = "";
-
-        const hours = Math.floor(totalSeconds / 60 / 60);
-        if (hours > 0)
-            result += `${DateService.pad(hours)}:`;
-
-        const minutes = Math.floor((totalSeconds % (60 * 60)) / 60);
-        const seconds = totalSeconds % 60;
-        result += `${DateService.pad(minutes)}:${DateService.pad(seconds)}`;
-
-        return result;
-    }
-
     convertFieldsToDate<T>(object: T, ...fields: Array<string>): T {
         const map = object as any;
         for (let i = 0; i < fields.length; i++) {

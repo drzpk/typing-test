@@ -16,6 +16,8 @@ import {mapGetters} from "vuex";
 import {TestBestResultModel} from "@/models/tests";
 import DateService from "@/services/Date.service";
 import {TestDefinitionModel} from "@/models/test-definition";
+import {formatDuration} from "@/utils/time-utils";
+import {BvTableFieldArray} from "bootstrap-vue/esm/components/table";
 
 @Component({
     computed: {
@@ -26,7 +28,7 @@ export default class TestBestResults extends Vue {
     testBestResults!: TestBestResultModel[];
     activeUserTestDefinition!: TestDefinitionModel | null;
 
-    get fields(): [any] {
+    get fields(): BvTableFieldArray {
         const fields = [
             {
                 key: "no",
@@ -53,7 +55,7 @@ export default class TestBestResults extends Vue {
             {
                 key: "durationSeconds",
                 label: "Duration",
-                formatter: (duration: number) => DateService.formatDurationToString(duration)
+                formatter: (duration: number) => formatDuration(duration)
             },
             {
                 key: "score"

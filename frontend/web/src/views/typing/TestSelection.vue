@@ -56,7 +56,7 @@ import TestReset from "@/views/typing/test/TestReset.vue";
 export default class TestSelection extends Vue {
     isLoading!: boolean;
     userTestDefinitions!: Array<TestDefinitionModel>;
-    activeUserTestDefinition!: TestDefinitionModel | undefined;
+    activeUserTestDefinition!: TestDefinitionModel | null;
 
     showTestSelector = true;
 

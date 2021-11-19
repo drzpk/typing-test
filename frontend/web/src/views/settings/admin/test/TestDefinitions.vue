@@ -10,11 +10,11 @@
 </template>
 
 <script lang="ts">
-    import {Component, Vue} from "vue-property-decorator";
-    import {mapGetters} from "vuex";
-    import {WordList} from "@/models/words";
+import {Component, Vue} from "vue-property-decorator";
+import {mapGetters} from "vuex";
+import {WordListModel} from "@/models/words";
 
-    @Component({
+@Component({
         computed: mapGetters([
             "testDefinitions"
         ])
@@ -41,7 +41,7 @@
             this.$store.dispatch("reloadTestDefinitions");
         }
 
-        clickListItem(clicked: WordList): void {
+        clickListItem(clicked: WordListModel): void {
             this.$router.push("/settings/admin/test-definitions/" + clicked.id.toString())
         }
     }

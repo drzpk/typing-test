@@ -173,7 +173,7 @@ export default class WordList extends mixins(ValidationHelperMixin) {
         const data: CreateWordListData = {
             name: this.name,
             language: this.language,
-            type: this.type
+            type: this.type!
         };
 
         this.$store.dispatch("createWordList", data).then(() => {

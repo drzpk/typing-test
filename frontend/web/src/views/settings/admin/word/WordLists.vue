@@ -12,7 +12,7 @@
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
 import {mapGetters} from "vuex";
-import {WordList, WordListType} from "@/models/words";
+import {WordListModel, WordListType} from "@/models/words";
 
 @Component({
         computed: mapGetters([
@@ -20,7 +20,7 @@ import {WordList, WordListType} from "@/models/words";
         ])
     })
     export default class WordLists extends Vue {
-        wordLists!: Array<WordList>;
+        wordLists!: Array<WordListModel>;
         fields = [
             {
                 key: "id",
@@ -42,7 +42,7 @@ import {WordList, WordListType} from "@/models/words";
             this.$store.dispatch("reloadWordLists");
         }
 
-        clickListItem(clicked: WordList): void {
+        clickListItem(clicked: WordListModel): void {
             this.$router.push("/settings/admin/word-lists/" + clicked.id.toString())
         }
     }

@@ -61,7 +61,7 @@ export default class WordListFixedText extends Vue {
 
     private updateText(): void {
         if (this.currentWordList !== null)
-            this.text = this.currentWordList.text;
+            this.text = this.currentWordList.text || "";
     }
 
     private updateState(): void {

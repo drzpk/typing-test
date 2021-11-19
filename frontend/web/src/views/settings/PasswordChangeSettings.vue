@@ -37,12 +37,11 @@ import {Component} from "vue-property-decorator";
 import {AuthenticationDetails} from "@/models/user";
 import {mapState} from "vuex";
 import {required} from "vuelidate/lib/validators";
-import ApiService from "@/services/Api.service";
 import {mixins} from "vue-class-component";
 import ValidationHelperMixin from "@/mixins/ValidationHelperMixin";
 import ValidationMessageManager from "@/views/shared/ValidationMessageManager.vue";
 import {ValidationFailedError} from "@/models/error";
-import {withPendingRequest} from "@/utils/store-utils";
+import {ChangePasswordData} from "@/store";
 
 @Component({
     components: {ValidationMessageManager},
@@ -90,19 +89,17 @@ export default class PasswordChangeSettings extends mixins(ValidationHelperMixin
         if (this.$v.$invalid)
             return;
 
-        const request = {
+        const data: ChangePasswordData = {
             oldPassword: this.currentPassword,
             newPassword: this.newPassword
-        };
+        }
 
-        withPendingRequest("changePassword", this.$store, () => {
-            return ApiService.changePassword(request)
-                .catch(error => {
-                    if (error instanceof ValidationFailedError) {
-                        this.processValidationError(error);
-                    }
-                });
-        });
+        this.$store.dispatch("changePassword", data)
+            .catch(error => {
+                if (error instanceof ValidationFailedError) {
+                    this.processValidationError(error);
+                }
+            });
     }
 }
 </script>
