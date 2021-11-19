@@ -28,7 +28,9 @@
                     <span class="country"><country-flag
                         :country="mapLanguageToCountryCode(definition.wordList.language)" size="small"/></span>
                     <span class="name">{{ definition.name }}</span>
-                    <span class="duration">{{ formatDuration(definition.duration) }}</span>
+                    <span class="duration" v-show="definition.duration > 0">
+                        {{ formatDuration(definition.duration) }}
+                    </span>
                 </span>
             </div>
         </b-collapse>
