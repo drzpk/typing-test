@@ -71,7 +71,7 @@ class TestServiceTest {
         val moreWordCount = countWordOccurrences(serialized, "more")
         val ratio = moreWordCount.toDouble() / lessWordCount
 
-        then(ratio).isCloseTo(3.0, within(0.5))
+        then(ratio).isCloseTo(3.0, within(0.8))
     }
 
     @Test
