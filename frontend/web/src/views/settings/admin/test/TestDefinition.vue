@@ -16,7 +16,8 @@
                             </b-form-group>
 
                             <b-form-group label-for="variableDuration" label="Variable duration" label-cols="4"
-                                          description="User will have to type all words from the list.">
+                                          description="User will have to type all words from the list."
+                                          v-if="showVariableDurationCheckbox">
                                 <b-form-checkbox id="variableDuration" name="variableDuration"
                                                  v-model="model.variableDuration"
                                                  :state="validateState('model.variableDuration')"
@@ -65,7 +66,7 @@ import {ValidationFailedError} from "@/models/error";
 import WordListWords from "@/views/settings/admin/word/WordListWords.vue";
 import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/test-definition";
 import {mapGetters} from "vuex";
-import {WordListModel} from "@/models/words";
+import {WordListModel, WordListType} from "@/models/words";
 import {SelectOption} from "@/models/common";
 import Vue from "vue";
 
@@ -136,6 +137,21 @@ export default class TestDefinition extends mixins(ValidationHelperMixin) {
         }
 
         return options;
+    }
+
+    get showVariableDurationCheckbox(): boolean {
+        if (!this.model.wordListId)
+            return false;
+
+        let found: WordListModel | null = null;
+        for (let wordList of this.wordLists) {
+            if (wordList.id == this.model.wordListId) {
+                found = wordList;
+                break;
+            }
+        }
+
+        return !!found && found.type == WordListType.FIXED;
     }
 
     @Watch("currentTestDefinition")
