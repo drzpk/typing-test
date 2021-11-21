@@ -69,6 +69,10 @@ export default class TextDisplay extends Vue {
                 this.updateDisplayOffset(this.currentWordNo - 1, this.currentWordNo);
             }
         }
+
+        // data:
+        // currentWord
+
     }
 
     private resetDisplayOffset(): void {

@@ -3,6 +3,7 @@
         <div id="test-panel" :class="{blurred: showOverlay}">
             <TextDisplay/>
             <TextInput/>
+            <SpeedGauge v-show="!showOverlay"/>
         </div>
 
         <div id="test-panel-overlay" v-if="showOverlay">
@@ -25,16 +26,18 @@
 </template>
 
 <script lang="ts">
-    import {Component, Vue} from "vue-property-decorator";
-    import TextDisplay from "@/views/typing/test/TextDisplay.vue";
-    import TextInput from "@/views/typing/test/TextInput.vue";
-    import {mapGetters} from "vuex";
-    import {ErrorCodeModel} from "@/models/error";
-    import {TestModel, TestStateModel} from "@/models/tests";
-    import LoadingSpinner from "@/views/shared/LoadingSpinner.vue";
+import {Component, Vue} from "vue-property-decorator";
+import TextDisplay from "@/views/typing/test/TextDisplay.vue";
+import TextInput from "@/views/typing/test/TextInput.vue";
+import {mapGetters} from "vuex";
+import {ErrorCodeModel} from "@/models/error";
+import {TestModel, TestStateModel} from "@/models/tests";
+import LoadingSpinner from "@/views/shared/LoadingSpinner.vue";
+import SpeedGauge from "@/views/typing/test/SpeedGauge.vue";
 
-    @Component({
+@Component({
         components: {
+            SpeedGauge,
             LoadingSpinner,
             TextInput,
             TextDisplay

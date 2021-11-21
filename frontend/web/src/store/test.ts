@@ -83,6 +83,9 @@ const testModule: Module<TestState, RootState> = {
                 return state.testBestResults;
             else
                 return [];
+        },
+        enteredWords(state): string[] | undefined {
+            return state.activeTest ? state.enteredWords : undefined;
         }
     },
 

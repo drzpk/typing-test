@@ -24,8 +24,12 @@ class WordService {
     }
 
     getFixedTextCharacterLengthWarningThreshold(): number {
-        // return maximum_theoretical_wpm * characters_per_word;
-        return 250 * 5;
+        const maximumTheoreticalWPM = 250;
+        return maximumTheoreticalWPM * this.getCharactersPerWord();
+    }
+
+    getCharactersPerWord(): number {
+        return 5;
     }
 
     private static generateRandomWord(): string {
