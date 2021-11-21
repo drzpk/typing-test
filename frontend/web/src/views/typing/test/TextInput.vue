@@ -3,7 +3,9 @@ import {TestStateModel} from "@/models/tests";
     <div id="text-input" class="test-panel-font">
         <!--suppress HtmlFormInputWithoutLabel -->
         <input id="text-input-input" type="text" :disabled="inputDisabled" :placeholder="placeholder"
-               @input="onInputChanged">
+               @input="onInputChanged"
+               @focus="inputFocused = true"
+               @blur="inputFocused = false">
     </div>
 </template>
 
@@ -22,6 +24,8 @@ export default class TextInput extends Vue {
     testState!: TestStateModel | undefined;
     activeTestStarted!: boolean;
 
+    inputFocused = false;
+
     get inputDisabled(): boolean {
         return this.testState !== TestStateModel.STARTED && this.testState !== TestStateModel.CREATED
     }
@@ -31,6 +35,14 @@ export default class TextInput extends Vue {
             return "Start typing to start the test.";
         else
             return "";
+    }
+
+    mounted(): void {
+        window.addEventListener("keydown", this.onKeyDown);
+    }
+
+    destroyed(): void {
+        window.removeEventListener("keydown", this.onKeyDown);
     }
 
     @Watch("testState")
@@ -67,6 +79,13 @@ export default class TextInput extends Vue {
     private startTestIfNecessary(): void {
         if (!this.activeTestStarted && this.testState == TestStateModel.CREATED)
             this.$store.dispatch("startTest");
+    }
+
+    private onKeyDown(event: KeyboardEvent): void {
+        if (event.code === "F5" && this.inputFocused) {
+            event.preventDefault();
+            this.$store.dispatch("resetTest");
+        }
     }
 }
 </script>
