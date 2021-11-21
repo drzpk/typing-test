@@ -70,7 +70,7 @@ export default class SpeedGauge extends Vue {
 
     @Watch("activeTest")
     private onActiveTestChanged(): void {
-        if (this.activeTest.state == TestStateModel.STARTED && this.activeTest?.startedAt) {
+        if (this.activeTest && this.activeTest.state == TestStateModel.STARTED && this.activeTest?.startedAt) {
             this.speedCalculator = new SpeedCalculator(this.activeTest?.startedAt, WordService.getCharactersPerWord());
             this.speedRefreshHandle = setInterval(this.refreshSpeed, 1000);
         } else {
