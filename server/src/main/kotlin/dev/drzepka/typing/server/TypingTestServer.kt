@@ -27,6 +27,8 @@ fun Application.typingTestServer() {
         modules(typingServerKoinModule())
     }
 
+    install(XForwardedHeaderSupport)
+
     setupRouting()
     setupStatusPages()
 }

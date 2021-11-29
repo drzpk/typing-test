@@ -4,6 +4,7 @@ import dev.drzepka.typing.server.application.dto.wordlist.CreateWordListRequest
 import dev.drzepka.typing.server.application.dto.wordlist.UpdateWordListRequest
 import dev.drzepka.typing.server.application.dto.wordlist.WordListResource
 import dev.drzepka.typing.server.application.security.adminInterceptor
+import dev.drzepka.typing.server.application.service.UserSessionService
 import dev.drzepka.typing.server.application.service.WordListService
 import io.ktor.application.*
 import io.ktor.http.*
@@ -15,6 +16,7 @@ import org.koin.ktor.ext.get
 
 fun Route.wordListController() {
     val wordListService = get<WordListService>()
+    val userSessionService = get<UserSessionService>()
 
     route("/word-lists") {
         adminInterceptor()
@@ -29,7 +31,10 @@ fun Route.wordListController() {
 
         post("") {
             val request = call.receive<CreateWordListRequest>()
+
             val resource = transaction {
+                userSessionService.updateLastSeen(call)
+
                 val created = wordListService.createWordList(request)
                 WordListResource.fromEntity(created)
             }
@@ -42,6 +47,8 @@ fun Route.wordListController() {
             request.id = call.parameters["id"]!!.toInt()
 
             val resource = transaction {
+                userSessionService.updateLastSeen(call)
+
                 val updated = wordListService.updateWordList(request)
                 WordListResource.fromEntity(updated)
             }
@@ -67,7 +74,9 @@ fun Route.wordListController() {
 
         delete("/{id}") {
             val id = call.parameters["id"]!!.toInt()
+
             val status = transaction {
+                userSessionService.updateLastSeen(call)
                 wordListService.deleteWordList(id)
             }
 

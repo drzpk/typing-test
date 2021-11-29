@@ -13,4 +13,5 @@
     <include file="db-changelog/006.word_list_types.xml" relativeToChangelogFile="true"/>
     <include file="db-changelog/007.non_null_word_selection.xml" relativeToChangelogFile="true"/>
     <include file="db-changelog/008.nullable_test_definition_duration.xml" relativeToChangelogFile="true"/>
+    <include file="db-changelog/009.sessions.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

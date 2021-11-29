@@ -4,6 +4,7 @@ import dev.drzepka.typing.server.application.TypingTestSession
 import dev.drzepka.typing.server.application.dto.LoginDataDTO
 import dev.drzepka.typing.server.application.dto.user.CreateUserRequest
 import dev.drzepka.typing.server.application.dto.user.UserAuthenticationDetailsDTO
+import dev.drzepka.typing.server.application.service.ApplicationSessionService
 import dev.drzepka.typing.server.application.service.UserService
 import io.ktor.application.*
 import io.ktor.http.*
@@ -16,6 +17,7 @@ import org.koin.ktor.ext.get
 
 fun Route.loginController() {
     val userService = get<UserService>()
+    val applicationSessionService = get<ApplicationSessionService>()
 
     post("register") {
         val request = call.receive<CreateUserRequest>()
@@ -29,7 +31,8 @@ fun Route.loginController() {
         val loginData = call.receive<LoginDataDTO>()
         val dto = transaction {
             val user = userService.findUser(loginData.email, loginData.password) ?: error("user not found")
-            call.sessions.set(TypingTestSession(user.id!!, user.isAdmin()))
+            val session = applicationSessionService.createApplicationSession(user, call)
+            call.sessions.set(session)
             UserAuthenticationDetailsDTO.fromUserEntity(user)
         }
         call.respond(dto)

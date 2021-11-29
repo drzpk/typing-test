@@ -3,6 +3,7 @@ package dev.drzepka.typing.server.presentation
 import dev.drzepka.typing.server.application.dto.test.CreateTestRequest
 import dev.drzepka.typing.server.application.dto.test.FinishTestRequest
 import dev.drzepka.typing.server.application.service.TestManagerService
+import dev.drzepka.typing.server.application.service.UserSessionService
 import dev.drzepka.typing.server.application.util.getRequiredIntParam
 import dev.drzepka.typing.server.domain.repository.UserRepository
 import dev.drzepka.typing.server.domain.util.getCurrentUser
@@ -17,12 +18,14 @@ import org.koin.ktor.ext.get
 fun Route.testController() {
     val userRepository = get<UserRepository>()
     val testManagerService = get<TestManagerService>()
+    val userSessionService = get<UserSessionService>()
 
     route("/tests") {
         post("") {
             val request = call.receive<CreateTestRequest>()
 
             val test = transaction {
+                userSessionService.updateLastSeen(call)
                 val user = getCurrentUser(userRepository)
                 testManagerService.createTest(request, user)
             }
@@ -44,6 +47,7 @@ fun Route.testController() {
         delete("/{testId}") {
             val testId = getRequiredIntParam("testId")
             transaction {
+                userSessionService.updateLastSeen(call)
                 val user = getCurrentUser(userRepository)
                 testManagerService.deleteTest(testId, user)
             }
@@ -53,7 +57,9 @@ fun Route.testController() {
 
         post("/{testId}/words") {
             val testId = getRequiredIntParam("testId")
+
             val resource = transaction {
+                userSessionService.updateLastSeen(call)
                 val user = getCurrentUser(userRepository)
                 testManagerService.regenerateWordList(testId, user)
             }

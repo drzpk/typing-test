@@ -5,6 +5,7 @@ import dev.drzepka.typing.server.application.dto.testdefinition.UpdateTestDefini
 import dev.drzepka.typing.server.application.security.adminVerifier
 import dev.drzepka.typing.server.application.service.TestDefinitionService
 import dev.drzepka.typing.server.application.service.TestResultService
+import dev.drzepka.typing.server.application.service.UserSessionService
 import dev.drzepka.typing.server.application.util.getRequiredIntParam
 import io.ktor.application.*
 import io.ktor.http.*
@@ -17,12 +18,15 @@ import org.koin.ktor.ext.get
 fun Route.testDefinitionController() {
     val testDefinitionService = get<TestDefinitionService>()
     val testResultService = get<TestResultService>()
+    val userSessionService = get<UserSessionService>()
 
     route("/test-definitions") {
         get("") {
             val rawActive = call.parameters["active"]
             val active = if (rawActive != null) rawActive == "true" else null
+
             val collection = transaction {
+                userSessionService.updateLastSeen(call)
                 testDefinitionService.listTestDefinitions(active)
             }
 
@@ -57,7 +61,9 @@ fun Route.testDefinitionController() {
             adminVerifier()
 
             val request = call.receive<CreateTestDefinitionRequest>()
+
             val resource = transaction {
+                userSessionService.updateLastSeen(call)
                 testDefinitionService.createTestDefinition(request)
             }
 
@@ -72,6 +78,7 @@ fun Route.testDefinitionController() {
             request.id = testDefinitionId
 
             val resource = transaction {
+                userSessionService.updateLastSeen(call)
                 testDefinitionService.updateTestDefinition(request)
             }
 

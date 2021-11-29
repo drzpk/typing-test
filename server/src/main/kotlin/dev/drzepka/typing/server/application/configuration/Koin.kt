@@ -9,6 +9,7 @@ import dev.drzepka.typing.server.infrastructure.PBKDF2HashService
 import dev.drzepka.typing.server.infrastructure.dao.ExposedTestResultDAO
 import dev.drzepka.typing.server.infrastructure.repository.*
 import dev.drzepka.typing.server.infrastructure.service.DatabaseProviderServiceImpl
+import dev.drzepka.typing.server.infrastructure.service.TransactionService
 import io.ktor.application.*
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -25,6 +26,8 @@ fun Application.typingServerKoinModule(): Module = module {
     single { TestManagerService(get(), get(), get(), get()) }
     single { TestResultService(get(), get(), get(), get()) }
     single { TestStatsService(get(), get()) }
+    single { UserSessionService(get(), get()) }
+    single { ApplicationSessionService(get()) }
 
     // Domain
     single { dev.drzepka.typing.server.domain.service.TestDefinitionService(get()) }
@@ -34,6 +37,7 @@ fun Application.typingServerKoinModule(): Module = module {
     // Infrastructure
     single<HashService> { PBKDF2HashService() }
     single<ConfigurationRepository> { object : ConfigurationRepository {} }
+    single { TransactionService() }
 
     single<UserRepository> { ExposedUserRepository() }
     single<WordListRepository> { ExposedWordListRepository() }
@@ -41,6 +45,7 @@ fun Application.typingServerKoinModule(): Module = module {
     single<TestDefinitionRepository> { ExposedTestDefinitionRepository(get()) }
     single<TestRepository> { ExposedTestRepository(get(), get()) }
     single<TestResultRepository> { ExposedTestResultRepository(get()) }
+    single<SessionRepository> { ExposedSessionRepository() }
 
     single<TestResultDAO> { ExposedTestResultDAO() }
 

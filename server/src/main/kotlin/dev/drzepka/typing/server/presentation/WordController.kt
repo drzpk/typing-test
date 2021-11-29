@@ -2,6 +2,7 @@ package dev.drzepka.typing.server.presentation
 
 import dev.drzepka.typing.server.application.dto.PagedResourceCollection
 import dev.drzepka.typing.server.application.dto.word.*
+import dev.drzepka.typing.server.application.service.UserSessionService
 import dev.drzepka.typing.server.application.service.WordExportService
 import dev.drzepka.typing.server.application.service.WordImportService
 import dev.drzepka.typing.server.application.service.WordService
@@ -19,6 +20,7 @@ fun Route.wordController() {
     val wordService = get<WordService>()
     val wordImportService = get<WordImportService>()
     val wordExportService = get<WordExportService>()
+    val userSessionService = get<UserSessionService>()
 
     route("/words") {
         post("") {
@@ -27,6 +29,7 @@ fun Route.wordController() {
             request.wordListId = wordListId
 
             val resource = transaction {
+                userSessionService.updateLastSeen(call)
                 val entity = wordService.addWord(request)
                 WordResource.fromEntity(entity)
             }
@@ -56,6 +59,7 @@ fun Route.wordController() {
             request.wordId = call.parameters["wordId"]!!.toInt()
 
             val updated = transaction {
+                userSessionService.updateLastSeen(call)
                 wordService.updateWord(request)
             }
 
@@ -68,6 +72,7 @@ fun Route.wordController() {
         delete("/{wordId}") {
             val wordId = call.parameters["wordId"]!!.toInt()
             val deleted = transaction {
+                userSessionService.updateLastSeen(call)
                 wordService.deleteWord(wordId)
             }
 
@@ -80,6 +85,7 @@ fun Route.wordController() {
             request.wordListId = wordListId
 
             transaction {
+                userSessionService.updateLastSeen(call)
                 wordImportService.importWords(request)
             }
 

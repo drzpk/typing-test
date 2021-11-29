@@ -6,6 +6,7 @@ import dev.drzepka.typing.server.application.dto.user.UpdateAccountSettingsReque
 import dev.drzepka.typing.server.application.dto.user.UserAuthenticationDetailsDTO
 import dev.drzepka.typing.server.application.security.adminInterceptor
 import dev.drzepka.typing.server.application.service.UserService
+import dev.drzepka.typing.server.application.service.UserSessionService
 import dev.drzepka.typing.server.application.util.getRequiredIntParam
 import dev.drzepka.typing.server.domain.repository.UserRepository
 import dev.drzepka.typing.server.domain.util.getCurrentUser
@@ -20,6 +21,7 @@ import org.koin.ktor.ext.get
 fun Route.userController() {
     val userRepository = get<UserRepository>()
     val userService = get<UserService>()
+    val userSessionService = get<UserSessionService>()
 
     route("/current-user") {
         get("/authentication-details") {
@@ -34,6 +36,8 @@ fun Route.userController() {
             val request = call.receive<UpdateAccountSettingsRequest>()
 
             transaction {
+                userSessionService.updateLastSeen(call)
+
                 val user = getCurrentUser(userRepository)
                 userService.updateSettings(user, request)
             }
@@ -45,6 +49,8 @@ fun Route.userController() {
             val request = call.receive<ChangePasswordRequest>()
 
             transaction {
+                userSessionService.updateLastSeen(call)
+
                 val user = getCurrentUser(userRepository)
                 userService.changePassword(user, request)
             }
@@ -54,6 +60,8 @@ fun Route.userController() {
 
         delete("") {
             transaction {
+                userSessionService.updateLastSeen(call)
+
                 val user = getCurrentUser(userRepository)
                 userService.deleteUser(user.id!!)
             }
