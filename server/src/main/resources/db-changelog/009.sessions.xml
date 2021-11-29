@@ -28,7 +28,7 @@
         </createTable>
 
         <rollback>
-            <addNotNullConstraint tableName="test_definitions" columnName="duration" columnDataType="int"/>
+            <dropTable tableName="sessions"/>
         </rollback>
     </changeSet>
 
