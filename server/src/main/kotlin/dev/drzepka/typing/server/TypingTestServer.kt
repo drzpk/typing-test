@@ -11,6 +11,7 @@ import io.ktor.jackson.*
 import io.ktor.sessions.*
 import org.koin.ktor.ext.Koin
 import java.io.File
+import java.time.Duration
 
 fun Application.typingTestServer() {
     install(ContentNegotiation) {
@@ -20,7 +21,9 @@ fun Application.typingTestServer() {
     }
 
     install(Sessions) {
-        cookie<TypingTestSession>("SESSION", directorySessionStorage(File(".sessions"), cached = true))
+        cookie<TypingTestSession>("SESSION", directorySessionStorage(File(".sessions"), cached = true)) {
+            cookie.maxAgeInSeconds = Duration.ofDays(10).seconds
+        }
     }
 
     install(Koin) {
