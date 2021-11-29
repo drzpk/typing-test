@@ -30,7 +30,7 @@
         <appender-ref ref="FILE"/>
     </logger>
 
-    <logger name="dev.drzepka.typing.server.application.service.UserSessionService" level="DEBUG" additivity="false">
+    <logger name="dev.drzepka.typing.server.application.service.UserSessionService" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </logger>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="010.test_session" author="Dominik Rzepka">
+        <addColumn tableName="tests">
+            <column name="session" type="int" afterColumn="user">
+                <constraints foreignKeyName="fk_tests_session" references="sessions(id)"/>
+            </column>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="tests" columnName="session"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="010.tag" author="Dominik Rzepka">
+        <tagDatabase tag="010"/>
+    </changeSet>
+</databaseChangeLog>

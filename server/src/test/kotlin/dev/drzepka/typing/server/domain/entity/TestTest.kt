@@ -1,6 +1,7 @@
 package dev.drzepka.typing.server.domain.entity
 
 import dev.drzepka.typing.server.domain.value.TestState
+import dev.drzepka.typing.server.domain.value.UserIdentity
 import dev.drzepka.typing.server.domain.value.WordSelection
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
@@ -14,11 +15,13 @@ class TestTest {
         val testDefinition = TestDefinition().apply {
             wordList = WordList()
         }
-        val test = object : dev.drzepka.typing.server.domain.entity.Test(testDefinition, User(), WordSelection()) {
-            override fun now(): Instant {
-                return instant
+
+        val test =
+            object : dev.drzepka.typing.server.domain.entity.Test(testDefinition, getUserIdentity(), WordSelection()) {
+                override fun now(): Instant {
+                    return instant
+                }
             }
-        }
 
         // CREATED
         then(test.state).isEqualTo(TestState.CREATED)
@@ -71,7 +74,7 @@ class TestTest {
         val definition = TestDefinition().apply {
             duration = Duration.ofMinutes(2)
         }
-        val test = Test(definition, User(), WordSelection())
+        val test = Test(definition, getUserIdentity(), WordSelection())
 
         then(test.duration).isEqualTo(Duration.ofMinutes(2))
     }
@@ -83,7 +86,7 @@ class TestTest {
             duration = null
         }
 
-        val test = Test(testDefinition, User(), WordSelection()).apply {
+        val test = Test(testDefinition, getUserIdentity(), WordSelection()).apply {
             val now = Instant.now()
             startedAt = now
             finishedAt = now.plusSeconds(72)
@@ -91,6 +94,8 @@ class TestTest {
 
         then(test.duration).isEqualTo(Duration.ofSeconds(72))
     }
+
+    private fun getUserIdentity(): UserIdentity = UserIdentity(User(), 1)
 
     private fun getTime(h: Int, m: Int, s: Int): Instant {
         return LocalDate.now()

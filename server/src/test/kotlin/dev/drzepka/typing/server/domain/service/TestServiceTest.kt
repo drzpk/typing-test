@@ -6,6 +6,7 @@ import dev.drzepka.typing.server.domain.entity.Word
 import dev.drzepka.typing.server.domain.entity.WordList
 import dev.drzepka.typing.server.domain.repository.ConfigurationRepository
 import dev.drzepka.typing.server.domain.repository.WordRepository
+import dev.drzepka.typing.server.domain.value.UserIdentity
 import dev.drzepka.typing.server.domain.value.WordSelection
 import org.assertj.core.api.Assertions.within
 import org.assertj.core.api.BDDAssertions.then
@@ -32,8 +33,11 @@ class TestServiceTest {
         whenever(wordRepository.findAll(any(), eq(true))).thenReturn(generateWordList())
 
         val definition = getTestDefinition()
-        val test = getService().createTest(definition, getUser())
+        val userIdentity = getUserIdentity()
+        val test = getService().createTest(definition, userIdentity)
 
+        then(test.testDefinition).isSameAs(definition)
+        then(test.takenBy).isSameAs(userIdentity)
         then(test.startTimeLimit).isEqualTo(startTimeLimit)
         then(test.finishTimeLimit).isEqualTo(finishTimeLimit + definition.duration!!)
     }
@@ -47,7 +51,7 @@ class TestServiceTest {
         val wordList = WordList()
         wordList.fixedTextType(selection)
 
-        val test = getService().createTest(getTestDefinition(null, wordList), getUser())
+        val test = getService().createTest(getTestDefinition(null, wordList), getUserIdentity())
 
         then(test.finishTimeLimit).isEqualTo(Duration.ofSeconds(156))
         verify(configurationRepository, times(0)).testFinishTimeLimit()
@@ -59,7 +63,7 @@ class TestServiceTest {
         whenever(configurationRepository.testStartTimeLimit()).thenReturn(Duration.ofMinutes(5))
         whenever(configurationRepository.maxWPM()).thenReturn(10_000) // For better statistical distribution
 
-        val test = getService().createTest(getTestDefinition(), getUser())
+        val test = getService().createTest(getTestDefinition(), getUserIdentity())
         then(test.startTimeLimit).isEqualTo(Duration.ofMinutes(5))
 
         val selection = test.selectedWords
@@ -79,7 +83,7 @@ class TestServiceTest {
         whenever(wordRepository.findAll(any(), any())).thenReturn(emptySequence())
 
         val service = getService()
-        val test = service.createTest(getTestDefinition(), getUser())
+        val test = service.createTest(getTestDefinition(), getUserIdentity())
 
         val originalSelection = test.selectedWords
         val regenerated = service.regenerateWordList(test)
@@ -97,7 +101,7 @@ class TestServiceTest {
             wordList.fixedTextType(selection)
         }
 
-        val test = service.createTest(testDefinition, getUser())
+        val test = service.createTest(testDefinition, getUserIdentity())
         val regenerated = service.regenerateWordList(test)
 
         then(test.selectedWords).isEqualTo(selection)
@@ -116,8 +120,11 @@ class TestServiceTest {
             this.duration = duration
         }
 
-    private fun getUser(): User = User().apply {
-        id = 200
+    private fun getUserIdentity(): UserIdentity {
+        val user = User().apply {
+            id = 200
+        }
+        return UserIdentity(user, 1)
     }
 
     private fun generateWordList(): Sequence<Word> {

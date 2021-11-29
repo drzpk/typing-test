@@ -2,12 +2,12 @@ package dev.drzepka.typing.server.domain.service
 
 import dev.drzepka.typing.server.domain.entity.Test
 import dev.drzepka.typing.server.domain.entity.TestDefinition
-import dev.drzepka.typing.server.domain.entity.User
 import dev.drzepka.typing.server.domain.entity.Word
 import dev.drzepka.typing.server.domain.repository.ConfigurationRepository
 import dev.drzepka.typing.server.domain.repository.WordRepository
 import dev.drzepka.typing.server.domain.util.Logger
 import dev.drzepka.typing.server.domain.util.Mockable
+import dev.drzepka.typing.server.domain.value.UserIdentity
 import dev.drzepka.typing.server.domain.value.WordSelection
 import java.time.Duration
 import java.util.*
@@ -30,12 +30,12 @@ class TestService(
     /**
      * Creates a new instance of given test definition.
      * @param definition test definition from which to create the test instance
-     * @param user user that is taking the test
+     * @param creator [UserIdentity] that is taking the test
      */
-    fun createTest(definition: TestDefinition, user: User): Test {
+    fun createTest(definition: TestDefinition, creator: UserIdentity): Test {
         log.info("Creating test from definition {}", definition.id)
         val wordSelection = getWordSelection(definition)
-        val test = Test(definition, user, wordSelection)
+        val test = Test(definition, creator, wordSelection)
         test.startTimeLimit = configurationRepository.testStartTimeLimit()
         test.finishTimeLimit = getFinishTimeLimit(definition)
 

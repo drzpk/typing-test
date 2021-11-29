@@ -33,11 +33,11 @@ class UserSessionService(private val sessionRepository: SessionRepository, priva
 
     fun updateLastSeen(appSession: TypingTestSession) {
         val lastSeen = Instant.now()
-        log.debug("Updating last seen for session {} (user {}) to {}", appSession.sessionId, appSession.userId, lastSeen)
+        log.debug("Updating last seen for session {} (user {}) to {}", appSession.userSessionId, appSession.userId, lastSeen)
 
         // Update the last seen marker even if there's an error somewhere else that would cause a rollback
         transactionService.transaction {
-            sessionRepository.updateLastSeen(appSession.sessionId, lastSeen)
+            sessionRepository.updateLastSeen(appSession.userSessionId, lastSeen)
         }
     }
 }

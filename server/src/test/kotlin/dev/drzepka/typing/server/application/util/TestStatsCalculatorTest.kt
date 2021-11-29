@@ -4,6 +4,7 @@ import dev.drzepka.typing.server.domain.entity.TestDefinition
 import dev.drzepka.typing.server.domain.entity.TestResult
 import dev.drzepka.typing.server.domain.entity.User
 import dev.drzepka.typing.server.domain.entity.WordList
+import dev.drzepka.typing.server.domain.value.UserIdentity
 import dev.drzepka.typing.server.domain.value.WordSelection
 import org.assertj.core.api.BDDAssertions.then
 import org.assertj.core.data.Offset
@@ -52,10 +53,12 @@ class TestStatsCalculatorTest {
     }
 
     private fun createResult(time: LocalTime, wpm: Float, accuracy: Float): TestResult {
-        val test = dev.drzepka.typing.server.domain.entity.Test(createTestDefinition(), User(), WordSelection()).apply {
-            id = 123
-            startedAt = toInstant(time)
-        }
+        val identity = UserIdentity(User(), 1)
+        val test =
+            dev.drzepka.typing.server.domain.entity.Test(createTestDefinition(), identity, WordSelection()).apply {
+                id = 123
+                startedAt = toInstant(time)
+            }
 
         val result = TestResult()
         result.test = test

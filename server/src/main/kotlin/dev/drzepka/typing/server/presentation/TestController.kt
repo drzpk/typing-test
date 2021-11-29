@@ -6,7 +6,7 @@ import dev.drzepka.typing.server.application.service.TestManagerService
 import dev.drzepka.typing.server.application.service.UserSessionService
 import dev.drzepka.typing.server.application.util.getRequiredIntParam
 import dev.drzepka.typing.server.domain.repository.UserRepository
-import dev.drzepka.typing.server.domain.util.getCurrentUser
+import dev.drzepka.typing.server.domain.util.getCurrentIdentity
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -26,8 +26,8 @@ fun Route.testController() {
 
             val test = transaction {
                 userSessionService.updateLastSeen(call)
-                val user = getCurrentUser(userRepository)
-                testManagerService.createTest(request, user)
+                val identity = getCurrentIdentity(userRepository)
+                testManagerService.createTest(request, identity)
             }
 
             call.respond(HttpStatusCode.Created, test)
@@ -37,8 +37,8 @@ fun Route.testController() {
             val testId = getRequiredIntParam("testId")
 
             val resource = transaction {
-                val user = getCurrentUser(userRepository)
-                testManagerService.getTest(testId, user)
+                val identity = getCurrentIdentity(userRepository)
+                testManagerService.getTest(testId, identity)
             }
 
             call.respond(resource)
@@ -48,8 +48,8 @@ fun Route.testController() {
             val testId = getRequiredIntParam("testId")
             transaction {
                 userSessionService.updateLastSeen(call)
-                val user = getCurrentUser(userRepository)
-                testManagerService.deleteTest(testId, user)
+                val identity = getCurrentIdentity(userRepository)
+                testManagerService.deleteTest(testId, identity)
             }
 
             call.respond(HttpStatusCode.NoContent)
@@ -60,8 +60,8 @@ fun Route.testController() {
 
             val resource = transaction {
                 userSessionService.updateLastSeen(call)
-                val user = getCurrentUser(userRepository)
-                testManagerService.regenerateWordList(testId, user)
+                val identity = getCurrentIdentity(userRepository)
+                testManagerService.regenerateWordList(testId, identity)
             }
 
             call.respond(resource)
@@ -70,8 +70,9 @@ fun Route.testController() {
         post("/{testId}/start") {
             val testId = getRequiredIntParam("testId")
             val resource = transaction {
-                val user = getCurrentUser(userRepository)
-                testManagerService.startTest(testId, user)
+                val identity = getCurrentIdentity(userRepository)
+
+                testManagerService.startTest(testId, identity)
             }
 
             call.respond(resource)
@@ -82,8 +83,8 @@ fun Route.testController() {
             val request = call.receive<FinishTestRequest>()
 
             val resource = transaction {
-                val user = getCurrentUser(userRepository)
-                testManagerService.finishTest(testId, request, user)
+                val identity = getCurrentIdentity(userRepository)
+                testManagerService.finishTest(testId, request, identity)
             }
 
             call.respond(resource)

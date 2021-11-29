@@ -1,6 +1,7 @@
 package dev.drzepka.typing.server.domain.entity
 
 import dev.drzepka.typing.server.domain.TestConstants
+import dev.drzepka.typing.server.domain.value.UserIdentity
 import dev.drzepka.typing.server.domain.value.WordSelection
 import org.assertj.core.api.BDDAssertions.then
 import org.assertj.core.data.Offset
@@ -93,7 +94,9 @@ class TestResultTest {
             this.duration = duration
             this.wordList = WordList()
         }
-        val test = Test(definition, User(), selectedWords)
+
+        val userIdentity = UserIdentity(User(), 1)
+        val test = Test(definition, userIdentity, selectedWords)
         test.startedAt = Instant.now()
         test.finishedAt = Instant.now().plus(duration)
         test.backspaceCount = 0

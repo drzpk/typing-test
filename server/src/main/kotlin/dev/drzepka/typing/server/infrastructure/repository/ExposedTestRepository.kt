@@ -6,10 +6,13 @@ import dev.drzepka.typing.server.domain.entity.Test
 import dev.drzepka.typing.server.domain.repository.TestDefinitionRepository
 import dev.drzepka.typing.server.domain.repository.TestRepository
 import dev.drzepka.typing.server.domain.repository.UserRepository
+import dev.drzepka.typing.server.domain.value.UserIdentity
 import dev.drzepka.typing.server.domain.value.WordSelection
+import dev.drzepka.typing.server.infrastructure.exception.DataIntegrityException
 import dev.drzepka.typing.server.infrastructure.repository.table.Tests
 import dev.drzepka.typing.server.infrastructure.util.countAllRows
 import dev.drzepka.typing.server.infrastructure.util.paged
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob
@@ -22,6 +25,11 @@ class ExposedTestRepository(
 ) : TestRepository {
 
     override fun save(test: Test) {
+        if (test.takenBy.sessionId == null) {
+            // SessionId is nullable only for backward compatibility and mustn't be used in new records
+            throw DataIntegrityException("Cannot save test with null sessionId")
+        }
+
         if (test.isStored()) {
             Tests.update({ Tests.id eq test.id }) {
                 testToRow(test, it)
@@ -50,8 +58,8 @@ class ExposedTestRepository(
         return Page(list, pagination, totalElements)
     }
 
-    override fun findNotStartedByUserIdAndTestDefinitionId(userId: Int, testDefinitionId: Int): Collection<Test> {
-        return Tests.select { (Tests.user eq userId) and (Tests.testDefinition eq testDefinitionId) and Tests.startedAt.isNull() }
+    override fun findNotStartedBySessionIdAndTestDefinitionId(sessionId: Int, testDefinitionId: Int): Collection<Test> {
+        return Tests.select { (Tests.session eq sessionId) and (Tests.testDefinition eq testDefinitionId) and Tests.startedAt.isNull() }
             .map { rowToTest(it) }
     }
 
@@ -66,8 +74,15 @@ class ExposedTestRepository(
 
     private fun testToRow(test: Test, stmt: UpdateBuilder<Int>) {
         stmt[Tests.testDefinition] = test.testDefinition.id!!
-        stmt[Tests.user] = test.takenBy.id!!
+        stmt[Tests.user] = test.takenBy.user.id
         stmt[Tests.state] = test.state
+
+        // A workaround for saving nullable foreign key
+        stmt[Tests.session] = object : Expression<EntityID<Int>>() {
+            override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+                queryBuilder.append(test.takenBy.sessionId?.toString() ?: "null")
+            }
+        }
 
         stmt[Tests.createdAt] = test.createdAt
         stmt[Tests.startedAt] = test.startedAt
@@ -92,7 +107,8 @@ class ExposedTestRepository(
             selection
         }
 
-        return Test(definition, user, selectedWords).apply {
+        val identity = UserIdentity(user, row[Tests.session]?.value ?: 0)
+        return Test(definition, identity, selectedWords).apply {
             id = row[Tests.id].value
 
             createdAt = row[Tests.createdAt]
