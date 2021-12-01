@@ -10,9 +10,9 @@ import dev.drzepka.typing.server.domain.value.UserIdentity
 import dev.drzepka.typing.server.domain.value.WordSelection
 import dev.drzepka.typing.server.infrastructure.exception.DataIntegrityException
 import dev.drzepka.typing.server.infrastructure.repository.table.Tests
+import dev.drzepka.typing.server.infrastructure.util.NullableForeignKeyWrapper
 import dev.drzepka.typing.server.infrastructure.util.countAllRows
 import dev.drzepka.typing.server.infrastructure.util.paged
-import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob
@@ -74,15 +74,9 @@ class ExposedTestRepository(
 
     private fun testToRow(test: Test, stmt: UpdateBuilder<Int>) {
         stmt[Tests.testDefinition] = test.testDefinition.id!!
-        stmt[Tests.user] = test.takenBy.user.id
+        stmt[Tests.user] = test.takenBy.user?.id
+        stmt[Tests.session] = NullableForeignKeyWrapper(test.takenBy.sessionId)
         stmt[Tests.state] = test.state
-
-        // A workaround for saving nullable foreign key
-        stmt[Tests.session] = object : Expression<EntityID<Int>>() {
-            override fun toQueryBuilder(queryBuilder: QueryBuilder) {
-                queryBuilder.append(test.takenBy.sessionId?.toString() ?: "null")
-            }
-        }
 
         stmt[Tests.createdAt] = test.createdAt
         stmt[Tests.startedAt] = test.startedAt

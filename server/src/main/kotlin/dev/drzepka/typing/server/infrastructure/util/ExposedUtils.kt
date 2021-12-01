@@ -3,6 +3,7 @@ package dev.drzepka.typing.server.infrastructure.util
 import dev.drzepka.typing.server.domain.PagedQuery
 import dev.drzepka.typing.server.domain.SearchQuery
 import dev.drzepka.typing.server.domain.SortingQuery
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.*
 
@@ -46,4 +47,13 @@ fun Query.filtered(column: Column<String>, searchQuery: SearchQuery): Query {
         this.andWhere { column like "%${searchQuery.phrase}%" }
 
     return this
+}
+
+/**
+ * A workaround for saving nullable foreign key
+ */
+class NullableForeignKeyWrapper<T : Comparable<T>>(private val value: T?) : Expression<EntityID<T>>() {
+    override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+        queryBuilder.append(value?.toString() ?: "null")
+    }
 }
