@@ -39,7 +39,7 @@ export default new Vuex.Store<RootState>({
     },
     getters: {
         isLoggedIn(state): boolean {
-            return state.authenticationDetails != null;
+            return state.authenticationDetails != null && !state.authenticationDetails.isAnonymous;
         }
     },
     mutations: {

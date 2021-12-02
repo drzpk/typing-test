@@ -74,7 +74,7 @@ class ExposedTestRepository(
 
     private fun testToRow(test: Test, stmt: UpdateBuilder<Int>) {
         stmt[Tests.testDefinition] = test.testDefinition.id!!
-        stmt[Tests.user] = test.takenBy.user?.id
+        stmt[Tests.user] = NullableForeignKeyWrapper(test.takenBy.user?.id)
         stmt[Tests.session] = NullableForeignKeyWrapper(test.takenBy.sessionId)
         stmt[Tests.state] = test.state
 
@@ -94,7 +94,7 @@ class ExposedTestRepository(
 
     private fun rowToTest(row: ResultRow): Test {
         val definition = testDefinitionRepository.findById(row[Tests.testDefinition].value)!!
-        val user = userRepository.findById(row[Tests.user].value)!!
+        val user = row[Tests.user]?.value?.let { userRepository.findById(it) }
         val selectedWords = row[Tests.selectedWords].bytes.let {
             val selection = WordSelection()
             selection.deserialize(String(it, StandardCharsets.UTF_8))

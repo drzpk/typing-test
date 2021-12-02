@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="011.nullable_test_user" author="Dominik Rzepka">
+        <dropNotNullConstraint tableName="tests" columnName="user" columnDataType="int"/>
+        <dropNotNullConstraint tableName="sessions" columnName="user_id" columnDataType="int"/>
+
+        <rollback>
+            <addNotNullConstraint tableName="tests" columnName="user" columnDataType="int"/>
+            <addNotNullConstraint tableName="sessions" columnName="user_id" columnDataType="int"/>
+            <delete tableName="tests">
+                <where>user is not NULL</where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="011.tag" author="Dominik Rzepka">
+        <tagDatabase tag="011"/>
+    </changeSet>
+</databaseChangeLog>

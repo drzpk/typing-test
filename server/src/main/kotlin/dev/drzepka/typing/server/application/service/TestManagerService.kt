@@ -144,7 +144,7 @@ class TestManagerService(
 
     private fun findTestToReuse(request: CreateTestRequest, identity: UserIdentity): Test? {
         if (identity.sessionId == null) {
-            log.warn("Cannot find test to reuse, session id is null for user {}", identity.user.id)
+            log.warn("Cannot find test to reuse, session id is null for user {}", identity.user?.id)
             return null
         }
 
@@ -154,8 +154,16 @@ class TestManagerService(
     }
 
     private fun checkPermissionsToTest(identity: UserIdentity, test: Test) {
-        if (test.takenBy.user.id != identity.user.id && !identity.user.isAdmin())
-            throw SecurityException("User {} doesn't have permissions to test {}".format(identity, test.id))
+        if (test.takenBy.user != null) {
+            if (test.takenBy.user!!.id != identity.user?.id && identity.user?.isAdmin() != true)
+                throw SecurityException("User %s doesn't have permissions to test %d".format(identity.user?.id, test.id))
+        } else {
+            if (test.takenBy.sessionId != identity.sessionId && identity.user?.isAdmin() != true)
+                throw SecurityException(
+                    "Anonymous user with session %s doesn't have permissions to test %d"
+                        .format(identity.sessionId, test.id)
+                )
+        }
     }
 
     private fun reuseExistingTest(test: Test) {

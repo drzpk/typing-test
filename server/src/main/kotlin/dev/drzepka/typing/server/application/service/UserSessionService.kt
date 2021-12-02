@@ -6,17 +6,19 @@ import dev.drzepka.typing.server.domain.entity.Session
 import dev.drzepka.typing.server.domain.entity.User
 import dev.drzepka.typing.server.domain.repository.SessionRepository
 import dev.drzepka.typing.server.domain.util.Logger
+import dev.drzepka.typing.server.domain.util.Mockable
 import dev.drzepka.typing.server.infrastructure.service.TransactionService
 import io.ktor.application.*
 import io.ktor.sessions.*
 import java.time.Instant
 
+@Mockable
 class UserSessionService(private val sessionRepository: SessionRepository, private val transactionService: TransactionService) {
 
     private val log by Logger()
 
-    fun createUserSession(user: User, call: ApplicationCall): Session {
-        val session = Session(user.id!!).apply {
+    fun createUserSession(user: User?, call: ApplicationCall): Session {
+        val session = Session(user?.id).apply {
             ipAddress = HttpUtils.getRemoteIp(call)
             userAgent = HttpUtils.getUserAgent(call)
         }

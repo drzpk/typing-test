@@ -5,6 +5,7 @@ import dev.drzepka.typing.server.application.dto.test.FinishTestRequest
 import dev.drzepka.typing.server.application.dto.test.TestResource
 import dev.drzepka.typing.server.application.exception.ErrorCode
 import dev.drzepka.typing.server.application.exception.ErrorCodeException
+import dev.drzepka.typing.server.application.exception.SecurityException
 import dev.drzepka.typing.server.domain.entity.TestDefinition
 import dev.drzepka.typing.server.domain.entity.User
 import dev.drzepka.typing.server.domain.entity.WordList
@@ -15,7 +16,7 @@ import dev.drzepka.typing.server.domain.service.TestService
 import dev.drzepka.typing.server.domain.value.TestState
 import dev.drzepka.typing.server.domain.value.UserIdentity
 import dev.drzepka.typing.server.domain.value.WordSelection
-import org.assertj.core.api.BDDAssertions.catchThrowable
+import org.assertj.core.api.BDDAssertions.*
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -74,6 +75,67 @@ class TestManagerServiceTest {
     }
 
     @Test
+    fun `should deny permissions to test if user is different`() {
+        val testIdentity = getUserIdentity(100)
+        val requestIdentity = getUserIdentity(200)
+
+        val definition = getTestDefinition(11)
+        val test = dev.drzepka.typing.server.domain.entity.Test(definition, testIdentity, WordSelection()).apply {
+            id = 22
+        }
+
+        whenever(testRepository.findById(eq(test.id!!))).thenReturn(test)
+
+        assertThatExceptionOfType(SecurityException::class.java)
+            .isThrownBy {
+                getService().getTest(test.id!!, requestIdentity)
+            }
+            .withMessage("User 200 doesn't have permissions to test ${test.id}")
+    }
+
+    @Test
+    fun `should deny permissions to test if user is null and session id is null`() {
+        val testIdentity = getUserIdentity(null, 10)
+        val requestIdentity = getUserIdentity(null, 20)
+
+        val definition = getTestDefinition(11)
+        val test = dev.drzepka.typing.server.domain.entity.Test(definition, testIdentity, WordSelection()).apply {
+            id = 22
+        }
+
+        whenever(testRepository.findById(eq(test.id!!))).thenReturn(test)
+
+        assertThatExceptionOfType(SecurityException::class.java)
+            .isThrownBy {
+                getService().getTest(test.id!!, requestIdentity)
+            }
+            .withMessage("Anonymous user with session ${requestIdentity.sessionId} doesn't have permissions to test ${test.id}")
+    }
+
+    @Test
+    fun `should permit admin to all tests`() {
+        val registeredUserTest =
+            dev.drzepka.typing.server.domain.entity.Test(getTestDefinition(14), getUserIdentity(), WordSelection())
+                .apply { id = 100 }
+        val anonymousUserTest =
+            dev.drzepka.typing.server.domain.entity.Test(getTestDefinition(15), getUserIdentity(null), WordSelection())
+                .apply { id = 200 }
+
+        whenever(testRepository.findById(eq(registeredUserTest.id!!))).thenReturn(registeredUserTest)
+        whenever(testRepository.findById(eq(anonymousUserTest.id!!))).thenReturn(anonymousUserTest)
+
+        val adminIdentity = getUserIdentity()
+        adminIdentity.user?.email = "admin@drzepka.dev"
+
+        assertThatCode {
+            with(getService()) {
+                getTest(registeredUserTest.id!!, adminIdentity)
+                getTest(anonymousUserTest.id!!, adminIdentity)
+            }
+        }
+    }
+
+    @Test
     fun `should delete test`() {
         val identity = getUserIdentity()
 
@@ -120,9 +182,10 @@ class TestManagerServiceTest {
     fun `should forbid from starting test in wrong state`() {
         val identity = getUserIdentity()
 
-        val test = dev.drzepka.typing.server.domain.entity.Test(getTestDefinition(300), identity, WordSelection()).apply {
-            startedAt = Instant.now()
-        }
+        val test =
+            dev.drzepka.typing.server.domain.entity.Test(getTestDefinition(300), identity, WordSelection()).apply {
+                startedAt = Instant.now()
+            }
         whenever(testRepository.findById(12)).thenReturn(test)
 
         val throwable = catchThrowable { getService().startTest(12, identity) }
@@ -156,10 +219,11 @@ class TestManagerServiceTest {
     @Test
     fun `should forbid from finishing test in wrong state`() {
         val identity = getUserIdentity()
-        val test = dev.drzepka.typing.server.domain.entity.Test(getTestDefinition(300), identity, WordSelection()).apply {
-            startedAt = Instant.now()
-            finishedAt = Instant.now().plusSeconds(60)
-        }
+        val test =
+            dev.drzepka.typing.server.domain.entity.Test(getTestDefinition(300), identity, WordSelection()).apply {
+                startedAt = Instant.now()
+                finishedAt = Instant.now().plusSeconds(60)
+            }
         whenever(testRepository.findById(12)).thenReturn(test)
 
         val throwable = catchThrowable { getService().finishTest(12, FinishTestRequest(), identity) }
@@ -174,9 +238,9 @@ class TestManagerServiceTest {
         val identity = getUserIdentity()
 
         val originalSelection = WordSelection()
-        val test = dev.drzepka.typing.server.domain.entity.Test(getTestDefinition(9), identity, originalSelection).apply {
-            id = 11
-        }
+        val test =
+            dev.drzepka.typing.server.domain.entity.Test(getTestDefinition(9), identity, originalSelection)
+                .apply { id = 11 }
         whenever(testRepository.findById(11)).thenReturn(test)
         whenever(testService.regenerateWordList(any())).thenReturn(true)
 
@@ -189,9 +253,8 @@ class TestManagerServiceTest {
     fun `should forbid from regenerating word list from test in non-CREATED state`() {
         val identity = getUserIdentity()
 
-        val test = dev.drzepka.typing.server.domain.entity.Test(getTestDefinition(3), identity, WordSelection()).apply {
-            startedAt = Instant.now()
-        }
+        val test = dev.drzepka.typing.server.domain.entity.Test(getTestDefinition(3), identity, WordSelection())
+            .apply { startedAt = Instant.now() }
         whenever(testRepository.findById(99)).thenReturn(test)
 
         val caught = catchThrowable { getService().regenerateWordList(99, identity) }
@@ -208,12 +271,15 @@ class TestManagerServiceTest {
         }
     }
 
-    private fun getUserIdentity(): UserIdentity {
-        val user = User().apply {
-            id = Random.nextInt(100)
-            email = "admin@example.com"
-        }
-        return UserIdentity(user, Random.nextInt(100))
+    private fun getUserIdentity(id: Int? = Random.nextInt(100), sessionId: Int = Random.nextInt(100)): UserIdentity {
+        val user = if (id != null) {
+            User().apply {
+                this.id = id
+                email = "normaluser@email.com"
+            }
+        } else null
+
+        return UserIdentity(user, sessionId)
     }
 
     private fun getService(): TestManagerService =

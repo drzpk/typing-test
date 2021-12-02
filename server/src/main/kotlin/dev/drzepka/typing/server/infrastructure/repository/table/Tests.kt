@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.`java-time`.timestamp
 
 object Tests : IntIdTable("tests") {
     var testDefinition = reference("test_definition", TestDefinitions)
-    var user = reference("user", Users)
+    var user = optReference("user", Users)
     var session = optReference("session", Sessions)
     var state = enumerationByName("state", 32, TestState::class)
 

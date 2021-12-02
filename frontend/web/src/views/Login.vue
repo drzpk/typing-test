@@ -5,7 +5,7 @@
             <b-row>
                 <b-col cols="10" md="4" offset="1" offset-md="4">
                     <b-form id="login-form" @submit="loginUser">
-                        <h4>Login to the application</h4>
+                        <h4>Sign in to the application</h4>
                         <br>
 
                         <b-form-group label-cols="2" label="E-mail">
@@ -30,10 +30,10 @@
 </template>
 
 <script lang="ts">
-    import {Component, Vue} from "vue-property-decorator";
-    import router from "@/router";
+import {Component, Vue} from "vue-property-decorator";
+import router from "@/router";
 
-    @Component
+@Component
     export default class Login extends Vue {
         email = "";
         password = "";

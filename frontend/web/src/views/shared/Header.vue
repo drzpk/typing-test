@@ -6,24 +6,30 @@
             </div>
         </div>
 
-        <div id="user-panel" v-show="isLoggedIn">
+        <div class="user-panel" v-show="isLoggedIn">
             <div class="button" @click="openUserPanel">
                 <font-awesome-icon icon="user"/>
                 User panel
             </div>
             <div class="button" @click="logout">
                 <font-awesome-icon icon="sign-out-alt"/>
-                Log out
+                Sign out
+            </div>
+        </div>
+        <div class="user-panel" v-show="!isLoggedIn && showLoginButton">
+            <div class="button" @click="login">
+                <font-awesome-icon icon="sign-in-alt"/>
+                Sign in
             </div>
         </div>
     </header>
 </template>
 
 <script lang="ts">
-    import {Component, Vue} from "vue-property-decorator";
-    import {mapGetters} from "vuex";
+import {Component, Vue} from "vue-property-decorator";
+import {mapGetters} from "vuex";
 
-    @Component({
+@Component({
         computed: {
             ...mapGetters(["isLoggedIn"])
         }
@@ -31,13 +37,20 @@
     export default class Header extends Vue {
         isLoggedIn!: boolean;
 
+        get showLoginButton(): boolean {
+            return this.$route.path != "/login"
+        }
+
         goToMainPage(): void {
-            if (this.isLoggedIn)
-                this.$router.push("/test");
+            this.$router.push("/test");
         }
 
         openUserPanel(): void {
             this.$router.push("/settings");
+        }
+
+        login(): void {
+            this.$router.push("/login");
         }
 
         logout(): void {
@@ -79,7 +92,7 @@
         }
     }
 
-    #user-panel {
+    .user-panel {
         height: 100%;
         margin-right: 1em;
         display: flex;

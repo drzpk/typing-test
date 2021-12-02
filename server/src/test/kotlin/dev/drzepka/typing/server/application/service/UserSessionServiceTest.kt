@@ -45,6 +45,15 @@ internal class UserSessionServiceTest {
         verify(sessionRepository).save(same(session))
     }
 
+    @Test
+    fun `should create anonymous user session`() = withTestApplication {
+        val call = TestApplicationCall(application, coroutineContext = context)
+
+        val session = getService().createUserSession(null, call)
+
+        then(session.userId).isNull()
+    }
+
     @Suppress("UNCHECKED_CAST")
     @Test
     fun `should update last seen`() {

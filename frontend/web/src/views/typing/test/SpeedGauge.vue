@@ -103,7 +103,7 @@ $border-radius: 0.6em;
 #container {
     display: flex;
     justify-content: center;
-    margin-top: 1em + $text-offset;
+    margin: 1em + $text-offset 0;
 
     #gauge {
         position: relative;

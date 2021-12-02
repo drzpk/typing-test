@@ -5,6 +5,7 @@ export interface AuthenticationDetails {
     email: string;
     displayName: string;
     isAdmin: boolean;
+    isAnonymous: boolean;
 }
 
 export interface UpdateSettingsRequest {

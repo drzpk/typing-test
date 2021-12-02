@@ -4,9 +4,9 @@ import dev.drzepka.typing.server.application.dto.test.CreateTestRequest
 import dev.drzepka.typing.server.application.dto.test.FinishTestRequest
 import dev.drzepka.typing.server.application.service.TestManagerService
 import dev.drzepka.typing.server.application.service.UserSessionService
+import dev.drzepka.typing.server.application.util.getCurrentIdentity
 import dev.drzepka.typing.server.application.util.getRequiredIntParam
 import dev.drzepka.typing.server.domain.repository.UserRepository
-import dev.drzepka.typing.server.domain.util.getCurrentIdentity
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*

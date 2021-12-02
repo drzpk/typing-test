@@ -3,6 +3,7 @@ package dev.drzepka.typing.server.infrastructure.repository
 import dev.drzepka.typing.server.domain.entity.Session
 import dev.drzepka.typing.server.domain.repository.SessionRepository
 import dev.drzepka.typing.server.infrastructure.repository.table.Sessions
+import dev.drzepka.typing.server.infrastructure.util.NullableForeignKeyWrapper
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.update
@@ -29,7 +30,7 @@ class ExposedSessionRepository : SessionRepository {
     }
 
     private fun sessionToRow(session: Session, stmt: UpdateBuilder<Int>) {
-        stmt[Sessions.userId] = session.userId
+        stmt[Sessions.userId] = NullableForeignKeyWrapper(session.userId)
         stmt[Sessions.createdAt] = session.createdAt
         stmt[Sessions.lastSeen] = session.lastSeen
         stmt[Sessions.ipAddress] = session.ipAddress

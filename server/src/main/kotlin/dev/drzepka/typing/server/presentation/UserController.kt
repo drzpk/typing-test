@@ -7,9 +7,10 @@ import dev.drzepka.typing.server.application.dto.user.UserAuthenticationDetailsD
 import dev.drzepka.typing.server.application.security.adminInterceptor
 import dev.drzepka.typing.server.application.service.UserService
 import dev.drzepka.typing.server.application.service.UserSessionService
+import dev.drzepka.typing.server.application.util.getCurrentRegisteredUser
+import dev.drzepka.typing.server.application.util.getCurrentUser
 import dev.drzepka.typing.server.application.util.getRequiredIntParam
 import dev.drzepka.typing.server.domain.repository.UserRepository
-import dev.drzepka.typing.server.domain.util.getCurrentUser
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -38,7 +39,7 @@ fun Route.userController() {
             transaction {
                 userSessionService.updateLastSeen(call)
 
-                val user = getCurrentUser(userRepository)
+                val user = getCurrentRegisteredUser(userRepository)
                 userService.updateSettings(user, request)
             }
 
@@ -51,7 +52,7 @@ fun Route.userController() {
             transaction {
                 userSessionService.updateLastSeen(call)
 
-                val user = getCurrentUser(userRepository)
+                val user = getCurrentRegisteredUser(userRepository)
                 userService.changePassword(user, request)
             }
 
@@ -62,7 +63,7 @@ fun Route.userController() {
             transaction {
                 userSessionService.updateLastSeen(call)
 
-                val user = getCurrentUser(userRepository)
+                val user = getCurrentRegisteredUser(userRepository)
                 userService.deleteUser(user.id!!)
             }
 

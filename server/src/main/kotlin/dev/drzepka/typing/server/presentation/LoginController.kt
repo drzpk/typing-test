@@ -6,6 +6,7 @@ import dev.drzepka.typing.server.application.dto.user.CreateUserRequest
 import dev.drzepka.typing.server.application.dto.user.UserAuthenticationDetailsDTO
 import dev.drzepka.typing.server.application.service.ApplicationSessionService
 import dev.drzepka.typing.server.application.service.UserService
+import dev.drzepka.typing.server.application.util.clearUserSession
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -41,7 +42,7 @@ fun Route.loginController() {
     post("logout") {
         val session = call.sessions.get<TypingTestSession>()
         if (session != null) {
-            call.sessions.clear<TypingTestSession>()
+            clearUserSession()
             call.respond(HttpStatusCode.NoContent)
         } else {
             call.respond(HttpStatusCode.BadRequest, "no session found")
