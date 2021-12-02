@@ -5,6 +5,7 @@ import dev.drzepka.typing.server.application.dto.LoginDataDTO
 import dev.drzepka.typing.server.application.dto.user.CreateUserRequest
 import dev.drzepka.typing.server.application.dto.user.UserAuthenticationDetailsDTO
 import dev.drzepka.typing.server.application.service.ApplicationSessionService
+import dev.drzepka.typing.server.application.service.TestManagerService
 import dev.drzepka.typing.server.application.service.UserService
 import dev.drzepka.typing.server.application.util.clearUserSession
 import io.ktor.application.*
@@ -19,6 +20,7 @@ import org.koin.ktor.ext.get
 fun Route.loginController() {
     val userService = get<UserService>()
     val applicationSessionService = get<ApplicationSessionService>()
+    val testService = get<TestManagerService>()
 
     post("register") {
         val request = call.receive<CreateUserRequest>()
@@ -32,8 +34,12 @@ fun Route.loginController() {
         val loginData = call.receive<LoginDataDTO>()
         val dto = transaction {
             val user = userService.findUser(loginData.email, loginData.password) ?: error("user not found")
+
             val session = applicationSessionService.createApplicationSession(user, call)
+            val oldSession = call.sessions.get<TypingTestSession>()!!
             call.sessions.set(session)
+
+            testService.assignAnonymousTestsInSessionToUser(oldSession.userSessionId, user)
             UserAuthenticationDetailsDTO.fromUserEntity(user)
         }
         call.respond(dto)

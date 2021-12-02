@@ -7,6 +7,7 @@ import dev.drzepka.typing.server.application.exception.ErrorCode
 import dev.drzepka.typing.server.application.exception.SecurityException
 import dev.drzepka.typing.server.domain.entity.Test
 import dev.drzepka.typing.server.domain.entity.TestResult
+import dev.drzepka.typing.server.domain.entity.User
 import dev.drzepka.typing.server.domain.repository.TestDefinitionRepository
 import dev.drzepka.typing.server.domain.repository.TestRepository
 import dev.drzepka.typing.server.domain.repository.TestResultRepository
@@ -140,6 +141,14 @@ class TestManagerService(
             testRepository.save(test)
 
         return TestResource.fromEntity(test)
+    }
+
+    /**
+     * Assigns tests created by an anonymous users at given session to registered user.
+     */
+    fun assignAnonymousTestsInSessionToUser(userSessionId: Int, user: User) {
+        val assigned = testRepository.assignAnonymousTestsToUser(userSessionId, user.id!!)
+        log.info("Assigned {} tests from session {} to user {}: {}", assigned.size, userSessionId, user.id, assigned)
     }
 
     private fun findTestToReuse(request: CreateTestRequest, identity: UserIdentity): Test? {

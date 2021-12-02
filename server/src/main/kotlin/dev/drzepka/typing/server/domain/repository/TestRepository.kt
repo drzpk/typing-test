@@ -11,4 +11,5 @@ interface TestRepository {
     fun findNotStartedBySessionIdAndTestDefinitionId(sessionId: Int, testDefinitionId: Int): Collection<Test>
     fun delete(id: Int): Boolean
     fun deleteByUserId(userId: Int): Int
+    fun assignAnonymousTestsToUser(sessionId: Int, userId: Int): List<Int>
 }

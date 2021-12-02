@@ -72,6 +72,18 @@ class ExposedTestRepository(
         return Tests.deleteWhere { Tests.user eq userId }
     }
 
+    override fun assignAnonymousTestsToUser(sessionId: Int, userId: Int): List<Int> {
+        val testIds = Tests.slice(Tests.id)
+            .select { Tests.user.isNull() and (Tests.session eq sessionId) }
+            .map { it[Tests.id].value }
+
+        Tests.update({ Tests.id.inList(testIds) }) {
+            it[user] = NullableForeignKeyWrapper(userId)
+        }
+
+        return testIds
+    }
+
     private fun testToRow(test: Test, stmt: UpdateBuilder<Int>) {
         stmt[Tests.testDefinition] = test.testDefinition.id!!
         stmt[Tests.user] = NullableForeignKeyWrapper(test.takenBy.user?.id)
