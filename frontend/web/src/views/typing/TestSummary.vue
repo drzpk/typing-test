@@ -88,7 +88,7 @@ export default class TestSummary extends Vue {
 $border-color: #3f4c98;
 
 #test-summary {
-    margin-top: 2em;
+    margin: 2em 0;
     border: 1px solid $border-color;
     border-radius: 5px;
 

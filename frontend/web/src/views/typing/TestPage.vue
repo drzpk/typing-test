@@ -18,6 +18,11 @@
         </b-row>
         <b-row>
             <b-col offset="3" cols="6">
+                <AnonymousUserMessage/>
+            </b-col>
+        </b-row>
+        <b-row>
+            <b-col offset="3" cols="6">
                 <TestBestResults/>
             </b-col>
         </b-row>
@@ -25,17 +30,18 @@
 </template>
 
 <script lang="ts">
-    import {Component, Vue, Watch} from "vue-property-decorator";
-    import TestPanel from "@/views/typing/test/TestPanel.vue";
-    import TestSelection from "@/views/typing/TestSelection.vue";
-    import {TestDefinitionModel} from "@/models/test-definition";
-    import {mapGetters} from "vuex";
-    import TestTimer from "@/views/typing/test/TestTimer.vue";
-    import TestSummary from "@/views/typing/TestSummary.vue";
-    import TestBestResults from "@/views/typing/TestBestResults.vue";
+import {Component, Vue, Watch} from "vue-property-decorator";
+import TestPanel from "@/views/typing/test/TestPanel.vue";
+import TestSelection from "@/views/typing/TestSelection.vue";
+import {TestDefinitionModel} from "@/models/test-definition";
+import {mapGetters} from "vuex";
+import TestTimer from "@/views/typing/test/TestTimer.vue";
+import TestSummary from "@/views/typing/TestSummary.vue";
+import TestBestResults from "@/views/typing/TestBestResults.vue";
+import AnonymousUserMessage from "@/views/typing/AnonymousUserMessage.vue";
 
-    @Component({
-        components: {TestBestResults, TestSummary, TestTimer, TestSelection, TestPanel},
+@Component({
+        components: {AnonymousUserMessage, TestBestResults, TestSummary, TestTimer, TestSelection, TestPanel},
         computed: {
             ...mapGetters(["activeUserTestDefinition"])
         }
