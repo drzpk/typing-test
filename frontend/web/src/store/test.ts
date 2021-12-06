@@ -18,6 +18,7 @@ export interface TestState {
     testError: ErrorCodeModel | null;
     testResult: TestResultModel | null;
     testBestResults: TestBestResultModel[] | null;
+    showTestBestResultsHelp: boolean;
 
     enteredWords: Array<string>;
     backspaceCount: number;
@@ -35,6 +36,7 @@ const testModule: Module<TestState, RootState> = {
         testError: null,
         testResult: null,
         testBestResults: null,
+        showTestBestResultsHelp: false,
 
         enteredWords: [],
         backspaceCount: 0,
@@ -86,6 +88,9 @@ const testModule: Module<TestState, RootState> = {
         },
         enteredWords(state): string[] | undefined {
             return state.activeTest ? state.enteredWords : undefined;
+        },
+        showTestBestResultsHelp(state): boolean {
+            return state.showTestBestResultsHelp;
         }
     },
 
@@ -136,6 +141,12 @@ const testModule: Module<TestState, RootState> = {
         },
         setTestFinishDetectorCancelFn(state, value: (() => void) | null) {
             state.testFinishDetectorCancelFn = value;
+        },
+        showBestResultsHelp(state) {
+            state.showTestBestResultsHelp = true;
+        },
+        hideBestResultsHelp(state) {
+            state.showTestBestResultsHelp = false;
         }
     },
 
