@@ -32,10 +32,10 @@ class TestResultServiceTest {
             TestResultDataDTO(1, "disp1", now, now, 60, 30f, 0.67f)
         )
 
-        whenever(testResultDAO.findHighestResultsBySpeed(any(), any())).thenReturn(bestSpeedResults)
-        whenever(testResultDAO.findHighestResultsByAccuracy(any(), any())).thenReturn(bestAccuracyResults)
+        whenever(testResultDAO.findHighestResultsBySpeed(any())).thenReturn(bestSpeedResults)
+        whenever(testResultDAO.findHighestResultsByAccuracy(any())).thenReturn(bestAccuracyResults)
 
-        val bestResults = getService().getBestResults(12)
+        val bestResults = getService().getBestResults(12, null)
 
         then(bestResults).hasSize(2)
         then(bestResults[0].userDisplayName).isEqualTo("disp2")

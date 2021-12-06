@@ -1,14 +1,19 @@
 package dev.drzepka.typing.server.application.service
 
 import dev.drzepka.typing.server.application.dto.testresult.TestBestResultResource
+import dev.drzepka.typing.server.application.dto.testresult.TestResultRange
 import dev.drzepka.typing.server.application.dto.testresult.TestResultResource
 import dev.drzepka.typing.server.application.exception.ErrorCode
 import dev.drzepka.typing.server.domain.dao.TestResultDAO
 import dev.drzepka.typing.server.domain.dto.TestResultDataDTO
+import dev.drzepka.typing.server.domain.dto.TestResultQueryData
 import dev.drzepka.typing.server.domain.repository.TestRepository
 import dev.drzepka.typing.server.domain.repository.TestResultRepository
 import dev.drzepka.typing.server.domain.service.TestScoreCalculatorService
 import java.time.Duration
+import java.time.LocalTime
+import java.time.Period
+import java.time.temporal.TemporalAmount
 
 class TestResultService(
     private val testResultRepository: TestResultRepository,
@@ -27,10 +32,12 @@ class TestResultService(
      * Returns a list of best results for given test definition. The list
      * is ordered by a total score in decreasing order.
      */
-    fun getBestResults(testDefinitionId: Int): List<TestBestResultResource> {
+    fun getBestResults(testDefinitionId: Int, range: TestResultRange?): List<TestBestResultResource> {
+        val query = TestResultQueryData(testDefinitionId, convertRangeToTemporalAmount(range), BEST_RESULTS_SIZE)
+
         // Find best results in speed and accuracy separately
-        val bestSpeedResults = testResultsDAO.findHighestResultsBySpeed(testDefinitionId, BEST_RESULTS_SIZE)
-        val bestAccuracyResults = testResultsDAO.findHighestResultsByAccuracy(testDefinitionId, BEST_RESULTS_SIZE)
+        val bestSpeedResults = testResultsDAO.findHighestResultsBySpeed(query)
+        val bestAccuracyResults = testResultsDAO.findHighestResultsByAccuracy(query)
         val combinedDTOs = ArrayList(bestSpeedResults).apply { addAll(bestAccuracyResults) }
 
         val uniqueResults = HashSet<Int>()
@@ -46,6 +53,15 @@ class TestResultService(
         }
 
         return resourceList.sortedByDescending { it.score }.subList(0, minOf(resourceList.size, BEST_RESULTS_SIZE))
+    }
+
+    private fun convertRangeToTemporalAmount(range: TestResultRange?): TemporalAmount? {
+        return when(range ?: TestResultRange.TODAY) {
+            TestResultRange.TODAY -> Duration.between(LocalTime.MIN, LocalTime.now())
+            TestResultRange.LAST_WEEK -> Period.ofWeeks(1)
+            TestResultRange.LAST_MONTH -> Period.ofDays(30)
+            TestResultRange.ALL_TIME -> null
+        }
     }
 
     private fun convertToResource(input: TestResultDataDTO): TestBestResultResource {

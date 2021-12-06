@@ -2,6 +2,7 @@ package dev.drzepka.typing.server.presentation
 
 import dev.drzepka.typing.server.application.dto.testdefinition.CreateTestDefinitionRequest
 import dev.drzepka.typing.server.application.dto.testdefinition.UpdateTestDefinitionRequest
+import dev.drzepka.typing.server.application.dto.testresult.TestResultRange
 import dev.drzepka.typing.server.application.security.adminVerifier
 import dev.drzepka.typing.server.application.service.TestDefinitionService
 import dev.drzepka.typing.server.application.service.TestResultService
@@ -48,9 +49,10 @@ fun Route.testDefinitionController() {
 
         get("/{testDefinitionId}/best-results") {
             val testDefinitionId = getRequiredIntParam("testDefinitionId")
+            val range = call.parameters["range"]?.let { TestResultRange.valueOf(it) }
 
             val resources = transaction {
-                testResultService.getBestResults(testDefinitionId)
+                testResultService.getBestResults(testDefinitionId, range)
             }
 
             call.respond(resources)

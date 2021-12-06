@@ -44,6 +44,13 @@ export enum TestStateModel {
     FINISHED = "FINISHED"
 }
 
+export enum TestResultRangeModel {
+    TODAY = "TODAY",
+    LAST_WEEK = "LAST_WEEK",
+    LAST_MONTH = "LAST_MONTH",
+    ALL_TIME = "ALL_TIME"
+}
+
 export interface FinishTestRequest {
     enteredWords: string;
     backspaceCount: number;

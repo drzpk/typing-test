@@ -1,24 +1,35 @@
 <template>
-    <div id="best-test-results" v-show="testBestResults.length > 0">
+    <div id="best-test-results" v-show="activeUserTestDefinition">
         <h3>Best test results</h3>
 
-        <p><b-icon icon="question-circle-fill" shift-v="8" @click="showScoreboardHelp"></b-icon></p>
+        <p class="question-circle">
+            <b-icon icon="question-circle-fill" shift-v="8" @click="showScoreboardHelp"></b-icon>
+        </p>
 
-        <b-table striped hover :items="testBestResults" :fields="fields">
+        <b-tabs v-model="activeTab">
+            <b-tab title="today"></b-tab>
+            <b-tab title="this week"></b-tab>
+            <b-tab title="this month"></b-tab>
+            <b-tab title="all time"></b-tab>
+        </b-tabs>
+
+        <b-table v-if="testBestResults.length > 0" striped hover :items="testBestResults" :fields="fields">
             <!--suppress HtmlUnknownAttribute -->
             <template #cell(no)="data">
                 #{{ data.index + 1 }}
             </template>
         </b-table>
 
+        <p class="text-center" v-else>No results available in the selected period.</p>
+
         <TestBestResultsHelp/>
     </div>
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator";
+import {Component, Vue, Watch} from "vue-property-decorator";
 import {mapGetters} from "vuex";
-import {TestBestResultModel} from "@/models/tests";
+import {TestBestResultModel, TestResultRangeModel} from "@/models/tests";
 import DateService from "@/services/Date.service";
 import {TestDefinitionModel} from "@/models/test-definition";
 import {formatDuration} from "@/utils/time-utils";
@@ -34,6 +45,8 @@ import TestBestResultsHelp from "@/views/typing/TestBestResultsHelp.vue";
 export default class TestBestResults extends Vue {
     testBestResults!: TestBestResultModel[];
     activeUserTestDefinition!: TestDefinitionModel | null;
+
+    activeTab = 0;
 
     get fields(): BvTableFieldArray {
         const fields = [
@@ -75,6 +88,27 @@ export default class TestBestResults extends Vue {
         return fields;
     }
 
+    @Watch("activeTab")
+    onTabChanged(): void {
+        let range: TestResultRangeModel;
+        switch (this.activeTab) {
+            case 0:
+                range = TestResultRangeModel.TODAY;
+                break;
+            case 1:
+                range = TestResultRangeModel.LAST_WEEK;
+                break;
+            case 2:
+                range = TestResultRangeModel.LAST_MONTH;
+                break;
+            default:
+                range = TestResultRangeModel.ALL_TIME;
+                break;
+        }
+
+        this.$store.dispatch("setTestBestResultsRange", range);
+    }
+
     showScoreboardHelp(): void {
         this.$store.commit("showBestResultsHelp");
     }
@@ -86,7 +120,7 @@ h3 {
     display: inline-block;
 }
 
-p {
+p.question-circle {
     display: inline-block;
     margin-left: 0.4em;
 }

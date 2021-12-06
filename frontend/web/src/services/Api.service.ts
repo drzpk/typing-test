@@ -17,7 +17,7 @@ import {
 import {ImportWordsRequest, WordListModel, WordListType, WordListWordsModel} from "@/models/words";
 import {PagedRequest} from "@/models/pagination";
 import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/test-definition";
-import {FinishTestRequest, TestBestResultModel, TestModel, TestResultModel} from "@/models/tests";
+import {FinishTestRequest, TestBestResultModel, TestModel, TestResultModel, TestResultRangeModel} from "@/models/tests";
 import {TestStatsModel} from "@/models/test-stats";
 import DateService from "./Date.service";
 import router from "@/router";
@@ -149,8 +149,9 @@ class ApiService {
             .catch(errorHandler);
     }
 
-    getTestBestResults(testDefinitionId: number): Promise<TestBestResultModel[]> {
-        return axios.get<TestBestResultModel[]>(`/api/test-definitions/${testDefinitionId}/best-results`)
+    getTestBestResults(testDefinitionId: number, range: TestResultRangeModel): Promise<TestBestResultModel[]> {
+        const params = {range};
+        return axios.get<TestBestResultModel[]>(`/api/test-definitions/${testDefinitionId}/best-results`, {params})
             .then(response => DateService.convertFieldsToDate(response.data, "testCreatedAt"))
             .catch(errorHandler);
     }

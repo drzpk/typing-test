@@ -2,7 +2,7 @@ import {ActionContext, Module} from "vuex";
 import {RootState} from "@/store/index";
 import {TestDefinitionModel} from "@/models/test-definition";
 import ApiService from "@/services/Api.service";
-import {TestBestResultModel, TestModel, TestResultModel, TestStateModel} from "@/models/tests";
+import {TestBestResultModel, TestModel, TestResultModel, TestResultRangeModel, TestStateModel} from "@/models/tests";
 import {ErrorCode, ErrorCodeModel, ServerError} from "@/models/error";
 import {WordListType} from "@/models/words";
 import WordService from "@/services/Word.service";
@@ -18,6 +18,7 @@ export interface TestState {
     testError: ErrorCodeModel | null;
     testResult: TestResultModel | null;
     testBestResults: TestBestResultModel[] | null;
+    testBestResultsRange: TestResultRangeModel;
     showTestBestResultsHelp: boolean;
 
     enteredWords: Array<string>;
@@ -36,6 +37,7 @@ const testModule: Module<TestState, RootState> = {
         testError: null,
         testResult: null,
         testBestResults: null,
+        testBestResultsRange: TestResultRangeModel.TODAY,
         showTestBestResultsHelp: false,
 
         enteredWords: [],
@@ -142,6 +144,9 @@ const testModule: Module<TestState, RootState> = {
         setTestFinishDetectorCancelFn(state, value: (() => void) | null) {
             state.testFinishDetectorCancelFn = value;
         },
+        setBestResultsRange(state, range: TestResultRangeModel) {
+            state.testBestResultsRange = range;
+        },
         showBestResultsHelp(state) {
             state.showTestBestResultsHelp = true;
         },
@@ -195,7 +200,7 @@ const testModule: Module<TestState, RootState> = {
                 context.commit("setTestError", error.data);
             }).then(() => {
                 context.commit("setLoading", false);
-                return context.dispatch("reloadTestBestResults", testDefinitionId);
+                return context.dispatch("reloadTestBestResults");
             });
         },
 
@@ -286,7 +291,7 @@ const testModule: Module<TestState, RootState> = {
                 context.commit("setActiveTest", test);
                 return context.dispatch("getTestResult");
             }).then(() => {
-                return context.dispatch("reloadTestBestResults", context.state.activeTestDefinition.id);
+                return context.dispatch("reloadTestBestResults");
             }).catch((error: ServerError) => {
                 context.commit("setTestError", error);
             })
@@ -303,10 +308,15 @@ const testModule: Module<TestState, RootState> = {
             });
         },
 
-        reloadTestBestResults(context: ActionContext<any, any>, testDefinitionId: number) {
-            ApiService.getTestBestResults(testDefinitionId).then(bestResults => {
+        setTestBestResultsRange(context: ActionContext<any, any>, range: TestResultRangeModel) {
+            context.commit("setBestResultsRange", range);
+            return context.dispatch("reloadTestBestResults");
+        },
+
+        reloadTestBestResults(context: ActionContext<any, any>) {
+            ApiService.getTestBestResults(context.state.activeTestDefinition.id, context.state.testBestResultsRange).then(bestResults => {
                 context.commit("setTestBestResults", bestResults);
-            })
+            });
         }
     }
 };
