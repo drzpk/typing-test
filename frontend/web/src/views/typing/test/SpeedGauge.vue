@@ -85,7 +85,7 @@ export default class SpeedGauge extends Vue {
         if (this.speedCalculator == null)
             return;
 
-        this.speedCalculator.selectedWords = this.activeTest?.selectedWords.split("|");
+        this.speedCalculator.selectedWords = this.activeTest?.selectedWords.split("|") || [];
         this.speedCalculator.enteredWords = this.enteredWords;
 
         const speed = this.speedCalculator.calculateSpeed();

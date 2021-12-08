@@ -81,12 +81,12 @@ class ApiService {
             .catch(errorHandler);
     }
 
-    updateSettings(request: UpdateSettingsRequest): Promise<any> {
+    updateSettings(request: UpdateSettingsRequest): Promise<unknown> {
         return axios.put("/api/current-user/update-settings", request)
             .catch(errorHandler);
     }
 
-    changePassword(request: ChangePasswordRequest): Promise<any> {
+    changePassword(request: ChangePasswordRequest): Promise<unknown> {
         return axios.post("/api/current-user/change-password", request)
             .catch(errorHandler);
     }
@@ -178,29 +178,29 @@ class ApiService {
             .catch(errorHandler);
     }
 
-    deleteWordList(id: number): Promise<any> {
+    deleteWordList(id: number): Promise<unknown> {
         return axios.delete(`/api/word-lists/${id}`)
             .catch(errorHandler);
     }
 
-    exportWords(wordListId: number): Promise<any> {
+    exportWords(wordListId: number): Promise<unknown> {
         return axios.get(`/api/word-lists/${wordListId}/words/export`)
             .then(response => response.data)
             .catch(errorHandler);
     }
 
-    importWords(request: ImportWordsRequest): Promise<any> {
+    importWords(request: ImportWordsRequest): Promise<unknown> {
         return axios.post(`/api/word-lists/${request.wordListId}/words/import`, request)
             .then(() => null)
             .catch(errorHandler);
     }
 
-    createTestDefinition(request: CreateUpdateTestDefinitionRequest): Promise<any> {
+    createTestDefinition(request: CreateUpdateTestDefinitionRequest): Promise<unknown> {
         return axios.post("/api/test-definitions", request)
             .catch(errorHandler);
     }
 
-    updateTestDefinition(id: number, request: CreateUpdateTestDefinitionRequest): Promise<any> {
+    updateTestDefinition(id: number, request: CreateUpdateTestDefinitionRequest): Promise<unknown> {
         return axios.patch(`/api/test-definitions/${id}`, request)
             .catch(errorHandler);
     }
@@ -216,7 +216,7 @@ class ApiService {
             .catch(errorHandler);
     }
 
-    createWord(wordListId: number, word: string, popularity: number): Promise<any> {
+    createWord(wordListId: number, word: string, popularity: number): Promise<unknown> {
         const payload = {
             word,
             popularity
@@ -227,7 +227,7 @@ class ApiService {
             .catch(errorHandler);
     }
 
-    updateWordPopularity(wordListId: number, wordId: number, popularity: number): Promise<any> {
+    updateWordPopularity(wordListId: number, wordId: number, popularity: number): Promise<unknown> {
         const payload = {
             popularity
         };
@@ -237,7 +237,7 @@ class ApiService {
             .catch(errorHandler);
     }
 
-    deleteWord(wordListId: number, wordId: number): Promise<any> {
+    deleteWord(wordListId: number, wordId: number): Promise<unknown> {
         return axios.delete(`/api/word-lists/${wordListId}/words/${wordId}`)
             .catch(errorHandler);
     }
