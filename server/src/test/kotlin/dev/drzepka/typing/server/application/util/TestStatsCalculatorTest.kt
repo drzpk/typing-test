@@ -18,27 +18,25 @@ class TestStatsCalculatorTest {
 
     @Test
     fun `should calculate stats`() {
-        val calculator = TestStatsCalculator(3)
+        val calculator = TestStatsCalculator(3, true)
         calculator.include(createResult(LocalTime.of(11, 1, 0), 65.4f, 94.2f))
         calculator.include(createResult(LocalTime.of(11, 2, 0), 72.1f, 92.1f))
         calculator.include(createResult(LocalTime.of(11, 3, 0), 52.9f, 89.4f))
 
-        val definition = createTestDefinition()
-        val result = calculator.createResult(definition)
+        val result = calculator.createResult()
 
-        then(result.testDefinition.id).isEqualTo(definition.id)
-        then(result.finishedTests).isEqualTo(3)
-        then(result.averageWordsPerMinute).isEqualTo(63.47f, Offset.offset(0.1f))
+        then(result.takenTests).isEqualTo(3)
+        then(result.averageSpeed).isEqualTo(63.47f, Offset.offset(0.1f))
         then(result.averageAccuracy).isEqualTo(91.9f, Offset.offset(0.1f))
 
-        then(result.wordsPerMinuteValues).hasSize(3)
-        then(result.wordsPerMinuteValues).extracting("timestamp")
+        then(result.speedValues).hasSize(3)
+        then(result.speedValues).extracting("timestamp")
             .containsExactly(
                 toInstant(LocalTime.of(11, 1, 0)),
                 toInstant(LocalTime.of(11, 2, 0)),
                 toInstant(LocalTime.of(11, 3, 0))
             )
-        then(result.wordsPerMinuteValues).extracting("value")
+        then(result.speedValues).extracting("value")
             .containsExactly(65.4f, 72.1f, 52.9f)
 
         then(result.accuracyValues).hasSize(3)

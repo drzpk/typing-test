@@ -48,6 +48,7 @@ dependencies {
     implementation("org.liquibase:liquibase-core:4.3.2")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.10.2")
+    implementation("com.google.guava:guava:31.0.1-jre")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")

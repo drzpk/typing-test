@@ -4,7 +4,8 @@
         <b-container fluid>
             <b-row>
                 <b-col cols="8" offset="2">
-                    <b-card title="Test statistics" sub-title="View the statistics of your finished tests." v-loading-overlay="pendingRequest">
+                    <b-card title="Test statistics" sub-title="View the statistics of your finished tests."
+                            v-loading-overlay="pendingRequest">
                         <b-form-group label-for="test-definition-select" label="Test" label-cols="3">
                             <b-form-select id="test-definition-select" :options="testDefinitionOptions"
                                            v-model="selectedTestDefinitionId"/>
@@ -18,11 +19,25 @@
                                 </tr>
                                 <tr>
                                     <td>Average speed:</td>
-                                    <td>{{ Math.floor(testStats.averageWordsPerMinute * 10) / 10 }} WPM</td>
+                                    <td>{{ Math.floor(testStats.userStats.averageSpeed * 10) / 10 }} WPM</td>
                                 </tr>
                                 <tr>
                                     <td>Average accuracy:</td>
-                                    <td>{{ Math.floor(testStats.averageAccuracy * 1000) / 10 }}%</td>
+                                    <td>{{ Math.floor(testStats.userStats.averageAccuracy * 1000) / 10 }}%</td>
+                                </tr>
+                                <tr>
+                                    <td><br></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Global average speed:</td>
+                                    <td>{{ Math.floor(testStats.globalStats.averageSpeed * 10) / 10 }} WPM</td>
+
+                                </tr>
+                                <tr>
+                                    <td>Global average accuracy:</td>
+                                    <td>{{ Math.floor(testStats.globalStats.averageAccuracy * 1000) / 10 }}%</td>
+
                                 </tr>
                             </table>
                         </div>
@@ -42,7 +57,7 @@
                         <div v-if="showCharts">
                             <h5>Speed</h5>
                             <div class="chart">
-                                <ProgressChart :data="testStats.wordsPerMinuteValues" value-label="Speed [WPM]"
+                                <ProgressChart :data="testStats.speedValues" value-label="Speed [WPM]"
                                                color="rgba(52, 135, 187, 0.48)"/>
                             </div>
 
@@ -75,7 +90,7 @@ import ProgressChart from "@/views/settings/stats/ProgressChart.vue";
     }
 })
 export default class TestStats extends Vue {
-    testDefinitionsWithStats!: Array<TestDefinitionModel>;
+    testDefinitionsWithStats!: Array<TestDefinitionModel> | null;
     testStats!: TestStatsModel | null;
     pendingRequest!: boolean;
 
@@ -83,7 +98,7 @@ export default class TestStats extends Vue {
     selectedTestDefinitionId: number | null = null;
 
     get showNotEnoughTestsWarning(): boolean {
-        return this.testStats != null && this.testStats.wordsPerMinuteValues.length < 3;
+        return this.testStats != null && this.testStats.speedValues.length < 3;
     }
 
     get showStats(): boolean {

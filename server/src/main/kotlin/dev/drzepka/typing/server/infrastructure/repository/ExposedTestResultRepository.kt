@@ -7,6 +7,7 @@ import dev.drzepka.typing.server.infrastructure.repository.table.TestResults
 import dev.drzepka.typing.server.infrastructure.repository.table.Tests
 import dev.drzepka.typing.server.infrastructure.repository.table.Users
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import java.time.Instant
 
@@ -47,24 +48,32 @@ class ExposedTestResultRepository(private val testRepository: TestRepository) : 
         return TestResults.deleteWhere { TestResults.id inSubQuery testSubQuery }
     }
 
-    override fun count(userId: Int, testDefinitionId: Int): Int {
+    override fun count(userId: Int?, testDefinitionId: Int): Int {
         val countExpression = TestResults.id.count()
+        var where = Tests.testDefinition eq testDefinitionId
+        if (userId != null)
+            where = where and (Tests.user eq userId)
+
         val result = Tests.innerJoin(TestResults, { Tests.id }, { TestResults.id })
             .slice(countExpression)
-            .select { (Tests.user eq userId) and (Tests.testDefinition eq testDefinitionId) }
+            .select { where }
             .first()
 
         return result[countExpression].toInt()
     }
 
     override fun find(
-        userId: Int,
+        userId: Int?,
         testDefinitionId: Int,
         offset: Int,
         limit: Int
     ): kotlin.sequences.Sequence<TestResult> {
+        var where = Tests.testDefinition eq testDefinitionId
+        if (userId != null)
+            where = where and (Tests.user eq userId)
+
         return Tests.innerJoin(TestResults, { Tests.id }, { TestResults.id })
-            .select { (Tests.user eq userId) and (Tests.testDefinition eq testDefinitionId) }
+            .select { where }
             .asSequence()
             .map { rowToTestResult(it) }
     }

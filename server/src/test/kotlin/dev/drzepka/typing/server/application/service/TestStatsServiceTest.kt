@@ -25,13 +25,17 @@ class TestStatsServiceTest {
             wordList = WordList().apply { id = 99 }
         }
         whenever(testDefinitionRepository.findById(eq(definition.id!!))).thenReturn(definition)
-        whenever(testResultRepository.count(any(), any())).thenReturn(513)
+        whenever(testResultRepository.count(any(), any())).thenReturn(97)
         whenever(testResultRepository.find(any(), any(), any(), any()))
             .thenReturn(Sequence { emptyList<TestResult>().iterator() })
 
+        whenever(testResultRepository.count(isNull(), any())).thenReturn(7)
+        whenever(testResultRepository.find(isNull(), any(), any(), any())).thenReturn(emptySequence())
+
         getService().calculateTestStats(user, definition.id!!)
 
-        verify(testResultRepository, times(1)).find(eq(user.id!!), eq(definition.id!!), eq(0), eq(513))
+        verify(testResultRepository).find(isNull(), eq(definition.id!!), eq(0), eq(7))
+        verify(testResultRepository).find(eq(user.id!!), eq(definition.id!!), eq(0), eq(97))
     }
 
     @Test
@@ -46,9 +50,13 @@ class TestStatsServiceTest {
         whenever(testResultRepository.find(any(), any(), any(), any()))
             .thenReturn(Sequence { emptyList<TestResult>().iterator() })
 
+        whenever(testResultRepository.count(isNull(), any())).thenReturn(2000)
+        whenever(testResultRepository.find(isNull(), any(), any(), any())).thenReturn(emptySequence())
+
         getService().calculateTestStats(user, definition.id!!)
 
-        verify(testResultRepository, times(1)).find(eq(user.id!!), eq(definition.id!!), eq(99), eq(1000))
+        verify(testResultRepository).find(isNull(), eq(definition.id!!), eq(1000), eq(1000))
+        verify(testResultRepository).find(eq(user.id!!), eq(definition.id!!), eq(999), eq(100))
     }
 
     private fun getService(): TestStatsService = TestStatsService(testDefinitionRepository, testResultRepository)
