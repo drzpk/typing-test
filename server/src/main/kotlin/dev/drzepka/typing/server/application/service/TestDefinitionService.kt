@@ -7,9 +7,11 @@ import dev.drzepka.typing.server.application.dto.testdefinition.UpdateTestDefini
 import dev.drzepka.typing.server.application.validation.ValidationState
 import dev.drzepka.typing.server.domain.entity.TestDefinition
 import dev.drzepka.typing.server.domain.repository.TestDefinitionRepository
+import dev.drzepka.typing.server.domain.repository.TestRepository
 import dev.drzepka.typing.server.domain.repository.WordListRepository
 import dev.drzepka.typing.server.domain.util.Logger
 import java.time.Duration
+import java.time.Instant
 
 /**
  * Manages test definitions.
@@ -17,6 +19,7 @@ import java.time.Duration
 class TestDefinitionService(
     private val domainTestDefinitionService: DomainTestDefinitionService,
     private val testDefinitionRepository: TestDefinitionRepository,
+    private val testRepository: TestRepository,
     private val wordListRepository: WordListRepository
 ) {
     private val log by Logger()
@@ -67,6 +70,23 @@ class TestDefinitionService(
         postValidateTestDefinition(definition)
         testDefinitionRepository.save(definition)
         return TestDefinitionResource.fromEntity(definition)
+    }
+
+    fun deleteTestDefinition(testDefinitionId: Int): Boolean {
+        log.info("Deleting test {}", testDefinitionId)
+        val testCount = testRepository.countByTestDefinitionId(testDefinitionId)
+
+        if (testCount > 0) {
+            log.info("Test definition {} was solved {} times, setting the deletion date", testDefinitionId, testCount)
+            val definition = testDefinitionRepository.findById(testDefinitionId) ?: return false
+
+            definition.deletedAt = Instant.now()
+            testDefinitionRepository.save(definition)
+            return true
+        } else {
+            log.info("Test definition {} wasn't solved, it will be permanently deleted", testDefinitionId)
+            return testDefinitionRepository.delete(testDefinitionId)
+        }
     }
 
     private fun validateCreateTestDefinition(request: CreateTestDefinitionRequest) {

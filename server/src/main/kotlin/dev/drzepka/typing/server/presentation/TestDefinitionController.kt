@@ -34,7 +34,7 @@ fun Route.testDefinitionController() {
             call.respond(collection)
         }
 
-        get("{testDefinitionid}") {
+        get("{testDefinitionId}") {
             val testDefinitionId = getRequiredIntParam("testDefinitionId")
 
             val resource = transaction {
@@ -88,6 +88,18 @@ fun Route.testDefinitionController() {
                 call.respond(resource)
             else
                 call.respond(HttpStatusCode.NotFound)
+        }
+
+        delete("/{testDefinitionId}") {
+            adminVerifier()
+
+            val testDefinitionId = getRequiredIntParam("testDefinitionId")
+            val status = transaction {
+                userSessionService.updateLastSeen(call)
+                testDefinitionService.deleteTestDefinition(testDefinitionId)
+            }
+
+            call.respond(if (status) HttpStatusCode.NoContent else HttpStatusCode.NotFound)
         }
     }
 }

@@ -10,4 +10,5 @@ object TestDefinitions : IntIdTable("test_definitions") {
     val isActive = bool("is_active")
     val createdAt = timestamp("created_at")
     val modifiedAt = timestamp("modified_at")
+    val deletedAt = timestamp("deleted_at").nullable()
 }

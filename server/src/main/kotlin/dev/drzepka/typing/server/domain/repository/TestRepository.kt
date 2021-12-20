@@ -12,4 +12,5 @@ interface TestRepository {
     fun delete(id: Int): Boolean
     fun deleteByUserId(userId: Int): Int
     fun assignAnonymousTestsToUser(sessionId: Int, userId: Int): List<Int>
+    fun countByTestDefinitionId(testDefinitionId: Int): Int
 }

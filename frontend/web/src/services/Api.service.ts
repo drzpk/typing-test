@@ -1,4 +1,4 @@
-import axios, {AxiosError} from "axios";
+import axios, {AxiosError, AxiosRequestConfig} from "axios";
 import {
     AuthenticationDetails,
     ChangePasswordRequest,
@@ -103,8 +103,13 @@ class ApiService {
             .catch(errorHandler);
     }
 
-    getTestDefinitions(): Promise<Array<TestDefinitionModel>> {
-        return axios.get("/api/test-definitions?active=true")
+    getTestDefinitions(activeStatus: boolean | null = true): Promise<Array<TestDefinitionModel>> {
+        const config: AxiosRequestConfig = {
+            params: {
+                active: activeStatus
+            }
+        };
+        return axios.get("/api/test-definitions", config)
             .then(response => response.data)
             .catch(errorHandler);
     }
@@ -202,6 +207,11 @@ class ApiService {
 
     updateTestDefinition(id: number, request: CreateUpdateTestDefinitionRequest): Promise<unknown> {
         return axios.patch(`/api/test-definitions/${id}`, request)
+            .catch(errorHandler);
+    }
+
+    deleteTestDefinition(id: number): Promise<unknown> {
+        return axios.delete(`/api/test-definitions/${id}`)
             .catch(errorHandler);
     }
 

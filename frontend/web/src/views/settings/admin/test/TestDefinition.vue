@@ -6,7 +6,7 @@
                 <b-col cols="8" offset="2">
                     <b-card :title="isCreated ? 'Test definition details' : 'New test definition'"
                             v-loading-overlay="pendingRequest">
-                        <b-form @submit.stop.prevent="saveButton">
+                        <b-form @submit.stop.prevent>
                             <b-form-group label-for="name" label="Name" label-cols="4">
                                 <b-form-input id="name" type="text" name="name"
                                               v-model="model.name" :state="validateState('model.name')"
@@ -46,7 +46,14 @@
                                                  v-model="model.isActive"></b-form-checkbox>
                             </b-form-group>
 
-                            <b-button @click="saveButton">Save</b-button>
+                            <b-button-group>
+                                <b-button @click="saveButton">Save</b-button>
+                                <b-button v-b-modal:delete-test-definition-modal variant="danger">Delete</b-button>
+                            </b-button-group>
+
+                            <b-modal id="delete-test-definition-modal" title="Deletion of the word list" @ok="deleteButton">
+                                Are you sure you want to delete this test definition?
+                            </b-modal>
                         </b-form>
                     </b-card>
                 </b-col>
@@ -182,6 +189,12 @@ export default class TestDefinition extends mixins(ValidationHelperMixin) {
             this.updateTestDefinition();
         else
             this.createTestDefinition();
+    }
+
+    deleteButton(): void {
+        this.$store.dispatch("deleteTestDefinition", this.currentTestDefinition!.id).then(() => {
+            this.$router.push("/settings/admin");
+        });
     }
 
     private loadTestDefinition(): void {

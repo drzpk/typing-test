@@ -12,6 +12,7 @@ import dev.drzepka.typing.server.infrastructure.exception.DataIntegrityException
 import dev.drzepka.typing.server.infrastructure.repository.table.Tests
 import dev.drzepka.typing.server.infrastructure.util.NullableForeignKeyWrapper
 import dev.drzepka.typing.server.infrastructure.util.countAllRows
+import dev.drzepka.typing.server.infrastructure.util.countWhere
 import dev.drzepka.typing.server.infrastructure.util.paged
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
@@ -82,6 +83,10 @@ class ExposedTestRepository(
         }
 
         return testIds
+    }
+
+    override fun countByTestDefinitionId(testDefinitionId: Int): Int {
+        return Tests.countWhere { Tests.testDefinition eq testDefinitionId }.toInt()
     }
 
     private fun testToRow(test: Test, stmt: UpdateBuilder<Int>) {

@@ -136,7 +136,7 @@ const adminModule: Module<AdminState, RootState> = {
 
         reloadTestDefinitions(context: ActionContext<any, any>) {
             withPendingRequest("loadTestDefinitions", context, () => {
-                return ApiService.getTestDefinitions().then(definitions => {
+                return ApiService.getTestDefinitions(null).then(definitions => {
                     context.commit("setTestDefinitions", definitions);
                 }).catch(error => {
                     console.error(error);
@@ -197,6 +197,14 @@ const adminModule: Module<AdminState, RootState> = {
 
             testDefinitionPromise.then((testDefinition: TestDefinitionModel) => {
                 context.commit("setCurrentTestDefinition", testDefinition);
+            });
+        },
+
+        deleteTestDefinition(context: ActionContext<any, any>, id: number) {
+            withPendingRequest("deleteTestDefinition", context, () => {
+                return ApiService.deleteTestDefinition(id);
+            }).then(() => {
+                return context.dispatch("reloadTestDefinitions");
             });
         },
 

@@ -16,4 +16,5 @@
     <include file="db-changelog/009.sessions.xml" relativeToChangelogFile="true"/>
     <include file="db-changelog/010.test_session.xml" relativeToChangelogFile="true"/>
     <include file="db-changelog/011.nullable_test_user.xml" relativeToChangelogFile="true"/>
+    <include file="db-changelog/012.test_definition_deletion.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

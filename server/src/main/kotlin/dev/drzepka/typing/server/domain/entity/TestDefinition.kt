@@ -24,6 +24,7 @@ class TestDefinition : AbstractEntity<Int>() {
     var isActive = true
     var createdAt: Instant = Instant.now()
     var modifiedAt: Instant = Instant.now()
+    var deletedAt: Instant? = null
 
     fun getFixedText(): WordSelection? {
         if (wordList.type != WordListType.FIXED)

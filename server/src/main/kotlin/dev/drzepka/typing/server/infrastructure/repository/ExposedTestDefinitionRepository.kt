@@ -17,7 +17,7 @@ class ExposedTestDefinitionRepository(private val wordListRepository: WordListRe
     }
 
     override fun findByName(name: String): TestDefinition? {
-        return TestDefinitions.select { TestDefinitions.name eq name }
+        return TestDefinitions.select { (TestDefinitions.name eq name) and TestDefinitions.deletedAt.isNull() }
             .singleOrNull()
             ?.let { rowToTestDefinition(it) }
     }
@@ -29,9 +29,9 @@ class ExposedTestDefinitionRepository(private val wordListRepository: WordListRe
 
     override fun findAll(active: Boolean?): Collection<TestDefinition> {
         val query = if (active != null)
-            TestDefinitions.select { TestDefinitions.isActive eq active }
+            TestDefinitions.select { (TestDefinitions.isActive eq active) and TestDefinitions.deletedAt.isNull() }
         else
-            TestDefinitions.selectAll()
+            TestDefinitions.select { TestDefinitions.deletedAt.isNull() }
 
         return query.map { rowToTestDefinition(it) }
     }
@@ -57,6 +57,7 @@ class ExposedTestDefinitionRepository(private val wordListRepository: WordListRe
                 it[isActive] = definition.isActive
                 it[createdAt] = definition.createdAt
                 it[modifiedAt] = definition.modifiedAt
+                it[deletedAt] = definition.deletedAt
             }
         } else {
             val id = TestDefinitions.insertAndGetId {
@@ -66,6 +67,7 @@ class ExposedTestDefinitionRepository(private val wordListRepository: WordListRe
                 it[isActive] = definition.isActive
                 it[createdAt] = definition.createdAt
                 it[modifiedAt] = definition.modifiedAt
+                it[deletedAt] = definition.deletedAt
             }
 
             definition.id = id.value
@@ -86,6 +88,7 @@ class ExposedTestDefinitionRepository(private val wordListRepository: WordListRe
             isActive = row[TestDefinitions.isActive]
             createdAt = row[TestDefinitions.createdAt]
             modifiedAt = row[TestDefinitions.modifiedAt]
+            deletedAt = row[TestDefinitions.deletedAt]
         }
     }
 }
