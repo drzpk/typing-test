@@ -39,6 +39,7 @@ export enum ErrorCode {
 
     // Artifical, client-side errors
     WORD_LIST_NOT_FOUND = "WORD_LIST_NOT_FOUND",
+    WORD_IMPORT_SYNTAX_ERROR = "WORD_IMPORT_SYNTAX_ERROR",
     UNKNOWN_ERROR = "UNKNOWN_ERROR"
 }
 

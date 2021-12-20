@@ -363,7 +363,7 @@ const adminModule: Module<AdminState, RootState> = {
             });
         },
 
-        importWords(context: ActionContext<any, any>, data: WordImportData) {
+        importWords(context: ActionContext<any, any>, data: WordImportData): Promise<boolean> {
             if (!context.state.currentWordList)
                 throw new Error("No current word list selected.");
 
@@ -380,7 +380,28 @@ const adminModule: Module<AdminState, RootState> = {
 
                     return ApiService.importWords(request);
                 }).then(() => {
-                    return context.dispatch("refreshCurrentWordListWords");
+                    context.dispatch("refreshCurrentWordListWords");
+                    return true;
+                }).catch(error => {
+                    if (error instanceof SyntaxError) {
+                        displayError(
+                            context,
+                            ErrorCode.WORD_IMPORT_SYNTAX_ERROR,
+                            "The provided file is not a valid JSON file.",
+                            null,
+                            {message: error.message}
+                        );
+                    } else {
+                        displayError(
+                            context,
+                            ErrorCode.UNKNOWN_ERROR,
+                            "An unknown error occurred while parsing the JSON file.",
+                            null,
+                            {message: error.message}
+                        );
+                    }
+
+                    return false;
                 });
             });
         }

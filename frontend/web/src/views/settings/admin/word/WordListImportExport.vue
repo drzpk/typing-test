@@ -117,15 +117,16 @@ export default class WordListImportExport extends mixins(ValidationHelperMixin) 
             file: this.file!
         };
 
-        this.$store.dispatch("importWords", data).then(() => {
-            this.file = null;
-            this.$bvToast.toast("Word list has been successfully imported.", {
-                title: "Success",
-                variant: "success"
-            });
-        }).catch(error => {
-            this.file = null;
-            console.error(error);
+        this.$store.dispatch("importWords", data).then(status => {
+            if (status) {
+                this.file = null;
+                this.$v.$reset();
+
+                this.$bvToast.toast("Word list has been successfully imported.", {
+                    title: "Success",
+                    variant: "success"
+                });
+            }
         });
     }
 }
