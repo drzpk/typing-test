@@ -69,7 +69,7 @@ export default class TextInput extends Vue {
 
         if (completeWord)
             this.$store.commit("addEnteredWord", trimmedInput);
-        if (event.type === "deleteContentBackward")
+        if (event.inputType === "deleteContentBackward")
             this.$store.commit("incrementBackspaceCount");
 
         const wordChangeEvent = new WordChangeEvent(trimmedInput, completeWord);
