@@ -36,10 +36,12 @@ fun Route.loginController() {
             val user = userService.findUser(loginData.email, loginData.password) ?: error("user not found")
 
             val session = applicationSessionService.createApplicationSession(user, call)
-            val oldSession = call.sessions.get<TypingTestSession>()!!
+            val oldSession = call.sessions.get<TypingTestSession>()
             call.sessions.set(session)
 
-            testService.assignAnonymousTestsInSessionToUser(oldSession.userSessionId, user)
+            if (oldSession != null)
+                testService.assignAnonymousTestsInSessionToUser(oldSession.userSessionId, user)
+
             UserAuthenticationDetailsDTO.fromUserEntity(user)
         }
         call.respond(dto)
