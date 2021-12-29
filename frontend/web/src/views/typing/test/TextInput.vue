@@ -5,7 +5,8 @@ import {TestStateModel} from "@/models/tests";
         <input id="text-input-input" type="text" :disabled="inputDisabled" :placeholder="placeholder"
                @input="onInputChanged"
                @focus="inputFocused = true"
-               @blur="inputFocused = false">
+               @blur="inputFocused = false"
+               autocomplete="off">
     </div>
 </template>
 
