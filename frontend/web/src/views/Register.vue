@@ -3,7 +3,7 @@
         <!--suppress HtmlUnknownBooleanAttribute -->
         <b-container fluid>
             <b-row>
-                <b-col cols="10" md="4" offset="1" offset-md="4">
+                <b-col cols="10" lg="6" offset="1" offset-lg="3">
                     <b-form id="login-form" @submit.stop.prevent="createNewUser">
                         <h4>Create new account</h4>
                         <br>
@@ -63,15 +63,15 @@
 </template>
 
 <script lang="ts">
-    import {Component} from "vue-property-decorator";
-    import {RegisterData} from "@/store";
-    import {email, required} from "vuelidate/lib/validators";
-    import ValidationMessageManager from "@/views/shared/ValidationMessageManager.vue";
-    import ValidationHelperMixin from "@/mixins/ValidationHelperMixin";
-    import {mixins} from "vue-class-component";
-    import {ValidationFailedError} from "@/models/error";
+import {Component} from "vue-property-decorator";
+import {RegisterData} from "@/store";
+import {email, required} from "vuelidate/lib/validators";
+import ValidationMessageManager from "@/views/shared/ValidationMessageManager.vue";
+import ValidationHelperMixin from "@/mixins/ValidationHelperMixin";
+import {mixins} from "vue-class-component";
+import {ValidationFailedError} from "@/models/error";
 
-    @Component({
+@Component({
         components: {ValidationMessageManager},
         validations: {
             email: {

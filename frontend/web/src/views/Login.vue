@@ -3,16 +3,16 @@
         <!--suppress HtmlUnknownBooleanAttribute -->
         <b-container fluid>
             <b-row>
-                <b-col cols="10" md="4" offset="1" offset-md="4">
+                <b-col cols="10" md="6" offset="1" offset-md="3">
                     <b-form id="login-form" @submit="loginUser">
                         <h4>Sign in to the application</h4>
                         <br>
 
-                        <b-form-group label-cols="2" label="E-mail">
+                        <b-form-group label-cols="3" label="E-mail">
                             <b-form-input type="email" v-model="email" @input="resetIncorrectStatus"
                                           placeholder="E-mail" required/>
                         </b-form-group>
-                        <b-form-group label-cols="2" label="Password">
+                        <b-form-group label-cols="3" label="Password">
                             <b-form-input type="password" v-model="password" @input="resetIncorrectStatus"
                                           placeholder="Password" required/>
                         </b-form-group>
@@ -39,11 +39,11 @@ import router from "@/router";
         password = "";
         incorrect = false;
 
-        resetIncorrectStatus() {
+        resetIncorrectStatus(): void {
             this.incorrect = false;
         }
 
-        loginUser(event: Event) {
+        loginUser(event: Event): void {
             event.preventDefault();
             this.$store.dispatch("login", {email: this.email, password: this.password}).then(() => {
                 router.push({name: "TestPage"});
