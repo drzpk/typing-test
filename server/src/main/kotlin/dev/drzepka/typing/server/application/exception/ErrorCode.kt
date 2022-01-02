@@ -22,6 +22,7 @@ enum class ErrorCode(
     TEST_RESULT_NOT_FOUND("Test result wasn't found", HttpStatusCode.NotFound),
 
     USER_NOT_FOUND("User wasn't found", HttpStatusCode.NotFound),
+    CANNOT_DELETE_ADMIN_USER("Admin user can't be deleted.", HttpStatusCode.BadRequest),
 
     WORD_LIST_USED_BY_TEST_DEFINITIONS(
         "Word list is used by one or more test definitions.",

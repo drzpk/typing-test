@@ -96,6 +96,12 @@ export default new Vuex.Store<RootState>({
             return withPendingRequest("changePassword", context, () => {
                 return ApiService.changePassword(passwordData);
             });
+        },
+
+        deleteCurrentUser(context: ActionContext<any, any>) {
+            return withPendingRequest("deleteCurrentUser", context, () => {
+                return ApiService.deleteCurrentUser();
+            });
         }
     },
     modules: {

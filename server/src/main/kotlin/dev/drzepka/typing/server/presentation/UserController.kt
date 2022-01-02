@@ -7,6 +7,7 @@ import dev.drzepka.typing.server.application.dto.user.UserAuthenticationDetailsD
 import dev.drzepka.typing.server.application.security.adminInterceptor
 import dev.drzepka.typing.server.application.service.UserService
 import dev.drzepka.typing.server.application.service.UserSessionService
+import dev.drzepka.typing.server.application.util.clearUserSession
 import dev.drzepka.typing.server.application.util.getCurrentRegisteredUser
 import dev.drzepka.typing.server.application.util.getCurrentUser
 import dev.drzepka.typing.server.application.util.getRequiredIntParam
@@ -65,6 +66,7 @@ fun Route.userController() {
 
                 val user = getCurrentRegisteredUser(userRepository)
                 userService.deleteUser(user.id!!)
+                clearUserSession()
             }
 
             call.respond(HttpStatusCode.NoContent)

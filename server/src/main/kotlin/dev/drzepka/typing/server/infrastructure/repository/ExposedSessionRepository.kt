@@ -4,6 +4,7 @@ import dev.drzepka.typing.server.domain.entity.Session
 import dev.drzepka.typing.server.domain.repository.SessionRepository
 import dev.drzepka.typing.server.infrastructure.repository.table.Sessions
 import dev.drzepka.typing.server.infrastructure.util.NullableForeignKeyWrapper
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.update
@@ -27,6 +28,10 @@ class ExposedSessionRepository : SessionRepository {
         }
 
         return count > 0
+    }
+
+    override fun deleteByUserId(userId: Int): Int {
+        return Sessions.deleteWhere { Sessions.userId eq userId }
     }
 
     private fun sessionToRow(session: Session, stmt: UpdateBuilder<Int>) {

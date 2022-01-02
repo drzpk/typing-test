@@ -279,6 +279,11 @@ class ApiService {
         return axios.delete(`/api/users/${userId}`)
             .catch(errorHandler);
     }
+
+    deleteCurrentUser(): Promise<unknown> {
+        return axios.delete("/api/current-user")
+            .catch(errorHandler);
+    }
 }
 
 export default new ApiService();

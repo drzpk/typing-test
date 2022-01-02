@@ -11,6 +11,7 @@ import dev.drzepka.typing.server.domain.SearchQuery
 import dev.drzepka.typing.server.domain.SortingQuery
 import dev.drzepka.typing.server.domain.entity.User
 import dev.drzepka.typing.server.domain.entity.User.Companion.ADMIN_USER_EMAIL
+import dev.drzepka.typing.server.domain.repository.SessionRepository
 import dev.drzepka.typing.server.domain.repository.TestRepository
 import dev.drzepka.typing.server.domain.repository.TestResultRepository
 import dev.drzepka.typing.server.domain.repository.UserRepository
@@ -23,7 +24,8 @@ class UserService(
     private val hashService: HashService,
     private val userRepository: UserRepository,
     private val testRepository: TestRepository,
-    private val testResultRepository: TestResultRepository
+    private val testResultRepository: TestResultRepository,
+    private val sessionRepository: SessionRepository
 ) {
     private val log by Logger()
 
@@ -72,13 +74,21 @@ class UserService(
 
     fun deleteUser(userId: Int) {
         log.info("Deleting user {}", userId)
-        userRepository.findById(userId) ?: ErrorCode.USER_NOT_FOUND.throwException(userId)
+        val user = userRepository.findById(userId) ?: ErrorCode.USER_NOT_FOUND.throwException(userId)
+
+        if (user.isAdmin()) {
+            log.warn("An attempt was made to delete admin user {}", userId)
+            ErrorCode.CANNOT_DELETE_ADMIN_USER.throwException(userId)
+        }
 
         val deletedResults = testResultRepository.deleteByUserId(userId)
         log.info("Deleted {} test result of user {}", deletedResults, userId)
 
         val deletedTests = testRepository.deleteByUserId(userId)
         log.info("Deleted {} tests of user {}", deletedTests, userId)
+
+        val deletedSessions = sessionRepository.deleteByUserId(userId)
+        log.info("Deleted {} sessions of user {}", deletedSessions, userId)
 
         userRepository.delete(userId)
     }

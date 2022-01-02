@@ -10,6 +10,7 @@ import dev.drzepka.typing.server.application.service.UserService
 import dev.drzepka.typing.server.domain.Page
 import dev.drzepka.typing.server.domain.SortingQuery
 import dev.drzepka.typing.server.domain.entity.User
+import dev.drzepka.typing.server.domain.repository.SessionRepository
 import dev.drzepka.typing.server.domain.repository.TestRepository
 import dev.drzepka.typing.server.domain.repository.TestResultRepository
 import dev.drzepka.typing.server.domain.repository.UserRepository
@@ -27,12 +28,14 @@ class UserServiceTest : AbstractDatabaseTest() {
     private lateinit var userRepository: UserRepository
     private lateinit var testRepository: TestRepository
     private lateinit var testResultRepository: TestResultRepository
+    private lateinit var sessionRepository: SessionRepository
 
     @BeforeEach
     fun prepare() {
         userRepository = mock()
         testRepository = mock()
         testResultRepository = mock()
+        sessionRepository = mock()
     }
 
     @Test
@@ -135,6 +138,7 @@ class UserServiceTest : AbstractDatabaseTest() {
         verify(testResultRepository).deleteByUserId(eq(123))
         verify(testRepository).deleteByUserId(eq(123))
         verify(userRepository).delete(eq(123))
+        verify(sessionRepository).deleteByUserId(eq(123))
     }
 
     @Test
@@ -173,6 +177,6 @@ class UserServiceTest : AbstractDatabaseTest() {
     }
 
     private fun getService(): UserService {
-        return UserService(PBKDF2HashService(), userRepository, testRepository, testResultRepository)
+        return UserService(PBKDF2HashService(), userRepository, testRepository, testResultRepository, sessionRepository)
     }
 }

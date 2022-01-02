@@ -7,16 +7,21 @@
         <div class="update-button-wrapper">
             <b-button @click="changeDisplayName">Change</b-button>
         </div>
+
+        <div class="update-button-wrapper">
+            <DeleteAccount/>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
-    import {Component, Vue} from "vue-property-decorator";
-    import {AuthenticationDetails} from "@/models/user";
-    import {mapState} from "vuex";
-    import ApiService from "@/services/Api.service";
+import {Component, Vue} from "vue-property-decorator";
+import {AuthenticationDetails} from "@/models/user";
+import {mapState} from "vuex";
+import DeleteAccount from "@/views/settings/DeleteAccount.vue";
 
-    @Component({
+@Component({
+        components: {DeleteAccount},
         computed: mapState([
             "authenticationDetails"
         ])
@@ -46,6 +51,7 @@
 
     div.update-button-wrapper {
         text-align: right;
+        margin-bottom: 1em;
 
         .error {
             font-size: 0.8em;
