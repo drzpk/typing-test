@@ -48,10 +48,13 @@
 
                             <b-button-group>
                                 <b-button @click="saveButton">Save</b-button>
-                                <b-button v-b-modal:delete-test-definition-modal variant="danger">Delete</b-button>
+                                <b-button v-b-modal:delete-test-definition-modal v-show="isCreated" variant="danger">
+                                    Delete
+                                </b-button>
                             </b-button-group>
 
-                            <b-modal id="delete-test-definition-modal" title="Deletion of the word list" @ok="deleteButton">
+                            <b-modal id="delete-test-definition-modal" title="Deletion of the word list"
+                                     @ok="deleteButton">
                                 Are you sure you want to delete this test definition?
                             </b-modal>
                         </b-form>
