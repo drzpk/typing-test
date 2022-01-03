@@ -9,7 +9,7 @@ import dev.drzepka.typing.server.domain.exception.FixedTextTooShortException
 class FixedTextTooShortExceptionHandler : ExceptionHandler<FixedTextTooShortException> {
     override fun handle(exception: FixedTextTooShortException): HandlerResult {
         val additionalData = mapOf(
-            "testDefinitionId" to exception.testDefinitionId,
+            "testDefinition" to exception.testDefinition,
             "wordListId" to exception.wordListId,
             "length" to exception.length,
             "minimumLength" to exception.minimumLength

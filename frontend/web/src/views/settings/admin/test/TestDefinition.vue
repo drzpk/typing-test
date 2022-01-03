@@ -71,14 +71,14 @@ import ValidationHelperMixin from "@/mixins/ValidationHelperMixin";
 import {maxLength, required, requiredIf} from "vuelidate/lib/validators";
 import ValidationMessageManager from "@/views/shared/ValidationMessageManager.vue";
 import {mixins} from "vue-class-component";
-import ApiService from "@/services/Api.service";
 import {ValidationFailedError} from "@/models/error";
 import WordListWords from "@/views/settings/admin/word/WordListWords.vue";
-import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/test-definition";
+import {TestDefinitionModel} from "@/models/test-definition";
 import {mapGetters} from "vuex";
 import {WordListModel, WordListType} from "@/models/words";
 import {SelectOption} from "@/models/common";
 import Vue from "vue";
+import {TestDefinitionData} from "@/store/admin";
 
 const requiredIfDurationIsVariable = requiredIf((vm: any, parentVm?: Vue) => (parentVm as TestDefinition)?.model?.variableDuration == true);
 const positiveIfDurationIsVariable = (value: any, siblings: Model) => siblings.variableDuration || value > 0;
@@ -121,6 +121,10 @@ const positiveIfDurationIsVariable = (value: any, siblings: Model) => siblings.v
                 required: "Word list is required"
             }
         }
+    },
+    serverFieldNameMapping: {
+        name: "model.name",
+        duration: "model.duration"
     }
 })
 export default class TestDefinition extends mixins(ValidationHelperMixin) {
@@ -212,44 +216,35 @@ export default class TestDefinition extends mixins(ValidationHelperMixin) {
     }
 
     private createTestDefinition(): void {
-        const request: CreateUpdateTestDefinitionRequest = {
+        const data: TestDefinitionData = {
             name: this.model.name,
             duration: this.model.variableDuration ? null : this.model.duration,
-            wordListId: this.model.wordListId,
+            wordListId: this.model.wordListId!,
             isActive: this.model.isActive
         };
 
-        // Todo: move the API call into the store
-        ApiService.createTestDefinition(request)
+        this.$store.dispatch("createTestDefinition", data)
             .then(() => {
-                this.$store.dispatch("reloadTestDefinitions");
                 this.$router.push("/settings/admin");
             })
             .catch(error => {
                 if (error instanceof ValidationFailedError)
                     this.processValidationError(error);
-                else
-                    console.error(error);
             });
     }
 
     private updateTestDefinition(): void {
-        const request: CreateUpdateTestDefinitionRequest = {
+        const data: TestDefinitionData = {
             name: this.model.name,
             duration: this.model.variableDuration ? null : this.model.duration,
-            wordListId: this.model.wordListId,
+            wordListId: this.model.wordListId!,
             isActive: this.model.isActive
         };
 
-        ApiService.updateTestDefinition(this.currentTestDefinition!.id, request)
-            .then(() => {
-                this.$store.dispatch("reloadTestDefinitions");
-            })
+        this.$store.dispatch("updateTestDefinition", data)
             .catch(error => {
                 if (error instanceof ValidationFailedError)
                     this.processValidationError(error);
-                else
-                    console.error(error);
             });
     }
 }

@@ -34,6 +34,11 @@ class TestDefinitionService(private val configurationRepository: ConfigurationRe
         val textLength = wordList.text!!.toText().length
 
         if (textLength < minimumAcceptableLength)
-            throw FixedTextTooShortException(definition.id!!, wordList.id!!, textLength, minimumAcceptableLength)
+            throw FixedTextTooShortException(
+                definition.id?.toString() ?: definition.name,
+                wordList.id!!,
+                textLength,
+                minimumAcceptableLength
+            )
     }
 }

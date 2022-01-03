@@ -5,11 +5,18 @@ import {RootState} from "@/store/index";
 import {ExportedWords, ImportWordsRequest, WordListModel, WordListType, WordListWordsModel} from "@/models/words";
 import ApiService from "@/services/Api.service";
 import FileService from "@/services/File.service";
-import {TestDefinitionModel} from "@/models/test-definition";
+import {CreateUpdateTestDefinitionRequest, TestDefinitionModel} from "@/models/test-definition";
 import {SearchUsersRequest, SearchUsersResponse, UserModel} from "@/models/user";
 import {PagedRequest, PageMetadata} from "@/models/pagination";
 import {displayError, withPendingRequest} from "@/utils/store-utils";
 import {ErrorCode} from "@/models/error";
+
+export interface TestDefinitionData {
+    name: string;
+    duration: number | null;
+    wordListId: number;
+    isActive: boolean;
+}
 
 export interface CreateWordListData {
     name: string;
@@ -175,6 +182,36 @@ const adminModule: Module<AdminState, RootState> = {
             });
         },
 
+        createTestDefinition(context: ActionContext<any, any>, data: TestDefinitionData): Promise<unknown> {
+            const request: CreateUpdateTestDefinitionRequest = {
+                name: data.name,
+                duration: data.duration,
+                wordListId: data.wordListId,
+                isActive: data.isActive
+            };
+
+            return withPendingRequest("createTestDefinition", context, () => {
+                return ApiService.createTestDefinition(request);
+            }).then(() => {
+                return context.dispatch("reloadTestDefinitions");
+            });
+        },
+
+        updateTestDefinition(context: ActionContext<any, any>, data: TestDefinitionData) {
+            const request: CreateUpdateTestDefinitionRequest = {
+                name: data.name,
+                duration: data.duration,
+                wordListId: data.wordListId,
+                isActive: data.isActive
+            };
+
+            return withPendingRequest("updateTestDefinition", context, () => {
+                return ApiService.updateTestDefinition(context.state.currentTestDefinition!.id, request);
+            }).then(() => {
+                return context.dispatch("reloadTestDefinitions");
+            })
+        },
+
         setCurrentTestDefinition(context: ActionContext<any, any>, id: number) {
             let testDefinitionPromise: Promise<TestDefinitionModel>;
 
@@ -242,7 +279,6 @@ const adminModule: Module<AdminState, RootState> = {
                         }
                     }
 
-                    debugger;
                     displayError(context, ErrorCode.WORD_LIST_NOT_FOUND, `Word list with id ${id} wasn't found.`);
                     reject();
                 });

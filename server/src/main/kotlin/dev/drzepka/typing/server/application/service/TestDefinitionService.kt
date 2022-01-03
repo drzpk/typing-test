@@ -91,26 +91,30 @@ class TestDefinitionService(
 
     private fun validateCreateTestDefinition(request: CreateTestDefinitionRequest) {
         val state = ValidationState()
-        validateName(request.name, state)
+        validateName(request.name, state, true)
         if (request.duration != null)
             validateDuration(request.duration!!, state)
         validateWordListId(request.wordListId, state)
+
+        state.verify()
     }
 
     private fun validateUpdateTestDefinition(request: UpdateTestDefinitionRequest) {
         val state = ValidationState()
         if (request.name != null)
-            validateName(request.name!!, state)
+            validateName(request.name!!, state, false)
         if (request.duration != null)
             validateDuration(request.duration!!, state)
         if (request.wordListId != null)
             validateWordListId(request.wordListId!!, state)
+
+        state.verify()
     }
 
-    private fun validateName(name: String, state: ValidationState) {
+    private fun validateName(name: String, state: ValidationState, checkUniqueness: Boolean) {
         if (name.isEmpty())
             state.addFieldError("name", "Name cannot be empty.")
-        if (name.isNotEmpty() && testDefinitionRepository.findByName(name) != null)
+        if (checkUniqueness && name.isNotEmpty() && testDefinitionRepository.findByName(name) != null)
             state.addFieldError("name", "Test with this name already exists.")
     }
 
