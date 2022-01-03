@@ -8,6 +8,7 @@
                  ok-only
                  header-bg-variant="danger"
                  header-text-variant="light"
+                 size="lg"
                  @close="onModalClosed"
                  @ok="onModalClosed"
                  :title="title">
