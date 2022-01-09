@@ -31,7 +31,7 @@ const yesButtonTimeout = 5;
     computed: mapState(["authenticationDetails"])
 })
 export default class DeleteAccount extends Vue {
-    authenticationDetails: AuthenticationDetails | null;
+    authenticationDetails!: AuthenticationDetails | null;
 
     private yesButtonTitle = "Yes"
     private intervalId: number | null = null
