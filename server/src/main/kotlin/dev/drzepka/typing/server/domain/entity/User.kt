@@ -1,6 +1,7 @@
 package dev.drzepka.typing.server.domain.entity
 
 import dev.drzepka.typing.server.domain.util.Logger
+import java.time.Duration
 import java.time.Instant
 
 class User : AbstractEntity<Int>() {
@@ -21,6 +22,11 @@ class User : AbstractEntity<Int>() {
 
         log.info("Activating user {}", email)
         activatedAt = Instant.now()
+    }
+
+    fun getTestsPerDay(totalTests: Int, until: Instant = Instant.now()): Float {
+        val fullHours = Duration.between(createdAt, until).toHours().toFloat()
+        return totalTests / (fullHours / 24)
     }
 
     companion object {

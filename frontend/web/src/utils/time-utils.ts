@@ -12,3 +12,10 @@ export function formatDuration(durationSeconds: number): string {
 
     return result;
 }
+
+export function formatTime(timestampSeconds: number): string {
+    const date = new Date(timestampSeconds * 1000);
+    const dateString = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+    const timeString = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+    return `${dateString} ${timeString}`;
+}

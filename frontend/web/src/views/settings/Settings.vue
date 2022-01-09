@@ -14,6 +14,21 @@
                             <b-form-input id="email-address" disabled
                                           :value="authenticationDetails.email"></b-form-input>
                         </b-form-group>
+
+                        <b-form-group label-cols="3" label-for="registration-date" label="Registration date">
+                            <b-form-input id="registration-date" disabled
+                                          :value="registrationDate"></b-form-input>
+                        </b-form-group>
+
+                        <b-form-group label-cols="3" label-for="completed-tests" label="Completed tests">
+                            <b-form-input id="completed-tests" disabled
+                                          :value="completedTests"></b-form-input>
+                        </b-form-group>
+
+                        <b-form-group label-cols="3" label-for="tests-per-day" label="Tests per day">
+                            <b-form-input id="tests-per-day" disabled
+                                          :value="testsPerDay"></b-form-input>
+                        </b-form-group>
                     </b-card>
 
                     <b-card title="Test statistics">
@@ -42,7 +57,9 @@ import {Component, Vue} from "vue-property-decorator";
 import AccountSettings from "@/views/settings/AccountSettings.vue";
 import PasswordChangeSettings from "@/views/settings/PasswordChangeSettings.vue";
 import {mapGetters, mapState} from "vuex";
-import {AuthenticationDetails} from "@/models/user";
+import {AuthenticationDetails, GlobalStats} from "@/models/user";
+import {formatTime} from "@/utils/time-utils";
+import ApiService from "@/services/Api.service";
 
 @Component({
     components: {
@@ -61,6 +78,30 @@ import {AuthenticationDetails} from "@/models/user";
 export default class Settings extends Vue {
     authenticationDetails!: AuthenticationDetails
     pendingRequest!: boolean;
+
+    globalStats: GlobalStats | null = null;
+
+    get registrationDate(): string {
+        return formatTime(this.authenticationDetails.createdAt);
+    }
+
+    get completedTests(): string {
+        if (this.globalStats != null)
+            return this.globalStats.completedTests.toString();
+        else
+            return "";
+    }
+
+    get testsPerDay(): string {
+        if (this.globalStats != null)
+            return (Math.floor(this.globalStats.testsPerDay * 100 + 0.5) / 100).toString();
+        else
+            return "";
+    }
+
+    mounted(): void {
+        ApiService.getUserGlobalStats().then(stats => this.globalStats = stats);
+    }
 }
 </script>
 

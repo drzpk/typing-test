@@ -34,6 +34,15 @@ fun Route.userController() {
             call.respond(dto)
         }
 
+        get("/global-stats") {
+            val stats = transaction {
+                val user = getCurrentRegisteredUser(userRepository)
+                userService.getGlobalStats(user)
+            }
+
+            call.respond(stats)
+        }
+
         put("/update-settings") {
             val request = call.receive<UpdateAccountSettingsRequest>()
 

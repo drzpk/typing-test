@@ -3,6 +3,7 @@ package dev.drzepka.typing.server.application.dto.user
 import dev.drzepka.typing.server.domain.entity.User
 import java.time.Instant
 
+@Suppress("unused")
 class UserResource(
     var id: Int,
     var email: String,

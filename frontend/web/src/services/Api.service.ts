@@ -2,6 +2,7 @@ import axios, {AxiosError, AxiosRequestConfig} from "axios";
 import {
     AuthenticationDetails,
     ChangePasswordRequest,
+    GlobalStats,
     SearchUsersRequest,
     SearchUsersResponse,
     UpdateSettingsRequest
@@ -54,6 +55,11 @@ class ApiService {
 
     getAuthenticationDetails(): Promise<AuthenticationDetails> {
         return axios.get("/api/current-user/authentication-details").then((response) => response.data)
+            .catch(errorHandler);
+    }
+
+    getUserGlobalStats(): Promise<GlobalStats> {
+        return axios.get("/api/current-user/global-stats").then(response => response.data)
             .catch(errorHandler);
     }
 

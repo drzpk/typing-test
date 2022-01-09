@@ -35,6 +35,15 @@ class UserService(
         }
     }
 
+    fun getGlobalStats(user: User): UserGlobalStatsResource {
+        val completedTests = testResultRepository.count(user.id!!, null)
+
+        return UserGlobalStatsResource(
+            completedTests,
+            user.getTestsPerDay(completedTests)
+        )
+    }
+
     fun createUser(request: CreateUserRequest): UserResource {
         return UserResource.fromEntity(doCreateUser(request))
     }

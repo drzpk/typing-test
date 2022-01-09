@@ -4,8 +4,14 @@ export interface AuthenticationDetails {
     userId: number;
     email: string;
     displayName: string;
+    createdAt: number;
     isAdmin: boolean;
     isAnonymous: boolean;
+}
+
+export interface GlobalStats {
+    completedTests: number;
+    testsPerDay: number;
 }
 
 export interface UpdateSettingsRequest {

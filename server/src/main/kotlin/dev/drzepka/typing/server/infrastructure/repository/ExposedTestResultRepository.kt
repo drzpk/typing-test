@@ -48,11 +48,14 @@ class ExposedTestResultRepository(private val testRepository: TestRepository) : 
         return TestResults.deleteWhere { TestResults.id inSubQuery testSubQuery }
     }
 
-    override fun count(userId: Int?, testDefinitionId: Int): Int {
+    override fun count(userId: Int?, testDefinitionId: Int?): Int {
         val countExpression = TestResults.id.count()
-        var where = Tests.testDefinition eq testDefinitionId
+        var where: Op<Boolean> = Op.TRUE
+
         if (userId != null)
             where = where and (Tests.user eq userId)
+        if (testDefinitionId != null)
+            where = where and (Tests.testDefinition eq testDefinitionId)
 
         val result = Tests.innerJoin(TestResults, { Tests.id }, { TestResults.id })
             .slice(countExpression)
