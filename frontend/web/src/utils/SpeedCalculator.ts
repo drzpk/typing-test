@@ -14,6 +14,11 @@ export default class SpeedCalculator {
 
     calculateSpeed(): number {
         const testDurationMinutes = (new Date().getTime() - this.testStartTime) / 1000 / 60;
+        if (testDurationMinutes <= 0) {
+            // Clocks on client and server may not be perfectly in sync, so discart negative values
+            return 0;
+        }
+
         return this.getTotalCorrectKeyStrokes() / testDurationMinutes / WordService.getCharactersPerWord();
     }
 

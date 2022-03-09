@@ -88,7 +88,8 @@ export default class SpeedGauge extends Vue {
         this.speedCalculator.selectedWords = this.activeTest?.selectedWords.split("|") || [];
         this.speedCalculator.enteredWords = this.enteredWords;
 
-        const speed = this.speedCalculator.calculateSpeed();
+        let speed = this.speedCalculator.calculateSpeed();
+        speed = Math.min(MAX_SPEED, Math.max(MIN_SPEED, speed));
         this.gaugePercentageValue = Math.floor(speed / MAX_SPEED * 1000) / 10;
     }
 }
